@@ -6,9 +6,9 @@ print(os.getcwd())
 url = 'http://localhost:8000/pdfsubmit'
 
 
-filepath = "./requirements.txt"
+filepath = "./1.pdf"
 
-with open("./requirements.txt", "rb") as fobj:
+with open("./1.pdf", "rb") as fobj:
     file_obj = fobj.read()
     file_basename = os.path.basename(filepath)
     file_to_upload = {"file": (str(file_basename), file_obj)}
