@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from starlette.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, File, UploadFile
 from typing import Union
@@ -21,6 +21,11 @@ app.add_middleware(
 async def root():
     return "Hello, welcome to Parsyll!"
 
+
 @app.post("/pdfsubmit")
-async def get_pdf(file: UploadFile):
-    print("joe mama")
+async def upload_file(file: UploadFile):
+    #useful links: 
+    # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
+    # https://fastapi.tiangolo.com/tutorial/request-files/
+
+    return {"filename": file.filename}
