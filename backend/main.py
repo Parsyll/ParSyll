@@ -1,5 +1,15 @@
+import pyrebase
+import json
+import firebase_admin
+
+from firebase_admin import credentials
 from fastapi import FastAPI, UploadFile, File
 from starlette.middleware.cors import CORSMiddleware
+
+cred = credentials.Certificate("service_account.json")
+firebase_admin.initialize_app(cred)
+config = json.load(open('firebase_config.json'))
+pb = pyrebase.initialize_app(config)
 
 app = FastAPI()
 
