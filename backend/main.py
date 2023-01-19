@@ -1,5 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, File, UploadFile
+from typing import Union
 
 app = FastAPI()
 
@@ -9,11 +11,12 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware, 
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=['GET', 'POST'],
     allow_headers=['Content-Type', 'application/xml', "application/pdf", "multipart/form-data"],
 )
+
 @app.get("/")
 async def root():
     return "Hello, welcome to Parsyll!"
