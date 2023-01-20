@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 
-export default function DashboardAppBar({setView, loggedIn}) {
+export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
 
   const handlePdfParseButton = (e) => {
     e.preventDefault();
@@ -23,6 +23,12 @@ export default function DashboardAppBar({setView, loggedIn}) {
   const handleCourseMenuButton = (e) => {
     e.preventDefault();
     setView(0);
+  }
+
+  const handleLogOutLogic = (e) => {
+    e.preventDefault();
+    setView(2);
+    handleSetLogin(false);
   }
 
 
@@ -59,7 +65,7 @@ export default function DashboardAppBar({setView, loggedIn}) {
           {loggedIn ?
           <Box sx={{display:'flex'}}>
             <Button color="inherit" onClick={handlePdfParseButton}> Parse PDF </Button>
-            <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+            <Button color="inherit" onClick={handleLogOutLogic}> Log Out </Button>
           </Box>:
           <Box>
             <Button color="inherit" onClick={handleLoginButton}> Login </Button>
