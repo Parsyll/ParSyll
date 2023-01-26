@@ -15,7 +15,8 @@ export const PdfViewer = ({pdfFile}) => {
   }
   return (
     <Container maxWidth="lg">
-        <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}>
+        <Document file={pdfFile} onLoadSuccess={onDocumentLoadSuccess}
+        pageLayout="oneColumn">
             <Page pageNumber={1} 
             renderAnnotationLayer={false}
             renderTextLayer={false}/>

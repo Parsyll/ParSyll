@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import PdfViewer from './PdfViewer'
-import axios from "axios";
 import Button from '@mui/material/Button';
+import UploadPdfButton from './UploadPdfButton'
 
 export const PdfUploader = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfFileError, setPdfFileError] = useState("");
+  const [openPdf, setOpenPdf] = useState(false);
+
   const fileType = ["application/pdf"];
 
   const handlePdfFileChange = (e) => {
@@ -13,6 +14,7 @@ export const PdfUploader = () => {
     if (selectedFile) {
       if (selectedFile && fileType.includes(selectedFile.type)) {
         setPdfFile(selectedFile);
+        setOpenPdf(true);
         setPdfFileError("");
       } else {
         setPdfFile(null);
@@ -23,65 +25,31 @@ export const PdfUploader = () => {
     }
   };
 
-  const ref = useRef();
-
-  const handleSendPdf = (e) => {
-    e.preventDefault();
-    if(pdfFile) {
-      var formData = new FormData();
-      var headers = {'Content-Type': 'multipart/form-data'};
-      formData.append('file', pdfFile);
-      axios
-        .post("http://127.0.0.1:8000/pdfsubmit", formData, headers)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.error(err.response);
-        });
-        setPdfFile(null);
-    }
-    ref.current.value = "";
-  }
-
+  // const ref = useRef();
 
   return (
     <div>
-      <br></br>
       <form className="form-group">
         <input
           type="file"
           className="form-control"
           required
-          ref = {ref}
+          // ref = {ref}
           onClick = {e => (e.target.value = null)}
           onChange={handlePdfFileChange}
         />
         {pdfFileError && <div className="error-msg">{pdfFileError}</div>}
         <br></br>
         {pdfFile? 
-          <Button variant="contained" color="success" 
-            size="large" 
-            onClick={handleSendPdf}> UPLOAD
-          </Button> :
+          <UploadPdfButton openPdf={openPdf} setOpenPdf={setOpenPdf} pdfFile={pdfFile} setPdfFile={setPdfFile}/>:
 
           <Button variant="contained" color="error" 
             size="large"
             disabled
-          > UPLOAD
+          > UPLOAD PDF
           </Button> 
         }
       </form>
-
-      <br></br>
-
-      {pdfFile? 
-      <div>
-        <h4>View PDF</h4>
-        <PdfViewer pdfFile={pdfFile} /> 
-      </div> : ""
-      }
-
     </div>
   );
 };
