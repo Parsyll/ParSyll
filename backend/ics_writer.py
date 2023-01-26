@@ -1,25 +1,35 @@
 from pdf_parser import parse_gpt
 from ics import Calendar, Event
 from datetime import date
+from datetime import datetime
 
-# get today's date and add events for today's week and onwards
-today = date.today() # "2023-01-24"
+# get current datetime
+dt = datetime.now()
+print('Datetime is:', dt)
 
-response = parse_gpt('./etc/ie335_syllabus.pdf', 'prompts/class_timings2.txt')
+# get day of week as an integer
+x = dt.weekday()
+print('Day of a week is:', x)
 
-# TODO: at the moment, not setting latitude and longitude of location, adding location along
-# with event name
+DAYS_OF_WEEK = ["MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2, 
+                "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6]
+                
+# response = parse_gpt('./etc/ie335_syllabus.pdf', 'prompts/class_timings2.txt')
+# print(response)
+# print(type(response))
+# # TODO: at the moment, not setting latitude and longitude of location, adding location along
+# # with event name
 
-c = Calendar()
-e = Event()
-e.name = f"{response['courseNum'](response['location'])}" #course number (location)
-e.begin = '2023-01-01 00:00:00'
-e.end = '2023-01-01 10:00:00'
-c.events.add(e)
-c.events
-# [<Event 'My cool event' begin:2014-01-01 00:00:00 end:2014-01-01 00:00:01>]
-with open('my.ics', 'w') as my_file:
-    my_file.writelines(c.serialize_iter())
-# and it's done !
+# c = Calendar()
+# e = Event()
+# e.name = f"{response[0]} ({response[3]})" #course number (location)
+# e.begin = '2023-01-01 00:00:00'
+# e.end = '2023-01-01 10:00:00'
+# c.events.add(e)
+# c.events
+# # [<Event 'My cool event' begin:2014-01-01 00:00:00 end:2014-01-01 00:00:01>]
+# with open('my.ics', 'w') as my_file:
+#     my_file.writelines(c.serialize_iter())
+# # and it's done !
 
 

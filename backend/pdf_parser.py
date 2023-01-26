@@ -13,7 +13,9 @@ def parse_gpt(pdfFile, promptFile):
         page_text = page.extract_text()
         # print(page_text)
     
-        openai.api_key = os.getenv("OPENAI_API_KEY")
+        # openai.api_key = os.getenv("OPENAI_API_KEY")
+        openai.api_key = "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"
+
 
         with open(promptFile, 'r') as file:
             prompt_text = file.read().replace('\n', '')
@@ -31,6 +33,7 @@ def parse_gpt(pdfFile, promptFile):
 
     print(response.choices[0].text)
     pdf_file.close()
+    return (response.choices[0].text.split(','))
 
 
 
