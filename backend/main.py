@@ -34,16 +34,31 @@ app.add_middleware(
 
 
 # signup endpoint
-@app.post("/signup", include_in_schema=False)
-async def signup(request: Request):
+@app.post("/create_user")
+async def create_user_from_auth(request: Request):
     req = await request.json()
-    uid = req['uid']
-    doc_ref = db.collection(u'users').document(u'{}'.format(uid))
-    doc_ref.set({
-        u'Name': u'Ada',
-        u'last': u'Lovelace',
-        u'born': 1815
-    })
+    try:
+        uid = req['uid']
+        user = auth.get_user(uid)
+        print('Successfully fetched user data: {0}'.format(user.uid))
+        doc_ref = db.collection(u'users').document(str(uid))
+        doc_ref.set({
+            'uid': user.uid,
+            'username': user.display_name,
+            'email': user.email,
+            'school': None,
+            'courses': None
+        })
+
+    except KeyError:
+        raise HTTPException(400, detail="uid not found")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(500, detail="Something went wrong")
+
+    return "User added to database"
+
 
 # root endpoint
 @app.get("/")
