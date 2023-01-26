@@ -1,0 +1,5 @@
+The previous text was taken from a page of a college course syllabus.
+Return the course number, in person (synchronous) class timings, days of the week and location in a python dict format. 
+
+Give only this information, no other wording or explanation please. 
+If no class timings were found then return a string with only a 0 (no dict)

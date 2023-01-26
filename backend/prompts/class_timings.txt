@@ -1,0 +1,11 @@
+The previous text was taken from a page of a college course syllabus.
+Return the course number, in person (synchronous) class timings, days of the week and location in a python dict format. 
+
+Sample Input: ECE20001 lectures will take place on T and Th at 4:30 - 5:30pm in the EE317 building.
+Sample Output: 
+{
+     "courseNumber": "ECE20001",
+     "classInfo": [(Tuesday, 4:30-5:30pm, EE317), (Thursday, 4:30-5:30pm, EE317)]
+}
+Give only this information, no other wording or explanation please. 
+If no class timings were found then return a string with only a 0 (no dict)
