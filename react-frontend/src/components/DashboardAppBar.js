@@ -7,27 +7,12 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
+import { Navigate, Link } from 'react-router-dom';
 
 export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
 
-  const handlePdfParseButton = (e) => {
-    e.preventDefault();
-    setView(1);
-  }
-  
-  const handleLoginButton = (e) => {
-    e.preventDefault();
-    setView(2);
-  }
-  
-  const handleCourseMenuButton = (e) => {
-    e.preventDefault();
-    setView(0);
-  }
-
   const handleLogOutLogic = (e) => {
     e.preventDefault();
-    setView(2);
     handleSetLogin(false);
   }
 
@@ -43,7 +28,7 @@ export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
               color="inherit"
               aria-label="menu"
               sx={{ mr: 2 }}
-              onClick={loggedIn? handleCourseMenuButton : handleLoginButton}
+              component={Link} to="/courses"
             >
               <MenuIcon />
             </IconButton> :
@@ -64,11 +49,14 @@ export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
           </Typography>
           {loggedIn ?
           <Box sx={{display:'flex'}}>
-            <Button color="inherit" onClick={handlePdfParseButton}> Parse PDF </Button>
+            <Button color="inherit"
+              component={Link} to="/"> 
+              Parse PDF 
+            </Button>
             <Button color="inherit" onClick={handleLogOutLogic}> Log Out </Button>
           </Box>:
           <Box>
-            <Button color="inherit" onClick={handleLoginButton}> Login </Button>
+            <Button color="inherit"> Login </Button>
           </Box>}
         </Toolbar>
       </AppBar>
