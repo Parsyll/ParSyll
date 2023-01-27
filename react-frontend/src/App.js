@@ -21,7 +21,7 @@ export const App = () => {
   }
 
   return (
-    <Box>
+    <div className="w-full">
       <BrowserRouter>
         <DashboardAppBar setView={handleSetView} loggedIn={loggedIn} handleSetLogin={handleSetLogin}/>
         <Routes>
@@ -41,7 +41,7 @@ export const App = () => {
           } />
         </Routes>
       </BrowserRouter>
-    </Box>
+    </div>
   );
 }
 

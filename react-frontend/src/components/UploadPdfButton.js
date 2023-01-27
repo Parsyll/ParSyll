@@ -20,6 +20,7 @@ const style = {
 export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
   const handleCloseModal = (e) => {
     e.preventDefault();
+    setPdfFile(null);
     setOpenPdf(false);
   }
 
@@ -44,7 +45,7 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
 
   return (
     <div>
-      <Button>UPLOAD PDF</Button>
+      <Button hidden>UPLOAD PDF</Button>
       <Modal
         open={openPdf}
         onClose={handleCloseModal}
@@ -52,8 +53,8 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <PdfViewer pdfFile={pdfFile} />
-          <Button onClick={handleSendPdf}>Parse PDF</Button>
+          <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf}/>
+          {/* <Button onClick={handleSendPdf}>Parse PDF</Button> */}
         </Box>
       </Modal>
     </div>
