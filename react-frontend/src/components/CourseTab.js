@@ -4,6 +4,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import LoginPage from '../pages/LoginPage';
+import SignUpPage from '../pages/SignUpPage';
 
 function TabPanel(props) { const { children, value, index, ...other } = props;
   return (
@@ -45,7 +47,7 @@ export default function CourseTab() {
 
   return (
     <Box
-      sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex'}}
+      sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width:'w-full'}}
     >
       <Tabs
         orientation="vertical"
@@ -64,10 +66,10 @@ export default function CourseTab() {
         <Tab label="Item Seven" {...a11yProps(6)} />
       </Tabs>
       <TabPanel value={value} index={0}>
-        Da baby
+        <LoginPage />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        Item Two
+        <SignUpPage />
       </TabPanel>
       <TabPanel value={value} index={2}>
         Item Three
