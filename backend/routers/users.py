@@ -10,6 +10,31 @@ router = APIRouter(
     tags=["users"]
 )
 
+# FOR TESTING PURPOSES ONLY
+@router.post("/add_dummy_users")
+async def get_all_users():
+
+    num_dummy_users = 10
+
+    for i in range(num_dummy_users):
+        email = f'user{i}@example.com'
+        username = f'USER{i}'
+
+        user = auth.create_user(
+            email=email,
+            email_verified=False,
+            password='secretPassword',
+            display_name=username,
+            disabled=False
+            )
+        
+        create_user(user.uid, username, email)
+
+        print('Sucessfully created new user: {0}'.format(user.uid))
+    
+    return f'Added {num_dummy_users} dummy users'
+
+
 # Retrieve users endpoints
 @router.get("/")
 async def get_all_users():
@@ -39,14 +64,7 @@ async def create_user_from_auth(uid: str):
     try:
         user = auth.get_user(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
-        doc_ref = db.collection(u'users').document(user.uid)
-        doc_ref.set({
-            'uid': user.uid,
-            'username': user.display_name,
-            'email': user.email,
-            'school': None,
-            'courses': None
-        })
+        create_user(user.uid, user.display_name, user.email)
     
     except auth.UserNotFoundError:
         raise HTTPException(404, detail="User not found")
@@ -62,14 +80,7 @@ async def create_user_from_auth(uid: str):
 async def map_users_from_auth():
     try: 
         for user in auth.list_users().iterate_all():
-            doc_ref = db.collection(u'users').document(user.uid)
-            doc_ref.set({
-                'uid': user.uid,
-                'username': user.display_name,
-                'email': user.email,
-                'school': None,
-                'courses': None
-            })
+            create_user(user.uid, user.display_name, user.email)
         
     except Exception as e:
         print(f"Error: {e}")
@@ -100,6 +111,19 @@ async def delete_all_users():
     delete_collection(user_collection, 1000)
 
     return "Deleted all users from auth and firestore"
+
+
+# Helper functions
+def create_user(uid, username, email):
+    doc_ref = db.collection(u'users').document(uid)
+    doc_ref.set({
+        'uid': uid,
+        'username': username,
+        'email': email,
+        'syllabus': None,
+        'school': None,
+        'courses': None
+    })
 
 def delete_collection(coll_ref, batch_size):
     docs = coll_ref.list_documents(page_size=batch_size)

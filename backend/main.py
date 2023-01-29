@@ -26,15 +26,6 @@ app.add_middleware(
 async def root():
     return "Hello, welcome to Parsyll!"
 
-# pdf submission endpoint
-@app.post("/pdfsubmit")
-async def upload_file(file: UploadFile):
-    #useful links: 
-    # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
-    # https://fastapi.tiangolo.com/tutorial/request-files/
-
-    return {"filename": file.filename}
-
 if __name__ == "__main__":
    uvicorn.run("main:app")
 
