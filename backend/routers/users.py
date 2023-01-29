@@ -1,24 +1,14 @@
-import firebase_admin
-import pyrebase
-import json
-
 from fastapi import APIRouter, Request
-from firebase_admin import credentials, auth, firestore
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
 from models.model import User
+from database import db, auth
 
 router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
-
-cred = credentials.Certificate("service_account.json")
-firebase_admin.initialize_app(cred)
-config = json.load(open('firebase_config.json'))
-pb = pyrebase.initialize_app(config)
-db = firestore.client()
 
 # Retrieve users endpoints
 @router.get("/")
