@@ -3,9 +3,11 @@ import uvicorn
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from routers import users
+from routers import pdfs
 
 app = FastAPI()
 app.include_router(users.router)
+app.include_router(pdfs.router)
 
 origins = [
     "http://localhost:3001"

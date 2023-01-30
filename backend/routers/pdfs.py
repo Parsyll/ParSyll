@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request, UploadFile
+from fastapi import APIRouter, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from database import db, auth
+from database import db, auth, bucket
 
 router = APIRouter(
     prefix="/pdfs",
@@ -16,5 +16,11 @@ async def upload_file(file: UploadFile):
     # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
     # https://fastapi.tiangolo.com/tutorial/request-files/
 
-    return {"filename": file.filename}
+    file_contents = await file.read()
 
+    blob = bucket.blob(file.filename)
+    # blob.content_type = file.content_type
+    blob.metadata = {'Content-Type': file.content_type}
+    blob.upload_from_string(file_contents, content_type=file.content_type)
+
+    return {"filename": file.filename}
