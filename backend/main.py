@@ -1,27 +1,32 @@
-from fastapi import FastAPI, UploadFile, File
-from starlette.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, File, UploadFile
-from typing import Union
+import uvicorn
+ 
+from fastapi import FastAPI, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from routers import users
 
 app = FastAPI()
+app.include_router(users.router)
 
 origins = [
     "http://localhost:3001"
 ]
 
+allow_all = ['*']
 app.add_middleware(
-    CORSMiddleware, 
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=['GET', 'POST'],
-    allow_headers=['Content-Type', 'application/xml', "application/pdf", "multipart/form-data"],
+   CORSMiddleware,
+   allow_origins=allow_all,
+   allow_credentials=True,
+   allow_methods=allow_all,
+   allow_headers=allow_all
 )
 
+
+# root endpoint
 @app.get("/")
 async def root():
     return "Hello, welcome to Parsyll!"
 
-
+# pdf submission endpoint
 @app.post("/pdfsubmit")
 async def upload_file(file: UploadFile):
     #useful links: 
@@ -29,3 +34,10 @@ async def upload_file(file: UploadFile):
     # https://fastapi.tiangolo.com/tutorial/request-files/
 
     return {"filename": file.filename}
+
+if __name__ == "__main__":
+   uvicorn.run("main:app")
+
+
+
+

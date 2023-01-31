@@ -1,2 +1,7 @@
 .env
 /wandb
+/firebase_config.json
+/service_account.json
+__pycache__/
+.env
+test.py
