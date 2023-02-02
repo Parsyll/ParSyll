@@ -22,5 +22,8 @@ async def upload_file(file: UploadFile):
     # blob.content_type = file.content_type
     blob.metadata = {'Content-Type': file.content_type}
     blob.upload_from_string(file_contents, content_type=file.content_type)
+    print(blob.public_url)
+    print(dir(blob))
+    # To link with users i guess we just put the public URL into firestore
 
     return {"filename": file.filename}
