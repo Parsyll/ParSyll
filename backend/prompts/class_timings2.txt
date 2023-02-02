@@ -1,0 +1,4 @@
+The previous text was taken from a page of a college course syllabus.
+Return the two letter course initials with course number (not course name), in person (synchronous) class timing start time with specification of am/pm, duration of lecture in minutes, days of the week(full word not short form) and location in that order in csv format
+Give only this information, no other wording or explanation please. 
+If no class timings were found then return a string with only a 0 (no dict)
