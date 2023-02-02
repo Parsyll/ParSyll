@@ -13,6 +13,7 @@ origins = [
     "http://localhost:3001"
 ]
 
+
 allow_all = ['*']
 app.add_middleware(
    CORSMiddleware,
