@@ -73,7 +73,7 @@ async def create_user_from_auth(uid: str):
         print(f"Error: {e}")
         raise HTTPException(500, detail="Something went wrong")
 
-    return "User added to database"
+    return f"User {uid} added to database"
 
 
 @router.post("/auth_map")
