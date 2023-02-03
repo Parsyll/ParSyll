@@ -24,7 +24,7 @@ async def get_file(file_id: str):
         file_ext = mimetypes.guess_extension(blob.content_type)
         filename += file_ext
 
-    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": "attachment;filename=test.pdf"})
+    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
 
 
 # user download file (should only allow download for files associated with user)
