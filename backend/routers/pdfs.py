@@ -34,11 +34,47 @@ async def get_file(file_id: str):
 async def user_upload_file(uid: str, file: UploadFile):
     # To link with users i guess we just put the public URL into firestore
     try:
-        pass
-    
+        user = auth.get_user(uid)
+        user_doc_ref = db.collection(u'users').document(user.uid)
+        user_doc = user_doc_ref.get()
+
+        if not user_doc.exists:
+            pass #some error handling
+
+        file_contents = await file.read() 
+        file_id = uuid4()
+        blob = bucket.blob(str(file_id))
+        blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
+        blob.upload_from_string(file_contents, content_type=file.content_type)
+
+        # get user's current syllabus list
+        user_syllabus_ref = user_doc_ref.get(field_paths={'syllabus'})
+        user_syllabus_dict = user_syllabus_ref.to_dict()
+        print(user_syllabus_dict)
+
+        if user_syllabus_dict and 'syllabus' in user_syllabus_dict and user_syllabus_dict['syllabus']:
+            user_syllabus_list = user_syllabus_dict['syllabus']
+        else:
+            user_syllabus_list = []
+
+        print(user_syllabus_list)
+        user_syllabus_list.append(str(file_id))
+
+        # update to user syllabus
+        user_doc_ref.update({
+            u'syllabus': user_syllabus_list
+        })
+
+        
+
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User {uid} not found")
+
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(500, detail="Something went wrong")
+    
+    return f"Uploaded {file.filename} for user {user.uid}"
 
 
 # pdf submission endpoint
