@@ -80,7 +80,10 @@ async def create_user_from_auth(uid: str):
 async def map_users_from_auth():
     try: 
         for user in auth.list_users().iterate_all():
-            create_user(user.uid, user.display_name, user.email)
+            user_doc = db.collection(u'users').document(user.uid).get()
+            if not user_doc.exists:
+                print(user.uid)
+                create_user(user.uid, user.display_name, user.email)
         
     except Exception as e:
         print(f"Error: {e}")
@@ -120,9 +123,9 @@ def create_user(uid, username, email):
         'uid': uid,
         'username': username,
         'email': email,
-        'syllabus': None,
-        'school': None,
-        'courses': None
+        'syllabus': [],
+        'school': [],
+        'courses': []
     })
 
 def delete_collection(coll_ref, batch_size):
