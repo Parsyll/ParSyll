@@ -10,7 +10,7 @@ import { BrowserRouter, Route, Routes, Navigate, useParams } from 'react-router-
 
 export const App = () => {
   const [view, setView] = useState(2);
-  const [loggedIn, setLoggedIn] = useState(true);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const handleSetView = (number) => {
     setView(number);

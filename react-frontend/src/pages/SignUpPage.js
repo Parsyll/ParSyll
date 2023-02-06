@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {useState} from 'react';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -8,6 +9,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -18,14 +20,34 @@ import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPasswo
 const theme = createTheme();
 
 export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("")
+  const [name, setName] = useState("")
 
-  const handleSignUpFunction = (event) => {
+  const handlePasswordChange = (e) => {
+    e.preventDefault()
+    setPassword(e.target.value)
+  }
+
+  const handleEmailChange = (e) => {
+    e.preventDefault()
+    setEmail(e.target.value)
+  }
+
+  const handleNameChange = (e) => {
+    e.preventDefault()
+    setName(e.target.value)
+  }
+
+  const handleSignUpFunction = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     var email = data.get('email');
     var password = data.get('password');
     var name = data.get('name')
-    if (registerWithEmailAndPassword(name,email, password)) {
+    var res = await registerWithEmailAndPassword(name,email, password);
+    console.log(res)
+    if (res) {
         handleSetLogin(true)
     }
   };
@@ -33,7 +55,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
   const handleGoogleSignIn = async (e) => {
     e.preventDefault()
     var res = await signInWithGoogle()
-
+    console.log(res)
     if (res == true) {
         handleSetLogin(true)
     }
@@ -74,6 +96,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
             </Typography>
             <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSignUpFunction}>
                 <TextField
+                    onChange={handleNameChange}
                     margin="normal"
                     required
                     fullWidth
@@ -83,6 +106,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     autoFocus
                 />
                 <TextField
+                    onChange={handleEmailChange}
                     margin="normal"
                     required
                     fullWidth
@@ -92,6 +116,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     autoComplete="email"
                 />
                 <TextField
+                    onChange={handlePasswordChange}
                     margin="normal"
                     required
                     fullWidth
@@ -105,14 +130,31 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
                 />
-                <Button
-                    type="submit"
-                    fullWidth
-                    variant="contained"
-                    sx={{ mt: 3, mb: 2 }}
-                >
-                    Sign Up
-                </Button>
+                {password && password.length < 6 ? 
+                <Alert severity="error">Password should be 6 characters long</Alert>:
+                ""}
+                {password.length >= 6 ? 
+                
+                  <Button
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                  >
+                      Sign Up
+                  </Button>
+                :
+                  <Button
+                      disabled
+                      type="submit"
+                      fullWidth
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2 }}
+                  >
+                      Sign Up
+                  </Button>
+                }
+
               <Button
                 fullWidth
                 variant="contained"
