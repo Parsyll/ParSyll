@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Request, UploadFile, File, Form
+from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from database import db, auth, bucket
+from auth.auth_bearer import JWTBearer
 
 router = APIRouter(
     prefix="/pdfs",
@@ -10,7 +11,7 @@ router = APIRouter(
 
 
 # pdf submission endpoint
-@router.post("/submit")
+@router.post("/submit", dependencies=[Depends(JWTBearer())])
 async def upload_file(file: UploadFile):
     #useful links: 
     # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without

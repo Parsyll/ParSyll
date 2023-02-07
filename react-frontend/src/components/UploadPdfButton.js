@@ -6,6 +6,12 @@ import Modal from '@mui/material/Modal';
 import PdfViewer from './PdfViewer';
 import axios from 'axios';
 
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem("jwt-token");
+  config.headers["Authorization"] = `Bearer ${token}`;
+  return config;
+});
+
 const style = {
   position: 'absolute',
   top: '50%',
@@ -24,14 +30,14 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
     setOpenPdf(false);
   }
 
-  const handleSendPdf = (e) => {
+  const handleSendPdf = async (e) => {
     e.preventDefault();
     if(pdfFile) {
       var formData = new FormData();
       var headers = {'Content-Type': 'multipart/form-data'};
       formData.append('file', pdfFile);
-      axios
-        .post("http://127.0.0.1:8000/pdfsubmit", formData, headers)
+      await axios
+        .post("http://127.0.0.1:8000/pdfs/submit", formData, headers)
         .then((res) => {
           console.log(res);
         })

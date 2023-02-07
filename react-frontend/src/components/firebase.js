@@ -33,23 +33,13 @@ const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
-    axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
+    console.log(user)
+    await axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
       (res) => {
-        console.log(res);
+        console.log(res.data['access_token']);
+        localStorage.setItem("jwt-token", res.data['access_token'])
       }
     )
-
-    // const q = query(collection(db, "users"), where("uid", "==", user.uid));
-    // const docs = await getDocs(q);
-    // if (docs.docs.length === 0) {
-    //   await addDoc(collection(db, "users"), {
-    //     uid: user.uid,
-    //     name: user.displayName,
-    //     authProvider: "google",
-    //     email: user.email,
-    //   });
-    //   return user.uid;
-    // }
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -60,7 +50,16 @@ const signInWithGoogle = async () => {
 
 const logInWithEmailAndPassword = async (email, password) => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    let res = await signInWithEmailAndPassword(auth, email, password);
+    let uid = res.user.uid
+    let token = await axios.post("http://localhost:8000/users/token/create",
+    {
+      "uid":uid
+    }).then((res) => {
+      console.log(res.data['access_token']);
+      localStorage.setItem("jwt-token", res.data['access_token'])
+    })
+
     return true;
   } catch (err) {
     console.error(err);
@@ -73,18 +72,15 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
+    console.log(user)
+    await axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
       (res) => {
-        console.log(res);
+        console.log(res.data['access_token']);
+        localStorage.setItem("jwt-token", res.data['access_token'])
       }
     )
-    // await addDoc(collection(db, "users"), {
-    //   uid: user.uid,
-    //   name,
-    //   authProvider: "local",
-    //   email,
-    // });
     return user.uid;
+
   } catch (err) {
     console.error(err);
     alert(err.message);

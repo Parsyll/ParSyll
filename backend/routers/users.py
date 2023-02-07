@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
 from models.model import User
 from database import db, auth
+from auth.auth_handler import signJWT
+from auth.auth_bearer import JWTBearer
 
 router = APIRouter(
     prefix="/users",
@@ -73,7 +75,22 @@ async def create_user_from_auth(uid: str):
         print(f"Error: {e}")
         raise HTTPException(500, detail="Something went wrong")
 
-    return "User added to database"
+    
+    return signJWT(uid)
+    # return "User added to database"
+
+@router.post("/token/create")
+async def generate_token(request: Request):
+    try:
+        request = await request.json()
+        uid = request['uid']
+        print(f"Generated JWT Token for User with UID: {uid} \n")
+        return signJWT(uid)
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(500, detail="Something went wrong")
+    
+    # return "User added to database"
 
 
 @router.post("/auth_map")
