@@ -13,6 +13,7 @@ export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
 
   const handleLogOutLogic = (e) => {
     e.preventDefault();
+    localStorage.removeItem("jwt-token");
     handleSetLogin(false);
   }
 

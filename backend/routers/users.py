@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, Response
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
@@ -91,6 +91,10 @@ async def generate_token(request: Request):
         raise HTTPException(500, detail="Something went wrong")
     
     # return "User added to database"
+
+@router.get("/token/verify", dependencies=[Depends(JWTBearer())])
+async def generate_token(request: Request):
+    return Response(content="JWT token is valid", status_code=200)
 
 
 @router.post("/auth_map")
