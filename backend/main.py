@@ -10,8 +10,9 @@ app.include_router(users.router)
 app.include_router(pdfs.router)
 
 origins = [
-    "http://localhost:3001"
+    "http://localhost:3000"
 ]
+
 
 allow_all = ['*']
 app.add_middleware(
