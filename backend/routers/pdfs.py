@@ -121,8 +121,28 @@ async def upload_file(file: UploadFile):
 
 ## DELETE file endpoints
 
+# Delete file: fileid 
+@router.delete("/file/{file_id}")
+async def delete_file(file_id: str):
+    blob = bucket.get_blob(file_id)
+    
+    if 'user' in blob.metadata:
+        uid = blob.metadata['user']
+        user_doc_ref = db.collection(u'users').document(uid)
+        user_syllabus_list = get_user_syllabus(user_doc_ref)
+        user_syllabus_list.remove(file_id)
+        # update to user syllabus
+        user_doc_ref.update({
+            u'syllabus': user_syllabus_list
+        })
+
+
+    delete_blob(file_id)
+
+    return f"Deleted file {file_id}"
+
 # Delete all file of user:uid
-@router.delete("/{uid}")
+@router.delete("/user/{uid}")
 async def delete_user_files(uid: str): 
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -143,7 +163,7 @@ async def delete_user_files(uid: str):
     return f"Deleted all files associated with User {uid}"
 
 # Delete file:file_id of user:uid
-@router.delete("/{uid}/{file_id}")
+@router.delete("/user/{uid}/{file_id}")
 async def delete_user_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -167,7 +187,7 @@ async def delete_user_file(uid: str, file_id: str):
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
 # Remove this endpoint for prod
-@router.delete("/")
+@router.delete("/delete_all")
 async def delete_all_file_in_firebase():
     # print(bucket.list_blobs)
     for blob in bucket.list_blobs():
