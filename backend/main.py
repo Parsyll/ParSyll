@@ -30,11 +30,14 @@ async def handle_exceptions(request: Request, call_next):
         return response
     
     except HTTPException as e:
-        raise HTTPException(e.status_code, detail=e.detail)
+        # raise HTTPException(e.status_code, detail=e.detail)
+        return {"detail": e.detail}, e.status_code
 
     except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
+        # print(f"Error: {e}")
+        print("sasdl;kfs;lkdfjsa")
+        # raise HTTPException(500, detail="Something went wrong")
+        return {"detail": e}, 500
 
 # root endpoint
 @app.get("/")
