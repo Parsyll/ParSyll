@@ -1,6 +1,7 @@
 import uvicorn
  
 from fastapi import FastAPI, UploadFile, Request, HTTPException
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from routers import users
 from routers import pdfs
@@ -31,13 +32,12 @@ async def handle_exceptions(request: Request, call_next):
     
     except HTTPException as e:
         # raise HTTPException(e.status_code, detail=e.detail)
-        return {"detail": e.detail}, e.status_code
+        return JSONResponse(status_code=e.status_code, content={"detail": str(e.detail)})
 
     except Exception as e:
-        # print(f"Error: {e}")
-        print("sasdl;kfs;lkdfjsa")
+        print(f"Error: {e}")
         # raise HTTPException(500, detail="Something went wrong")
-        return {"detail": e}, 500
+        return JSONResponse(status_code=500, content={"detail": str(e)})
 
 # root endpoint
 @app.get("/")
