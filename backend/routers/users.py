@@ -46,12 +46,11 @@ async def get_all_users():
 async def get_user(uid: str):
     try:
         user = auth.get_user(uid)
-        return user
-    
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User {uid} not found")
+
+    return user
+     
 
 
 
@@ -69,23 +68,17 @@ async def create_user_from_auth(uid: str):
     except auth.UserNotFoundError:
         raise HTTPException(404, detail="User not found")
  
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-
-    return "User added to database"
+    return f"User {uid} added to database"
 
 
 @router.post("/auth_map")
 async def map_users_from_auth():
-    try: 
-        for user in auth.list_users().iterate_all():
+    for user in auth.list_users().iterate_all():
+        user_doc = db.collection(u'users').document(user.uid).get()
+        if not user_doc.exists:
+            print(user.uid)
             create_user(user.uid, user.display_name, user.email)
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
+         
     return "Users from auth has been mapped to firestore"
 
 
@@ -120,9 +113,9 @@ def create_user(uid, username, email):
         'uid': uid,
         'username': username,
         'email': email,
-        'syllabus': None,
-        'school': None,
-        'courses': None
+        'syllabus': [],
+        'school': [],
+        'courses': []
     })
 
 def delete_collection(coll_ref, batch_size):
