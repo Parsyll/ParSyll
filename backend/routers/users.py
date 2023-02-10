@@ -44,7 +44,11 @@ async def get_all_users():
 
 @router.get("/{uid}")
 async def get_user(uid: str):
-    user = auth.get_user(uid)
+    try:
+        user = auth.get_user(uid)
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User {uid} not found")
+
     return user
      
 
