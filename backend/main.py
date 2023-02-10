@@ -1,6 +1,6 @@
 import uvicorn
  
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from routers import users
 from routers import pdfs
@@ -23,6 +23,18 @@ app.add_middleware(
    allow_headers=allow_all
 )
 
+@app.middleware("http")
+async def handle_exceptions(request: Request, call_next):
+    try:
+        response = await call_next(request)
+        return response
+    
+    except HTTPException as e:
+        raise HTTPException(e.status_code, detail=e.detail)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(500, detail="Something went wrong")
 
 # root endpoint
 @app.get("/")
