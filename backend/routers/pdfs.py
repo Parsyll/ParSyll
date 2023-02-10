@@ -123,22 +123,82 @@ async def upload_file(file: UploadFile):
 
 # Delete all file of user:uid
 @router.delete("/{uid}")
-async def delete_user_files(uid: str):
-    pass
+async def delete_user_files(uid: str): 
+    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+    
+    user_syllabus_list = get_user_syllabus(user_doc_ref)
+
+    for file_id in user_syllabus_list:
+        delete_blob(file_id)
+    
+
+    user_doc_ref.update({
+        u'syllabus': []
+    })
+ 
+    return f"Deleted all files associated with User {uid}"
 
 # Delete file:file_id of user:uid
 @router.delete("/{uid}/{file_id}")
 async def delete_user_file(uid: str, file_id: str):
-    pass
+    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+    
+    user_syllabus_list = get_user_syllabus(user_doc_ref)
+
+    if file_id not in user_syllabus_list:
+        raise HTTPException(404, detail=f"File {file_id} does not exist for user {uid}")
+    
+    delete_blob(file_id)
+    user_syllabus_list.remove(file_id)
+    
+    user_doc_ref.update({
+        u'syllabus': user_syllabus_list
+    })
+ 
+    return f"Deleted file {file_id} from User {uid}"
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
-@router.delete("/all")
+# Remove this endpoint for prod
+@router.delete("/")
 async def delete_all_file_in_firebase():
-    pass
+    # print(bucket.list_blobs)
+    for blob in bucket.list_blobs():
+        delete_blob(blob.name)
+    
+    for user in auth.list_users().iterate_all():
+        user_doc_ref = db.collection(u'users').document(user.uid)
+        user_doc_ref.update({
+            u'syllabus': []
+        })
+
+    return "Deleted all files in storage bucket!"
 
 
 
 # Helper functions
+def delete_blob(blob_name):
+    """Deletes a blob from the bucket."""
+
+    blob = bucket.blob(blob_name)
+    generation_match_precondition = None
+
+    # Optional: set a generation-match precondition to avoid potential race conditions
+    # and data corruptions. The request to delete is aborted if the object's
+    # generation number does not match your precondition.
+    blob.reload()  # Fetch blob metadata to use in generation_match_precondition.
+    generation_match_precondition = blob.generation
+
+    blob.delete(if_generation_match=generation_match_precondition)
+
+    print(f"Blob {blob_name} deleted.")
 
 def get_user_syllabus(user_doc_ref):
     # get user's current syllabus list
