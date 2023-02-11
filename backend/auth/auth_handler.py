@@ -3,6 +3,7 @@ from typing import Dict
 import datetime
 import jwt
 from decouple import config
+from fastapi import Request
 
 
 JWT_SECRET = config("secret")
@@ -28,8 +29,15 @@ def signJWT(user_id: str) -> Dict[str, str]:
 def decodeJWT(token: str) -> dict:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-        print(decoded_token)
         print(datetime.datetime.now())
         return decoded_token if decoded_token['expires'] > datetime.datetime.now().isoformat() else {}
     except:
         return {}
+
+async def getUIDFromAuthorizationHeader(request: Request):
+    token = request.headers.get("Authorization")
+    token = token.split(" ")[1].strip()
+    # print(token)
+    token_decoded = decodeJWT(token)
+    return token_decoded['user_id']
+
