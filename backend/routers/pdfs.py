@@ -1,10 +1,11 @@
+from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 import mimetypes
-
-from fastapi import APIRouter, Request, UploadFile, File, Form
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
 from uuid import uuid4
 from database import db, auth, bucket
+from auth.auth_bearer import JWTBearer
+from auth.auth_handler import getUIDFromAuthorizationHeader
 
 router = APIRouter(
     prefix="/pdfs",
@@ -66,7 +67,7 @@ async def user_get_file(uid: str, file_id: str):
 ## Upload file endpoints
 
 # user upload file
-@router.post("/submit/{uid}")
+@router.post("/submit/{uid}", dependencies=[Depends(JWTBearer())])
 async def user_upload_file(uid: str, file: UploadFile):
 
     try: 
@@ -103,8 +104,8 @@ async def user_upload_file(uid: str, file: UploadFile):
 
 
 # upload file not associated to any user
-@router.post("/submit")
-async def upload_file(file: UploadFile):
+@router.post("/submit", dependencies=[Depends(JWTBearer())])
+async def upload_file(file: UploadFile, uid=Depends(getUIDFromAuthorizationHeader)):
     #useful links: 
     # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
     # https://fastapi.tiangolo.com/tutorial/request-files/

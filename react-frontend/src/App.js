@@ -1,6 +1,6 @@
 import "./App.css";
-import React, {useState} from "react";
-
+import React, {useState, useEffect} from "react";
+import axios from 'axios'
 import PdfUploader from "./components/PdfUploader";
 import DashboardAppBar from "./components/DashboardAppBar";
 import CourseTab from "./components/CourseTab";
@@ -11,6 +11,19 @@ import { BrowserRouter, Route, Routes, Navigate, useParams } from 'react-router-
 export const App = () => {
   const [view, setView] = useState(2);
   const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("jwt-token");
+    if(token) {
+      axios.get('http://localhost:8000/users/token/verify').then((res) => {
+          const data = res;
+          if (data.status == 200) {
+            setLoggedIn(true);
+          }
+          console.log(data);
+      })
+    }
+  }, [])
 
   const handleSetView = (number) => {
     setView(number);

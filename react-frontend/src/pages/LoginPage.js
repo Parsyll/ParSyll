@@ -27,10 +27,6 @@ export default function LoginPage({handleSetLogin}) {
     // registerWithEmailAndPassword();
     var email = data.get('email');
     var password = data.get('password');
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
     var res = await logInWithEmailAndPassword(email, password);
     console.log(res)
     if(res) {
