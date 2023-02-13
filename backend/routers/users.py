@@ -61,6 +61,8 @@ async def get_user(uid: str):
 '''
 Create users assumes user has signed up through auth
 '''
+
+# Maybe add a user already exists check here to prevent duplicate adds
 @router.post("/create/{uid}")
 async def create_user_from_auth(uid: str):
     try:

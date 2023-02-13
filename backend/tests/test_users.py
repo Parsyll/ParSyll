@@ -1,25 +1,44 @@
+#IMPORTANT NOTE #############
+#### Run the command "python3 -ms pytest tests/" in backend folder"
+# pytest has an issue importing modules into th test file"
 import requests
 import pytest
+import os
+import sys
+from dotenv import load_dotenv
+from auth.auth_handler import decodeJWT
 
-def test_token_verification_fail():
-    url = "http://localhost:8000/users/token/verify"
-    response = requests.get(url)
-    assert response.status_code == 403
+load_dotenv()
 
-def test_token_verification_success():
-    token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiSXpFV3FqSnU0V1QxT1A0TDBidURhd21XVEk2MyIsImV4cGlyZXMiOiIyMDIzLTAyLTEwVDEwOjU1OjMyLjk3NDU4MCJ9.a2wGYc4RgQ5x-aYO9WUPSpGlKhHqxR6rdt3mmTVmw7c"
-    header = {
-        'Authorization': f'Bearer {token}'
-    }
-    url = "http://localhost:8000/users/token/verify"
-    response = requests.get(url, headers=header)
-    assert response.status_code == 403
+admin_jwt_token = os.getenv("admin_jwt_token")
+admin_uid = os.getenv("admin_uid")
 
-if __name__ == "__main__":
-   try:
-        # token_verification_fail() 
-        # token_verification_success() 
-    print("All tests passed")
-   except Exception as e:
-      print("Not all tests passed")
-      
+class TestJWT:
+    def test_token_verification_fail(self):
+        url = "http://localhost:8000/users/token/verify"
+        response = requests.get(url)
+        assert response.status_code == 403
+
+    def test_token_verification_success(self):
+        header = {
+            'Authorization': f'Bearer {admin_jwt_token}'
+        }
+        url = "http://localhost:8000/users/token/verify"
+        response = requests.get(url, headers=header)
+        assert response.status_code == 200
+
+    def test_token_creation_success(self):
+        dummy_uid = 'this-is-a-test'
+        body = {
+            'uid': dummy_uid
+        }
+        url = "http://localhost:8000/users/token/create"
+        response = requests.post(url, json=body)
+        response_json = response.json()
+        response_token = response_json['access_token']
+        decoded_token = decodeJWT(response_token)
+        print("This is the decoded token:")
+        print(decoded_token)
+        
+        assert response.status_code == 200
+        assert decoded_token['user_id'] == dummy_uid

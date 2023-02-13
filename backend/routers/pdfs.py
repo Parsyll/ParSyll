@@ -98,27 +98,8 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
         u'syllabus': user_syllabus_list
     })
 
-        
-    
+    #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
     return f"Uploaded {file.filename} for user {user.uid}"
-
-
-# # upload file not associated to any user
-# @router.post("/submit", dependencies=[Depends(JWTBearer())])
-# async def upload_file(file: UploadFile, uid=Depends(getUIDFromAuthorizationHeader)):
-#     #useful links: 
-#     # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
-#     # https://fastapi.tiangolo.com/tutorial/request-files/
-
-#     file_contents = await file.read() 
-#     file_id = uuid4()
-#     blob = bucket.blob(str(file_id))
-#     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename}
-#     blob.upload_from_string(file_contents, content_type=file.content_type)
-#     print(blob.public_url, blob.metadata)
-
-#     return f"File: {file.filename} uploaded as {str(file_id)}"    
-
 
 ## DELETE file endpoints
 
