@@ -26,6 +26,16 @@ def signJWT(user_id: str) -> Dict[str, str]:
 
     return token_response(token)
 
+def signAdminJWT(user_id: str) -> Dict[str, str]:
+    dt=datetime.datetime.now() + datetime.timedelta(weeks=100)
+    payload = {
+        "user_id": user_id,
+        "expires": dt.isoformat()
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    return token_response(token)
+
 def decodeJWT(token: str) -> dict:
     try:
         decoded_token = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])

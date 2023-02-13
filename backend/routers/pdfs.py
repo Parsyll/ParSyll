@@ -35,7 +35,7 @@ async def get_file(file_id: str):
 
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
-@router.get("/{uid}/{file_id}")
+@router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -67,8 +67,8 @@ async def user_get_file(uid: str, file_id: str):
 ## Upload file endpoints
 
 # user upload file
-@router.post("/submit/{uid}", dependencies=[Depends(JWTBearer())])
-async def user_upload_file(uid: str, file: UploadFile):
+@router.post("/submit", dependencies=[Depends(JWTBearer())])
+async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     try: 
         user = auth.get_user(uid)
@@ -103,28 +103,28 @@ async def user_upload_file(uid: str, file: UploadFile):
     return f"Uploaded {file.filename} for user {user.uid}"
 
 
-# upload file not associated to any user
-@router.post("/submit", dependencies=[Depends(JWTBearer())])
-async def upload_file(file: UploadFile, uid=Depends(getUIDFromAuthorizationHeader)):
-    #useful links: 
-    # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
-    # https://fastapi.tiangolo.com/tutorial/request-files/
+# # upload file not associated to any user
+# @router.post("/submit", dependencies=[Depends(JWTBearer())])
+# async def upload_file(file: UploadFile, uid=Depends(getUIDFromAuthorizationHeader)):
+#     #useful links: 
+#     # https://stackoverflow.com/questions/64168340/how-to-send-a-file-docx-doc-pdf-or-json-to-fastapi-and-predict-on-it-without
+#     # https://fastapi.tiangolo.com/tutorial/request-files/
 
-    file_contents = await file.read() 
-    file_id = uuid4()
-    blob = bucket.blob(str(file_id))
-    blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename}
-    blob.upload_from_string(file_contents, content_type=file.content_type)
-    print(blob.public_url, blob.metadata)
+#     file_contents = await file.read() 
+#     file_id = uuid4()
+#     blob = bucket.blob(str(file_id))
+#     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename}
+#     blob.upload_from_string(file_contents, content_type=file.content_type)
+#     print(blob.public_url, blob.metadata)
 
-    return f"File: {file.filename} uploaded as {str(file_id)}"    
+#     return f"File: {file.filename} uploaded as {str(file_id)}"    
 
 
 ## DELETE file endpoints
 
 # Delete file: fileid 
-@router.delete("/file/{file_id}")
-async def delete_file(file_id: str):
+@router.delete("/file/{file_id}", dependencies=[Depends(JWTBearer())])
+async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
     blob = bucket.get_blob(file_id)
     
     if 'user' in blob.metadata:
