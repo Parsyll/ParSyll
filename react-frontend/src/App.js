@@ -14,14 +14,17 @@ export const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("jwt-token");
-    if(token) {
-      axios.get('http://localhost:8000/users/token/verify').then((res) => {
-          const data = res;
-          if (data.status == 200) {
-            setLoggedIn(true);
-          }
-          console.log(data);
-      })
+    try{
+      if(token) {
+        axios.get('http://localhost:8000/users/token/verify').then((res) => {
+            const data = res;
+            if (data.status == 200) {
+              setLoggedIn(true);
+            }
+        })
+      }
+    } catch {
+      localStorage.removeItem("jwt-token")
     }
   }, [])
 

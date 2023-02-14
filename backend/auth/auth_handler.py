@@ -2,12 +2,14 @@ import time
 from typing import Dict
 import datetime
 import jwt
-from decouple import config
 from fastapi import Request
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-JWT_SECRET = config("secret")
-JWT_ALGORITHM = config("algorithm")
+JWT_SECRET = os.getenv("secret")
+JWT_ALGORITHM = os.getenv("algorithm")
 
 
 def token_response(token: str):
@@ -18,6 +20,16 @@ def token_response(token: str):
 
 def signJWT(user_id: str) -> Dict[str, str]:
     dt=datetime.datetime.now() + datetime.timedelta(hours=24)
+    payload = {
+        "user_id": user_id,
+        "expires": dt.isoformat()
+    }
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+    return token_response(token)
+
+def signAdminJWT(user_id: str) -> Dict[str, str]:
+    dt=datetime.datetime.now() + datetime.timedelta(weeks=100)
     payload = {
         "user_id": user_id,
         "expires": dt.isoformat()
