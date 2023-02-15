@@ -7,7 +7,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
@@ -15,43 +14,70 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset} from '../components/firebase';
+import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../components/firebase';
 import { setJWTToken } from '../helper/jwt';
-import LoginButtonDisabled from '../components/LoginButtonDisabled'
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import GoogleIcon from '@mui/icons-material/Google';
+import AlertTitle from '@mui/material/AlertTitle';
+import ErrorMessage from '../components/ErrorMessage';
 
 const theme = createTheme();
 
 export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false)
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handlePasswordChange = (e) => {
     e.preventDefault()
     setPassword(e.target.value)
   }
 
+  const handleEmailChange = (e) => {
+    e.preventDefault()
+    setEmail(e.target.value)
+  }
+  
+  const handleUsernameChange = (e) => {
+    e.preventDefault()
+    setUsername(e.target.value)
+  }
+
+  const displayErrorMessage = (errorText) => {
+    setErrorMessage(errorText)
+      setTimeout(() => {
+        setErrorMessage("")
+      }, 3500)
+  }
+
   const handleSignUpFunction = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    var email = data.get('email');
-    var password = data.get('password');
-    var name = data.get('name');
-    setLoading(true)
     try{
-      const res = await registerWithEmailAndPassword(name,email, password);
-      
+      const data = new FormData(event.currentTarget);
+      var email = data.get('email');
+      var password = data.get('password');
+      var name = data.get('name');
+
+      setLoading(true)
+      const res = await registerWithEmailAndPassword(name,email, password)
+
+      if(res instanceof Error) {
+        throw res;
+      }
+
       if (res) {
         handleSetLogin(true)
         const jwtToken = res.data['access_token']
         setJWTToken(jwtToken, rememberMe);
       }
-    } catch (e) {
-      console.log(e)  
+    } catch (error) {
+      const errorText = firebaseErrorHandeling(error)
+      displayErrorMessage(errorText)
     }
     setLoading(false)
   };
@@ -61,14 +87,20 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
     setLoadingGoogle(true)
     try{
       const res = await signInWithGoogle()
+
+      if(res instanceof Error) {
+        throw res;
+      }
       
       if (res) {
         handleSetLogin(true)
         const jwtToken = res.data['access_token']
         setJWTToken(jwtToken, rememberMe);
       }
-    } catch (e) {
-      console.log(e)
+    } catch (error) {
+      console.log(error)
+      const errorText = firebaseErrorHandeling(error)
+      displayErrorMessage(errorText)
     }
     setLoadingGoogle(false)
   }
@@ -108,6 +140,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
             </Typography>
             <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSignUpFunction}>
                 <TextField
+                    onChange={handleUsernameChange}
                     margin="normal"
                     required
                     fullWidth
@@ -117,6 +150,7 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     autoFocus
                 />
                 <TextField
+                    onChange={handleEmailChange}
                     margin="normal"
                     required
                     fullWidth
@@ -141,14 +175,20 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
                 />
-                {!password ?
-                <Alert severity="info">Password should be 6 characters long</Alert>:
+                {!password && !loading && !loadingGoogle?
+                <Alert severity="info">
+                  Password should be 6 characters long
+                </Alert>:
                 ""
                 }
-                {password && password.length < 6 ? 
+                {password && password.length < 6 && !loading && !loadingGoogle ? 
                 <Alert severity="error">Password should be 6 characters long</Alert>:
                 ""}
-                {password.length < 6 || loading ?
+                {errorMessage ?
+                <ErrorMessage text={errorMessage}/> : 
+                ""
+                }
+                {(password.length < 6 || email.length < 5 || !username)|| loading?
                   <LoadingButton
                       disabled
                       fullWidth

@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -15,20 +16,41 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SignUpPage from './SignUpPage';
-import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset} from '../components/firebase';
+import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../components/firebase';
 import { setJWTToken } from '../helper/jwt';
 import LoginButtonDisabled from '../components/LoginButtonDisabled'
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import GoogleIcon from '@mui/icons-material/Google';
+import ErrorMessage from '../components/ErrorMessage';
 
 const theme = createTheme();
 
 export default function LoginPage({handleSetLogin}) {
   const [loginPage, setLoginPage] = useState(true);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [rememberMe, setRememberMe] = useState(false);
+
+  const handleEmailChange = (e) => {
+    e.preventDefault()
+    setEmail(e.target.value)
+  }
+
+  const handlePasswordChange = (e) => {
+    e.preventDefault()
+    setPassword(e.target.value)
+  }
+
+  const displayErrorMessage = (errorText) => {
+    setErrorMessage(errorText)
+      setTimeout(() => {
+        setErrorMessage("")
+      }, 3500)
+  }
 
   const handleLogInFunction = async (event) => {
     setLoading(true);
@@ -37,12 +59,21 @@ export default function LoginPage({handleSetLogin}) {
     var email = data.get('email');
     var password = data.get('password');
     
-    var res = await logInWithEmailAndPassword(email, password);
+    try{
+      var res = await logInWithEmailAndPassword(email, password);
+      if(res instanceof Error) {
+        throw res;
+      }
 
-    if(res) {
-      handleSetLogin(true)
-      const jwtToken = res.data['access_token']
-      setJWTToken(jwtToken, rememberMe)
+      if(res) {
+        handleSetLogin(true)
+        const jwtToken = res.data['access_token']
+        setJWTToken(jwtToken, rememberMe)
+      }
+    } catch (error) {
+      console.log(error)
+      const errorText = firebaseErrorHandeling(error)
+      displayErrorMessage(errorText)
     }
     setLoading(false)
   };
@@ -57,13 +88,19 @@ export default function LoginPage({handleSetLogin}) {
     try{
       var res = await signInWithGoogle()
 
+      if(res instanceof Error) {
+        throw res;
+      }
+
       if (res) {
         handleSetLogin(true)
         const jwtToken = res.data['access_token']
         setJWTToken(jwtToken, rememberMe)
       }
-    } catch (e){
-      console.log(e);
+    } catch (error){
+      console.log(error);
+      const errorText = firebaseErrorHandeling(error)
+      displayErrorMessage(errorText)
     }
     setLoadingGoogle(false)
   }  
@@ -105,6 +142,7 @@ export default function LoginPage({handleSetLogin}) {
               </Typography>
               <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleLogInFunction}>
                 <TextField
+                  onChange={handleEmailChange}
                   margin="normal"
                   required
                   fullWidth
@@ -115,6 +153,7 @@ export default function LoginPage({handleSetLogin}) {
                   autoFocus
                 />
                 <TextField
+                  onChange={handlePasswordChange}
                   margin="normal"
                   required
                   fullWidth
@@ -129,17 +168,38 @@ export default function LoginPage({handleSetLogin}) {
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
                 />
-                <LoadingButton
-                  loading={loading}
-                  type="submit"
-                  fullWidth
-                  loadingPosition="end"
-                  endIcon={<LoginIcon />}
-                  variant="contained"
-                  sx={{ mt: 3, mb: 2}}
-                >
-                  Log In
-                </LoadingButton>
+
+                {(password && password.length < 6) && !loading? 
+                  <Alert severity="error">Password should be 6 characters long</Alert>:
+                ""}
+                {errorMessage?
+                <ErrorMessage text={errorMessage}/> : 
+                ""
+                }
+                {(password.length < 6 || email.length < 5) ? 
+                    <LoadingButton
+                    disabled
+                    fullWidth
+                    variant="contained"
+                    loadingPosition='end'
+                    endIcon={<LoginIcon />}
+                    sx={{ mt: 3, mb: 2 }}
+                    >
+                        Log In
+                    </LoadingButton> 
+                  :
+                    <LoadingButton
+                      loading={loading}
+                      type="submit"
+                      fullWidth
+                      loadingPosition="end"
+                      endIcon={<LoginIcon />}
+                      variant="contained"
+                      sx={{ mt: 3, mb: 2}}
+                    >
+                      Log In
+                    </LoadingButton>
+              }
                 
                 <LoadingButton
                   loading={loadingGoogle}

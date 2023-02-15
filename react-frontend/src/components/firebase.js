@@ -41,10 +41,9 @@ const signInWithGoogle = async () => {
         returnObj = res
       }
     )
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-    return null;
+  } catch (error) {
+    console.error(error);
+    return error;
   }
   return returnObj;
 };
@@ -58,16 +57,11 @@ const logInWithEmailAndPassword = async (email, password) => {
     { "uid":uid })
     .then((res) => {
       returnObj = res
-      // return res.data['access_token']
-      // console.log(res.data['access_token']);
-      // localStorage.setItem("jwt-token", res.data['access_token'])
     })
 
     return returnObj;
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-    return null;
+  } catch (error) {
+    return error;
   }
 };
 
@@ -75,20 +69,13 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    let returnObj;
-    await axios.post(`http://localhost:8000/users/create/${user.uid}`)
-    .then(
-      (res) => {
-        returnObj = res;
-        // console.log(res.data['access_token']);
-      }
-    )
+    
+    const returnObj = await axios.post(`http://localhost:8000/users/create/${user.uid}`)
     return returnObj;
 
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-    return null;
+  } catch (error) {
+    console.log(error)
+    return error;
   }
 };
 const sendPasswordReset = async (email) => {
@@ -104,6 +91,24 @@ const sendPasswordReset = async (email) => {
 const logout = () => {
   signOut(auth);
 };
+
+const firebaseErrorHandeling = (error) => {
+  switch(error.code) {
+    case 'auth/email-already-in-use':
+        return 'Email already in use !'
+    case 'auth/missing-email':
+        return 'Email field is missing!'
+    case 'auth/invalid-email':
+        return 'Email entered is invalid!'
+    case 'auth/email-already-in-use':
+        return 'Email entered is already in use!'
+    case 'auth/wrong-password':
+        return 'username or password is incorrect'
+    default:
+        return "Oops an error occured. Please try again."
+  }
+}
+
 export {
   auth,
   db,
@@ -112,4 +117,5 @@ export {
   registerWithEmailAndPassword,
   sendPasswordReset,
   logout,
+  firebaseErrorHandeling
 };
