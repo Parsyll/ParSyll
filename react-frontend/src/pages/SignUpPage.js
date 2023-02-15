@@ -15,28 +15,24 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset } from '../components/firebase';
+import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset} from '../components/firebase';
+import { setJWTToken } from '../helper/jwt';
+import LoginButtonDisabled from '../components/LoginButtonDisabled'
+import LoadingButton from '@mui/lab/LoadingButton';
+import LoginIcon from '@mui/icons-material/Login';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const theme = createTheme();
 
 export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
   const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("")
-  const [name, setName] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [loadingGoogle, setLoadingGoogle] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const handlePasswordChange = (e) => {
     e.preventDefault()
     setPassword(e.target.value)
-  }
-
-  const handleEmailChange = (e) => {
-    e.preventDefault()
-    setEmail(e.target.value)
-  }
-
-  const handleNameChange = (e) => {
-    e.preventDefault()
-    setName(e.target.value)
   }
 
   const handleSignUpFunction = async (event) => {
@@ -44,22 +40,38 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
     const data = new FormData(event.currentTarget);
     var email = data.get('email');
     var password = data.get('password');
-    var name = data.get('name')
-    var res = await registerWithEmailAndPassword(name,email, password);
-    console.log(res)
-    if (res) {
+    var name = data.get('name');
+    setLoading(true)
+    try{
+      const res = await registerWithEmailAndPassword(name,email, password);
+      
+      if (res) {
         handleSetLogin(true)
+        const jwtToken = res.data['access_token']
+        setJWTToken(jwtToken, rememberMe);
+      }
+    } catch (e) {
+      console.log(e)  
     }
+    setLoading(false)
   };
 
   const handleGoogleSignIn = async (e) => {
     e.preventDefault()
-    var res = await signInWithGoogle()
-    console.log(res)
-    if (res == true) {
+    setLoadingGoogle(true)
+    try{
+      const res = await signInWithGoogle()
+      
+      if (res) {
         handleSetLogin(true)
+        const jwtToken = res.data['access_token']
+        setJWTToken(jwtToken, rememberMe);
+      }
+    } catch (e) {
+      console.log(e)
     }
-  }  
+    setLoadingGoogle(false)
+  }
 
   return (
       <Grid container component="main" sx={{ height: '100vh' }}>
@@ -96,7 +108,6 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
             </Typography>
             <Box component="form" noValidate sx={{ mt: 1 }} onSubmit={handleSignUpFunction}>
                 <TextField
-                    onChange={handleNameChange}
                     margin="normal"
                     required
                     fullWidth
@@ -106,7 +117,6 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     autoFocus
                 />
                 <TextField
-                    onChange={handleEmailChange}
                     margin="normal"
                     required
                     fullWidth
@@ -127,42 +137,53 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
                     autoComplete="current-password"
                 />
                 <FormControlLabel
+                    onChange={() => {setRememberMe(!rememberMe);}}
                     control={<Checkbox value="remember" color="primary" />}
                     label="Remember me"
                 />
+                {!password ?
+                <Alert severity="info">Password should be 6 characters long</Alert>:
+                ""
+                }
                 {password && password.length < 6 ? 
                 <Alert severity="error">Password should be 6 characters long</Alert>:
                 ""}
-                {password.length >= 6 ? 
-                
-                  <Button
-                      type="submit"
-                      fullWidth
-                      variant="contained"
-                      sx={{ mt: 3, mb: 2 }}
-                  >
-                      Sign Up
-                  </Button>
-                :
-                  <Button
+                {password.length < 6 || loading ?
+                  <LoadingButton
                       disabled
-                      type="submit"
                       fullWidth
+                      variant="contained"
+                      loadingPosition='end'
+                      endIcon={<LoginIcon />}
+                      sx={{ mt: 3, mb: 2 }}
+                  >
+                      Sign Up
+                  </LoadingButton>    
+                :
+                  <LoadingButton
+                      type="submit"
+                      loading={loading}
+                      fullWidth
+                      loadingPosition='end'
+                      endIcon={<LoginIcon />}
                       variant="contained"
                       sx={{ mt: 3, mb: 2 }}
                   >
                       Sign Up
-                  </Button>
+                  </LoadingButton>
                 }
 
-              <Button
+              <LoadingButton
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                loading={loadingGoogle}
+                loadingPosition='end'
+                endIcon={<GoogleIcon />}
                 onClick={handleGoogleSignIn}
               >
                 Sign In With Google
-              </Button>
+              </LoadingButton>
               <Grid container>
                 <Grid item>
                   <Button onClick={handleSetLoginPage}>

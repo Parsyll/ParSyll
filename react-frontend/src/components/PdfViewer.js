@@ -1,13 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-// Import the main component
-// Import the styles
-// Worker
 import { Document, Page, pdfjs } from 'react-pdf';
 import Container from '@mui/material/Container';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import LoadingButton from '@mui/lab/LoadingButton';
+import SaveIcon from '@mui/icons-material/Save';
 
-export const PdfViewer = ({pdfFile, handleSendPdf}) => {  
+export const PdfViewer = ({pdfFile, handleSendPdf, loading}) => {  
   useEffect(() => { pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;});
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -39,15 +38,16 @@ export const PdfViewer = ({pdfFile, handleSendPdf}) => {
           </p>
           <KeyboardDoubleArrowRightIcon onClick={pageNumber==numPages?null: handlePageRight}/>
         </div>
-        <button className="btn p-4 mt-4 rounded-3xl bg-blue-400" 
-                onClick={handleSendPdf}>
-          <div className="bg-gradient-to-r bg-clip-text text-transparent 
-            from-white to-orange-400 animate-text">
-            <p className="text-xl font-bold">
-              PARSE PDF
-            </p>
-          </div>
-        </button>
+        <LoadingButton
+          loading={loading}
+          loadingPosition="start"
+          startIcon={<SaveIcon />}
+          variant="contained"
+          sx={{ mt: 4, p:3}}
+          onClick={handleSendPdf}
+        >
+          PARSE PDF
+        </LoadingButton> 
     </div>
   );
 };

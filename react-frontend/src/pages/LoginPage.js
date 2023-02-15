@@ -3,6 +3,7 @@ import {useState} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
+import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
@@ -14,24 +15,36 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SignUpPage from './SignUpPage';
-import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset } from '../components/firebase';
+import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset} from '../components/firebase';
+import { setJWTToken } from '../helper/jwt';
+import LoginButtonDisabled from '../components/LoginButtonDisabled'
+import LoadingButton from '@mui/lab/LoadingButton';
+import LoginIcon from '@mui/icons-material/Login';
+import GoogleIcon from '@mui/icons-material/Google';
 
 const theme = createTheme();
 
 export default function LoginPage({handleSetLogin}) {
   const [loginPage, setLoginPage] = useState(true);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogInFunction = async (event) => {
+    setLoading(true);
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    // registerWithEmailAndPassword();
     var email = data.get('email');
     var password = data.get('password');
+    
     var res = await logInWithEmailAndPassword(email, password);
-    console.log(res)
+
     if(res) {
-        handleSetLogin(true)
+      handleSetLogin(true)
+      const jwtToken = res.data['access_token']
+      setJWTToken(jwtToken, rememberMe)
     }
+    setLoading(false)
   };
 
   const handleSetLoginPage = () => {
@@ -40,10 +53,19 @@ export default function LoginPage({handleSetLogin}) {
 
   const handleGoogleSignIn = async (e) => {
     e.preventDefault()
-    var res = await signInWithGoogle()
-    if (res) {
+    setLoadingGoogle(true)
+    try{
+      var res = await signInWithGoogle()
+
+      if (res) {
         handleSetLogin(true)
+        const jwtToken = res.data['access_token']
+        setJWTToken(jwtToken, rememberMe)
+      }
+    } catch (e){
+      console.log(e);
     }
+    setLoadingGoogle(false)
   }  
 
   return (
@@ -103,25 +125,35 @@ export default function LoginPage({handleSetLogin}) {
                   autoComplete="current-password"
                 />
                 <FormControlLabel
+                  onChange={() => {setRememberMe(!rememberMe)}}
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
                 />
-                <Button
+                <LoadingButton
+                  loading={loading}
                   type="submit"
                   fullWidth
+                  loadingPosition="end"
+                  endIcon={<LoginIcon />}
                   variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{ mt: 3, mb: 2}}
                 >
                   Log In
-                </Button>
-                <Button
+                </LoadingButton>
+                
+                <LoadingButton
+                  loading={loadingGoogle}
                   fullWidth
+                  loadingPosition="end"
+                  endIcon={<GoogleIcon />}
                   variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{ mt: 3, mb: 2}}
                   onClick={handleGoogleSignIn}
                 >
                   Log In With Google
-                </Button>
+                </LoadingButton>
+                
+
                 <Grid container>
                   <Grid item xs>
                     <Button>
