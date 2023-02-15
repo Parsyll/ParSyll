@@ -33,11 +33,12 @@ const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
+    var returnObj;
     console.log(user)
-    await axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
+    await axios.post(`http://localhost:8000/users/create/${user.uid}`)
+    .then(
       (res) => {
-        console.log(res.data['access_token']);
-        localStorage.setItem("jwt-token", res.data['access_token'])
+        returnObj = res
       }
     )
   } catch (err) {
@@ -45,22 +46,24 @@ const signInWithGoogle = async () => {
     alert(err.message);
     return null;
   }
-  return true
+  return returnObj;
 };
 
 const logInWithEmailAndPassword = async (email, password) => {
   try {
     let res = await signInWithEmailAndPassword(auth, email, password);
     let uid = res.user.uid
-    let token = await axios.post("http://localhost:8000/users/token/create",
-    {
-      "uid":uid
-    }).then((res) => {
-      console.log(res.data['access_token']);
-      localStorage.setItem("jwt-token", res.data['access_token'])
+    let returnObj;
+    await axios.post("http://localhost:8000/users/token/create",
+    { "uid":uid })
+    .then((res) => {
+      returnObj = res
+      // return res.data['access_token']
+      // console.log(res.data['access_token']);
+      // localStorage.setItem("jwt-token", res.data['access_token'])
     })
 
-    return true;
+    return returnObj;
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -72,14 +75,15 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    console.log(user)
-    await axios.post(`http://localhost:8000/users/create/${user.uid}`).then(
+    let returnObj;
+    await axios.post(`http://localhost:8000/users/create/${user.uid}`)
+    .then(
       (res) => {
-        console.log(res.data['access_token']);
-        localStorage.setItem("jwt-token", res.data['access_token'])
+        returnObj = res;
+        // console.log(res.data['access_token']);
       }
     )
-    return user.uid;
+    return returnObj;
 
   } catch (err) {
     console.error(err);
@@ -96,6 +100,7 @@ const sendPasswordReset = async (email) => {
     alert(err.message);
   }
 };
+
 const logout = () => {
   signOut(auth);
 };

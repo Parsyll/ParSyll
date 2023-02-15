@@ -4,16 +4,22 @@ import axios from 'axios'
 import PdfUploader from "./components/PdfUploader";
 import DashboardAppBar from "./components/DashboardAppBar";
 import CourseTab from "./components/CourseTab";
-import Box from '@mui/material/Box';
 import LoginPage from './pages/LoginPage'
 import { BrowserRouter, Route, Routes, Navigate, useParams } from 'react-router-dom';
+import { getJWTToken, removeJWTToken } from "./helper/jwt";
 
 export const App = () => {
-  const [view, setView] = useState(2);
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt-token");
+    const token = getJWTToken();
+
+    axios.interceptors.request.use(config => {
+      const token = getJWTToken();
+      config.headers["Authorization"] = `Bearer ${token}`;
+      return config;
+    });
+
     try{
       if(token) {
         axios.get('http://localhost:8000/users/token/verify').then((res) => {
@@ -24,14 +30,10 @@ export const App = () => {
         })
       }
     } catch {
-      localStorage.removeItem("jwt-token")
+      removeJWTToken();
     }
   }, [])
 
-  const handleSetView = (number) => {
-    setView(number);
-  }
-  
   const handleSetLogin = (result) => {
     setLoggedIn(result);
   }
@@ -39,7 +41,7 @@ export const App = () => {
   return (
     <div className="w-full">
       <BrowserRouter>
-        <DashboardAppBar setView={handleSetView} loggedIn={loggedIn} handleSetLogin={handleSetLogin}/>
+        <DashboardAppBar loggedIn={loggedIn} handleSetLogin={handleSetLogin}/>
         <Routes>
           <Route path='/' element={
             loggedIn ? <PdfUploader/> 

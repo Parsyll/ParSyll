@@ -8,12 +8,13 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import { Navigate, Link } from 'react-router-dom';
+import { removeJWTToken } from '../helper/jwt';
 
-export default function DashboardAppBar({setView, loggedIn, handleSetLogin}) {
+export default function DashboardAppBar({loggedIn, handleSetLogin}) {
 
   const handleLogOutLogic = (e) => {
     e.preventDefault();
-    localStorage.removeItem("jwt-token");
+    removeJWTToken();
     handleSetLogin(false);
   }
 

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import PdfViewer from './PdfViewer';
 import axios from 'axios';
+import { getJWTToken } from '../helper/jwt';
 
 axios.interceptors.request.use(config => {
-  const token = localStorage.getItem("jwt-token");
+  const token = getJWTToken();
   config.headers["Authorization"] = `Bearer ${token}`;
   return config;
 });
@@ -24,6 +24,7 @@ const style = {
 };
 
 export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
+  const [loading, setLoading] = useState(false);
   const handleCloseModal = (e) => {
     e.preventDefault();
     setPdfFile(null);
@@ -32,21 +33,26 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
 
   const handleSendPdf = async (e) => {
     e.preventDefault();
-    if(pdfFile) {
-      var formData = new FormData();
-      var headers = {'Content-Type': 'multipart/form-data'};
-      formData.append('file', pdfFile);
-      await axios
-        .post("http://127.0.0.1:8000/pdfs/submit", formData, headers)
-        .then((res) => {
-          console.log(res);
-        })
-        .catch((err) => {
-          console.error(err.response);
-        });
-        setPdfFile(null);
+    setLoading(true);
+    try{
+      if(pdfFile) {
+        var formData = new FormData();
+        var headers = {'Content-Type': 'multipart/form-data'};
+        formData.append('file', pdfFile);
+        await axios
+          .post("http://127.0.0.1:8000/pdfs/submit", formData, headers)
+          .then((res) => {
+            console.log(res);
+          })
+          .catch((err) => {
+            console.error(err.response);
+          });
+          setPdfFile(null);
+      }
+    } catch (e) {
+      console.log(e)
     }
-    // ref.current.value = "";
+    setLoading(false);
   }
 
   return (
@@ -59,8 +65,7 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf}/>
-          {/* <Button onClick={handleSendPdf}>Parse PDF</Button> */}
+          <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf} loading={loading}/>
         </Box>
       </Modal>
     </div>
