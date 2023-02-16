@@ -2,3 +2,8 @@
 /backend/service_account.json
 __pycache__/
 .vscode/
+
+# packages built by setup.py
+/backend.egg-info
+/build
+/dist
