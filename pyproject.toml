@@ -1,0 +1,18 @@
+[project]
+name = "backend"
+version = "0.0.1"
+authors = [
+  { name="something", email="author@example.com" },
+  ]
+description = ""
+readme = ""
+requires-python = ">=3.7"
+dynamic = ["dependencies"]
+
+
+
+[tool.setuptools.package-data]
+mypkg = ["*.json", "*.rst"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["backend/requirements.txt"]}
