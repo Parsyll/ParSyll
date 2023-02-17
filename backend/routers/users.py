@@ -15,7 +15,7 @@ router = APIRouter(
 
 # FOR TESTING PURPOSES ONLY
 @router.post("/add_dummy_users")
-async def get_all_users():
+async def add_dummy_users():
 
     num_dummy_users = 10
 
@@ -161,14 +161,9 @@ async def delete_all_users():
 # Helper functions
 def create_user(uid, username, email):
     doc_ref = db.collection(u'users').document(uid)
-    doc_ref.set({
-        'uid': uid,
-        'username': username,
-        'email': email,
-        'syllabus': [],
-        'school': [],
-        'courses': []
-    })
+    user = User(uid=uid, username=username, email=email)
+    # print(user.__dict__)
+    doc_ref.set(user.__dict__)
 
 def delete_collection(coll_ref, batch_size):
     docs = coll_ref.list_documents(page_size=batch_size)
