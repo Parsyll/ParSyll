@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 import mimetypes
+from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
 from uuid import uuid4
 from database import db, auth, bucket
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import getUIDFromAuthorizationHeader
+from models.model import User, Course
 
 router = APIRouter(
     prefix="/pdfs",
@@ -83,20 +84,14 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
 
     file_contents = await file.read() 
     file_id = uuid4()
+
     blob = bucket.blob(str(file_id))
     # add user in metadata to associate file with user
     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
     blob.upload_from_string(file_contents, content_type=file.content_type)
 
-    user_syllabus_list = get_user_syllabus(user_doc_ref)
-
-    print(user_syllabus_list)
-    user_syllabus_list.append(str(file_id))
-
-    # update to user syllabus
-    user_doc_ref.update({
-        u'syllabus': user_syllabus_list
-    })
+    course = Course(syllabus=str(file_id))
+    user_doc_ref.collection(u'courses').add(course.__dict__)
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
     return f"Uploaded {file.filename} for user {user.uid}"

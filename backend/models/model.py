@@ -1,18 +1,21 @@
 from pydantic import BaseModel
-from typing import Union, List
+from typing import Union, List, Any
 
 class Course(BaseModel):
-    name: str
-    instructors: List[str]
-    location: Union[str, None] = None
+    name: str = ''
+    instructors: List[str] = []
+    locations: List[Any] = []
+    syllabus: str = ''
+    class_times: List[str] = []
+    office_hrs: List[str] = []
+    ics_file: str = ''
 
 class User(BaseModel):
     uid: str
     username: str
     email: Union[str, None] = None
-    syllabus: List[str] = []
-    school: List[str] = [] 
-    courses: List[Course] = []
+    schools: List[str] = [] 
+    # courses: List[Course] = []  ## will create courses collection in firestore instead
 
 
 
