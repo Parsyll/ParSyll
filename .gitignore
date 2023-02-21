@@ -1,5 +1,3 @@
-/backend/firebase_config.json
-/backend/service_account.json
 __pycache__/
 .vscode/
 
@@ -7,3 +5,8 @@ __pycache__/
 /backend.egg-info
 /build
 /dist
+
+
+# cache dirs
+.mypy_cache
+.pytest_cache
