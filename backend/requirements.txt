@@ -3,7 +3,7 @@ black==22.12.0
 browser-cookie3==0.16.1
 CacheControl==0.12.11
 cachetools==5.2.1
-# certifi @ file:///C:/b/abs_85o_6fm0se/croot/certifi_1671487778835/work/certifi
+certifi @ file:///C:/b/abs_85o_6fm0se/croot/certifi_1671487778835/work/certifi
 cffi==1.15.1
 charset-normalizer==3.0.1
 click==8.1.3

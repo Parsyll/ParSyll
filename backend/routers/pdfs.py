@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 import mimetypes
+from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
 from uuid import uuid4
 from database import db, auth, bucket
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import getUIDFromAuthorizationHeader
+from models.model import User, Course
 
 router = APIRouter(
     prefix="/pdfs",
@@ -15,7 +16,7 @@ router = APIRouter(
 ## Download File endpoints
 
 # This endpoint can be used to download any file
-@router.get("/{file_id}")
+@router.get("/admin/{file_id}")
 async def get_file(file_id: str):
     blob = bucket.get_blob(file_id)
     contents = blob.download_as_bytes()
@@ -35,6 +36,7 @@ async def get_file(file_id: str):
 
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
+# TODO get uid from JWT token instead of path
 @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
@@ -43,11 +45,13 @@ async def user_get_file(uid: str, file_id: str):
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    user_syllabus_list = get_user_syllabus(user_doc_ref)
-    print(user_syllabus_list)
+    courses_ref = user_doc_ref.collection(u'courses')
+    syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id)) 
 
-    if file_id not in user_syllabus_list:
+    # check if file_id belongs to this user
+    if len(syllabus_query.get()) <= 0:
         raise HTTPException(404, detail=f"File {file_id} does not exist for user {uid}")
+
     
     blob = bucket.get_blob(file_id)
     contents = blob.download_as_bytes()
@@ -83,20 +87,14 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
 
     file_contents = await file.read() 
     file_id = uuid4()
+
     blob = bucket.blob(str(file_id))
     # add user in metadata to associate file with user
     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
     blob.upload_from_string(file_contents, content_type=file.content_type)
 
-    user_syllabus_list = get_user_syllabus(user_doc_ref)
-
-    print(user_syllabus_list)
-    user_syllabus_list.append(str(file_id))
-
-    # update to user syllabus
-    user_doc_ref.update({
-        u'syllabus': user_syllabus_list
-    })
+    course = Course(syllabus=str(file_id))
+    user_doc_ref.collection(u'courses').add(course.__dict__)
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
     return f"Uploaded {file.filename} for user {user.uid}"
@@ -111,12 +109,13 @@ async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
     if 'user' in blob.metadata:
         uid = blob.metadata['user']
         user_doc_ref = db.collection(u'users').document(uid)
-        user_syllabus_list = get_user_syllabus(user_doc_ref)
-        user_syllabus_list.remove(file_id)
-        # update to user syllabus
-        user_doc_ref.update({
-            u'syllabus': user_syllabus_list
-        })
+        courses_ref = user_doc_ref.collection(u'courses')
+        syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id))
+
+        for course_doc in syllabus_query.get():
+            courses_ref.document(course_doc.id).update({
+                u'syllabus': ""
+            })
 
 
     delete_blob(file_id)
@@ -131,17 +130,23 @@ async def delete_user_files(uid: str):
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
+
+    courses_ref = user_doc_ref.collection(u'courses')
+    courses_docs = courses_ref.stream()
     
-    user_syllabus_list = get_user_syllabus(user_doc_ref)
+    user_syllabus_list = []
+    for course_doc in courses_docs:
+        user_syllabus_list.append(course_doc.get(u'syllabus'))
+        courses_ref.document(course_doc.id).update({
+            u'syllabus': ""
+        })
+    
 
     for file_id in user_syllabus_list:
-        delete_blob(file_id)
+        if file_id != "" and file_id != None:
+            delete_blob(file_id)
     
 
-    user_doc_ref.update({
-        u'syllabus': []
-    })
- 
     return f"Deleted all files associated with User {uid}"
 
 # Delete file:file_id of user:uid
@@ -153,17 +158,19 @@ async def delete_user_file(uid: str, file_id: str):
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
     
-    user_syllabus_list = get_user_syllabus(user_doc_ref)
+    courses_ref = user_doc_ref.collection(u'courses')
+    syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id))
 
-    if file_id not in user_syllabus_list:
+    if len(syllabus_query.get()) <= 0:
         raise HTTPException(404, detail=f"File {file_id} does not exist for user {uid}")
+
+    # There should only be one doc corresponding to file_id, but for loop just incase
+    for course_doc in syllabus_query.get():
+        courses_ref.document(course_doc.id).update({
+            u'syllabus': ""
+        })
     
     delete_blob(file_id)
-    user_syllabus_list.remove(file_id)
-    
-    user_doc_ref.update({
-        u'syllabus': user_syllabus_list
-    })
  
     return f"Deleted file {file_id} from User {uid}"
 
@@ -201,15 +208,3 @@ def delete_blob(blob_name):
     blob.delete(if_generation_match=generation_match_precondition)
 
     print(f"Blob {blob_name} deleted.")
-
-def get_user_syllabus(user_doc_ref):
-    # get user's current syllabus list
-    user_syllabus_ref = user_doc_ref.get(field_paths={'syllabus'})
-    user_syllabus_dict = user_syllabus_ref.to_dict()
-
-    if user_syllabus_dict and 'syllabus' in user_syllabus_dict and user_syllabus_dict['syllabus']:
-        user_syllabus_list = user_syllabus_dict['syllabus']
-    else:
-        user_syllabus_list = []
-    
-    return user_syllabus_list
