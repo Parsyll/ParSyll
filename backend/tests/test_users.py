@@ -6,7 +6,7 @@ import pytest
 import os
 import sys
 from dotenv import load_dotenv
-from auth.auth_handler import decodeJWT
+from parsyll_fastapi.auth.auth_handler import decodeJWT
 
 load_dotenv()
 
@@ -41,4 +41,4 @@ class TestJWT:
         print(decoded_token)
         
         assert response.status_code == 200
-        assert decoded_token['user_id'] == dummy_uid
+        assert decoded_token['user_id'] == dummy_uid    
