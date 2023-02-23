@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Response
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
-from parsyll_fastapi.models.model import User
+from parsyll_fastapi.models.model import User, Course
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.auth.auth_handler import signJWT, signAdminJWT
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
@@ -41,20 +41,17 @@ async def add_dummy_users():
 # Retrieve users endpoints
 @router.get("/")
 async def get_all_users():
-    users = [user for user in auth.list_users().iterate_all()]
+    users = []    
+    for user in auth.list_users().iterate_all():
+        users.append(_get_user(user.uid))
+
+
     return users
 
 
 @router.get("/{uid}")
 async def get_user(uid: str):
-    try:
-        user = auth.get_user(uid)
-    except auth.UserNotFoundError:
-        raise HTTPException(404, detail=f"User {uid} not found")
-
-    return user
-     
-
+    return _get_user(uid)
 
 
 # Create users endpoints
@@ -159,10 +156,28 @@ async def delete_all_users():
 
 
 # Helper functions
+def _get_user(uid: str):
+    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+    
+    courses_ref = user_doc_ref.collection(u'courses')
+    courses_docs = courses_ref.stream()
+    courses_dict = {}
+    for course_doc in courses_docs:
+        courses_dict[course_doc.id] = course_doc.to_dict()
+    
+    user_dict = user_doc.to_dict()
+    if len(courses_dict) > 0:
+        user_dict['courses'] = courses_dict
+
+    return user_dict
+
 def create_user(uid, username, email):
     doc_ref = db.collection(u'users').document(uid)
     user = User(uid=uid, username=username, email=email)
-    # print(user.__dict__)
     doc_ref.set(user.__dict__)
 
 def delete_collection(coll_ref, batch_size):
