@@ -2,11 +2,11 @@ from fastapi import APIRouter, Request, Depends, Response
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
-from models.model import User
-from database import db, auth
-from auth.auth_handler import signJWT, signAdminJWT
-from auth.auth_bearer import JWTBearer
-from auth.auth_handler import getUIDFromAuthorizationHeader
+from parsyll_fastapi.models.model import User
+from parsyll_fastapi.database import db, auth
+from parsyll_fastapi.auth.auth_handler import signJWT, signAdminJWT
+from parsyll_fastapi.auth.auth_bearer import JWTBearer
+from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
 
 router = APIRouter(
     prefix="/users",
@@ -33,7 +33,7 @@ async def add_dummy_users():
         
         create_user(user.uid, username, email)
 
-        print('Sucessfully created new user: {0}'.format(user.uid))
+        print('Successfully created new user: {0}'.format(user.uid))
     
     return f'Added {num_dummy_users} dummy users'
 

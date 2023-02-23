@@ -3,10 +3,10 @@ from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
 from uuid import uuid4
-from database import db, auth, bucket
-from auth.auth_bearer import JWTBearer
-from auth.auth_handler import getUIDFromAuthorizationHeader
-from models.model import User, Course
+from parsyll_fastapi.database import db, auth, bucket
+from parsyll_fastapi.auth.auth_bearer import JWTBearer
+from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
+from parsyll_fastapi.models.model import User, Course
 
 router = APIRouter(
     prefix="/pdfs",
