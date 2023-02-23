@@ -137,6 +137,10 @@ async def map_users_from_auth():
 @router.delete('/delete/{uid}')
 async def delete_user(uid: str):
     auth.delete_user(uid)
+
+    user_ref = db.collection(u'users').document(uid)
+    courses_ref = user_ref.collection(u'courses')
+    delete_collection(courses_ref, 1000)
     db.collection(u'users').document(uid).delete()
 
     return f"Deleted user {uid}"
@@ -148,6 +152,11 @@ BECAREFUL WITH THIS ENDPOINT
 async def delete_all_users():
     uids = [user.uid for user in auth.list_users().iterate_all()]
     result = auth.delete_users(uids)
+
+    for uid in uids:
+        user_doc_ref = db.collection(u'users').document(uid)
+        courses_ref = user_doc_ref.collection(u'courses')
+        delete_collection(courses_ref, 1000)
 
     user_collection = db.collection(u'users')
     delete_collection(user_collection, 1000)
@@ -180,7 +189,7 @@ def create_user(uid, username, email):
     user = User(uid=uid, username=username, email=email)
     doc_ref.set(user.__dict__)
 
-def delete_collection(coll_ref, batch_size):
+def delete_collection(coll_ref, batch_size=1000):
     docs = coll_ref.list_documents(page_size=batch_size)
     deleted = 0
 
