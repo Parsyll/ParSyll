@@ -3,11 +3,9 @@ import {useState} from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import CircularProgress from '@mui/material/CircularProgress';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -16,17 +14,17 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import SignUpPage from './SignUpPage';
-import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../components/firebase';
+import {signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../helper/firebase';
 import { setJWTToken } from '../helper/jwt';
-import LoginButtonDisabled from '../components/LoginButtonDisabled'
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import GoogleIcon from '@mui/icons-material/Google';
 import ErrorMessage from '../components/ErrorMessage';
+import { setPersistence } from 'firebase/auth';
 
 const theme = createTheme();
 
-export default function LoginPage({handleSetLogin}) {
+export default function LoginPage({handleSetLogin, setProfilePic, setUserName}) {
   const [loginPage, setLoginPage] = useState(true);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -67,11 +65,14 @@ export default function LoginPage({handleSetLogin}) {
 
       if(res) {
         handleSetLogin(true)
-        const jwtToken = res.data['access_token']
+        const jwtToken = res['access_token']
+        const user = res.user
+        console.log(user)
+        setProfilePic(user["photoURL"])
+        setUserName(user["displayName"])
         setJWTToken(jwtToken, rememberMe)
       }
     } catch (error) {
-      console.log(error)
       const errorText = firebaseErrorHandeling(error)
       displayErrorMessage(errorText)
     }
@@ -91,10 +92,15 @@ export default function LoginPage({handleSetLogin}) {
       if(res instanceof Error) {
         throw res;
       }
-
+      
       if (res) {
         handleSetLogin(true)
-        const jwtToken = res.data['access_token']
+        console.log(res)
+        const jwtToken = res['access_token']
+        const user = res.user
+        setProfilePic(user["photoURL"])
+        setUserName(user["displayName"])
+
         setJWTToken(jwtToken, rememberMe)
       }
     } catch (error){
@@ -216,7 +222,7 @@ export default function LoginPage({handleSetLogin}) {
 
                 <Grid container>
                   <Grid item xs>
-                    <Button>
+                    <Button onClick={handlePasswordChange}>
                       Forgot password?
                     </Button>
                   </Grid>
@@ -226,7 +232,7 @@ export default function LoginPage({handleSetLogin}) {
                     </Button>
                   </Grid>
                   <Grid item>
-                    <Button>
+                    <Button onClick={handlePasswordChange}>
                       Reset Password
                     </Button>
                   </Grid>
@@ -236,7 +242,7 @@ export default function LoginPage({handleSetLogin}) {
           </Grid>
         </Grid>
       : 
-      <SignUpPage handleSetLoginPage={handleSetLoginPage} handleSetLogin={handleSetLogin}/>
+      <SignUpPage handleSetLoginPage={handleSetLoginPage} handleSetLogin={handleSetLogin} setProfilePic={setProfilePic} setUserName={setUserName}/>
     }
     </ThemeProvider> 
   );

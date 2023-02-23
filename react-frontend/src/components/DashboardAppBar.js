@@ -9,15 +9,9 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import { Navigate, Link } from 'react-router-dom';
 import { removeJWTToken } from '../helper/jwt';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
 
-export default function DashboardAppBar({loggedIn, handleSetLogin}) {
-
-  const handleLogOutLogic = (e) => {
-    e.preventDefault();
-    removeJWTToken();
-    handleSetLogin(false);
-  }
-
+export default function DashboardAppBar({loggedIn, handleSetLogin, profilePic}) {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -43,7 +37,7 @@ export default function DashboardAppBar({loggedIn, handleSetLogin}) {
               disabled
               sx={{ mr: 2 }}
             >
-              <MenuIcon />
+              <ContentCutIcon />
             </IconButton> 
           }
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -51,12 +45,14 @@ export default function DashboardAppBar({loggedIn, handleSetLogin}) {
           </Typography>
           {loggedIn ?
           <Box sx={{display:'flex'}}>
-            <Button color="inherit"
+            <Button color="inherit" sx={{mr:1}}
               component={Link} to="/"> 
               Parse PDF 
             </Button>
-            <Button color="inherit" onClick={handleLogOutLogic}> Log Out </Button>
-          </Box>:
+            <Avatar alt="User" imgProps={{ referrerPolicy: "no-referrer" }} src={profilePic} 
+            component={Link} to="/profile"/>
+          </Box>
+          :
           <Box>
             <Button color="inherit"> Login </Button>
           </Box>}

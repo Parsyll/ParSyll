@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import PdfViewer from './PdfViewer';
 import axios from 'axios';
-import { getJWTToken } from '../helper/jwt';
+import { getJWTToken } from '../../helper/jwt';
 
 axios.interceptors.request.use(config => {
   const token = getJWTToken();

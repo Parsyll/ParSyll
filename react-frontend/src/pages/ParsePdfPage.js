@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
 import Button from '@mui/material/Button';
-import UploadPdfButton from './UploadPdfButton'
-import { DropZone } from "./DropZone";
+import UploadPdfButton from '../components/pdfUpload/UploadPdfButton'
+import { DropZone } from "../components/pdfUpload/DropZone";
 
-export const PdfUploader = () => {
+export const ParsePdfPage = () => {
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfFileError, setPdfFileError] = useState("");
   const [openPdf, setOpenPdf] = useState(false);
@@ -47,4 +47,4 @@ export const PdfUploader = () => {
   );
 };
 
-export default PdfUploader;
+export default ParsePdfPage;
