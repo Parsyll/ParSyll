@@ -7,24 +7,25 @@ import os
 import sys
 from dotenv import load_dotenv
 from parsyll_fastapi.auth.auth_handler import decodeJWT
+from fastapi.testclient import TestClient
+from parsyll_fastapi.main import app
 
 load_dotenv()
 
 admin_jwt_token = os.getenv("admin_jwt_token")
 admin_uid = os.getenv("admin_uid")
 
+header = { 'Authorization': f'Bearer {admin_jwt_token}' }
+client = TestClient(app)
+
 class TestJWT:
+
     def test_token_verification_fail(self):
-        url = "http://localhost:8000/users/token/verify"
-        response = requests.get(url)
+        response = client.get("/users/token/verify")
         assert response.status_code == 403
 
     def test_token_verification_success(self):
-        header = {
-            'Authorization': f'Bearer {admin_jwt_token}'
-        }
-        url = "http://localhost:8000/users/token/verify"
-        response = requests.get(url, headers=header)
+        response = client.get("/users/token/verify", headers=header)
         assert response.status_code == 200
 
     def test_token_creation_success(self):
@@ -32,13 +33,11 @@ class TestJWT:
         body = {
             'uid': dummy_uid
         }
-        url = "http://localhost:8000/users/token/create"
-        response = requests.post(url, json=body)
+        response = client.post("/users/token/create", headers=header, json=body)
         response_json = response.json()
         response_token = response_json['access_token']
         decoded_token = decodeJWT(response_token)
-        print("This is the decoded token:")
-        print(decoded_token)
         
         assert response.status_code == 200
         assert decoded_token['user_id'] == dummy_uid    
+

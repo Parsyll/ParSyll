@@ -4,32 +4,6 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import LoginPage from '../pages/LoginPage';
-import SignUpPage from '../pages/SignUpPage';
-
-function TabPanel(props) { const { children, value, index, ...other } = props;
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          <Typography component={'span'}>{children}</Typography>
-        </Box>
-      )}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
 
 function a11yProps(index) {
   return {
@@ -38,16 +12,20 @@ function a11yProps(index) {
   };
 }
 
-export default function CourseTab() {
+export default function CourseTab({courses, setCourse}) {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  const handleSetCourse = (index) => {
+    setCourse(index)
+  }
+
   return (
     <Box
-      sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex', width:'w-full'}}
+      sx={{ flexGrow: 1, bgcolor: 'background.paper', display: 'flex'}}
     >
       <Tabs
         orientation="vertical"
@@ -57,35 +35,11 @@ export default function CourseTab() {
         aria-label="Vertical tabs example"
         sx={{ borderRight: 1, borderColor: 'divider' }}
       >
-        <Tab label="ECE49595" {...a11yProps(0)} />
-        <Tab label="ECE30200" {...a11yProps(1)} />
-        <Tab label="ECE46900" {...a11yProps(2)} />
-        <Tab label="MA34100" {...a11yProps(3)} />
-        <Tab label="CNIT48300" {...a11yProps(4)} />
-        <Tab label="Joe mama" {...a11yProps(5)} />
-        <Tab label="Item Seven" {...a11yProps(6)} />
+        
+        {courses.map((course, index) => (
+          <Tab key={index} label={course.courseName} {...a11yProps(index)} onClick={() => {setCourse(index)}}/>
+        ))}
       </Tabs>
-      <TabPanel value={value} index={0}>
-        <LoginPage />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <SignUpPage />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        Item Three
-      </TabPanel>
-      <TabPanel value={value} index={3}>
-        Item Four
-      </TabPanel>
-      <TabPanel value={value} index={4}>
-        Item Five
-      </TabPanel>
-      <TabPanel value={value} index={5}>
-        Item Six
-      </TabPanel>
-      <TabPanel value={value} index={6}>
-        Item Seven
-      </TabPanel>
     </Box>
   );
 }

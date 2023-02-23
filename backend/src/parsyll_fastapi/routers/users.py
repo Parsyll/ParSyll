@@ -18,7 +18,7 @@ router = APIRouter(
 async def add_dummy_users():
 
     num_dummy_users = 10
-
+    uid = ""
     for i in range(num_dummy_users):
         email = f'user{i}@example.com'
         username = f'USER{i}'
@@ -32,10 +32,11 @@ async def add_dummy_users():
             )
         
         create_user(user.uid, username, email)
+        uid = user.uid
 
         print('Successfully created new user: {0}'.format(user.uid))
     
-    return f'Added {num_dummy_users} dummy users'
+    return f'Added {num_dummy_users} dummy users, uid of one: {uid}'
 
 
 # Retrieve users endpoints
