@@ -1,4 +1,6 @@
 import mimetypes
+import shutil
+
 from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
@@ -36,7 +38,6 @@ async def get_file(file_id: str):
 
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
-# TODO get uid from JWT token instead of path
 @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
@@ -69,6 +70,20 @@ async def user_get_file(uid: str, file_id: str):
     return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
 
 ## Upload file endpoints
+
+# user parses file
+
+@router.post("/parse", dependencies=[Depends(JWTBearer())])
+async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+
+    # download temp file
+    with open('filename.pdf', 'wb+') as file_obj:
+        file_obj.write(file.file.read())
+
+    # parse
+    
+
+    # delete temp file
 
 # user upload file
 @router.post("/submit", dependencies=[Depends(JWTBearer())])
