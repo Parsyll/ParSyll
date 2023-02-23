@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+anyio = "==3.6.2"
+black = "==22.12.0"
+browser-cookie3 = "==0.16.1"
+cachecontrol = "==0.12.11"
+cachetools = "==5.2.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

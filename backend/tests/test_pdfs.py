@@ -6,7 +6,7 @@ import pytest
 import os
 import sys
 from dotenv import load_dotenv
-from auth.auth_handler import decodeJWT
+from parsyll_fastapi.auth.auth_handler import decodeJWT
 
 load_dotenv()
 
