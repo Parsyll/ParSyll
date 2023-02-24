@@ -67,3 +67,4 @@ urllib3==1.26.14
 uvicorn==0.20.0
 wincertstore==0.2
 wrapt==1.14.1
+httpx==0.23.3
