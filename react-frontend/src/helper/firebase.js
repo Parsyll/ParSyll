@@ -18,7 +18,7 @@ import {
 } from "firebase/firestore";
 
 import axios from 'axios'
-import {firebaseConfig} from './credentials'
+import {firebaseConfig} from '../components/credentials'
 
 // PASTE FIRESTORE CREDENTIALS HERE
 
@@ -38,7 +38,11 @@ const signInWithGoogle = async () => {
     await axios.post(`http://localhost:8000/users/create/${user.uid}`)
     .then(
       (res) => {
-        returnObj = res
+        console.log(res.data)
+        returnObj =  {
+          access_token : res.data.access_token,
+          user : user
+        }
       }
     )
   } catch (error) {
@@ -52,11 +56,15 @@ const logInWithEmailAndPassword = async (email, password) => {
   try {
     let res = await signInWithEmailAndPassword(auth, email, password);
     let uid = res.user.uid
+    const user = res.user
     let returnObj;
     await axios.post("http://localhost:8000/users/token/create",
     { "uid":uid })
     .then((res) => {
-      returnObj = res
+      returnObj = {
+        access_token : res.data.access_token,
+        user: user
+      }
     })
 
     return returnObj;
@@ -71,7 +79,12 @@ const registerWithEmailAndPassword = async (name, email, password) => {
     const user = res.user;
     
     const returnObj = await axios.post(`http://localhost:8000/users/create/${user.uid}`)
-    return returnObj;
+
+    const returnObjWithUser = {
+      access_token : returnObj.data.access_token,
+      user: user 
+    }
+    return returnObjWithUser;
 
   } catch (error) {
     console.log(error)
@@ -103,6 +116,8 @@ const firebaseErrorHandeling = (error) => {
     case 'auth/email-already-in-use':
         return 'Email entered is already in use!'
     case 'auth/wrong-password':
+        return 'username or password is incorrect'
+    case 'auth/user-not-found':
         return 'username or password is incorrect'
     default:
         return "Oops an error occured. Please try again."
