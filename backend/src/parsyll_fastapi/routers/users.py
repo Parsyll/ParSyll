@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Response
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import Union
-from parsyll_fastapi.models.model import User
+from parsyll_fastapi.models.model import User, Course
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.auth.auth_handler import signJWT, signAdminJWT
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
@@ -42,20 +42,17 @@ async def add_dummy_users():
 # Retrieve users endpoints
 @router.get("/")
 async def get_all_users():
-    users = [user for user in auth.list_users().iterate_all()]
+    users = []    
+    for user in auth.list_users().iterate_all():
+        users.append(_get_user(user.uid))
+
+
     return users
 
 
 @router.get("/{uid}")
 async def get_user(uid: str):
-    try:
-        user = auth.get_user(uid)
-    except auth.UserNotFoundError:
-        raise HTTPException(404, detail=f"User {uid} not found")
-
-    return user
-     
-
+    return _get_user(uid)
 
 
 # Create users endpoints
@@ -72,40 +69,25 @@ async def create_user_from_auth(uid: str):
         create_user(user.uid, user.display_name, user.email)
     
     except auth.UserNotFoundError:
-        raise HTTPException(404, detail="User not found")
- 
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
+        raise HTTPException(404, detail="User not found") 
     
     return signJWT(uid)
-    # return "User added to database"
 
 @router.post("/token/create")
 async def generate_token(request: Request):
-    try:
-        request = await request.json()
-        uid = request['uid']
-        print(f"Generated JWT Token for User with UID: {uid} \n")
-        return signJWT(uid)
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
-    # return "User added to database"
+    request = await request.json()
+    uid = request['uid']
+    print(f"Generated JWT Token for User with UID: {uid} \n")
+
+    return signJWT(uid) 
 
 @router.post("/admin/token/create")
 async def generate_token(request: Request):
-    try:
-        request = await request.json()
-        uid = request['uid']
-        print(f"Generated JWT Token for User with UID: {uid} \n")
-        return signAdminJWT(uid)
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
-    # return "User added to database"
+    request = await request.json()
+    uid = request['uid']
+    print(f"Generated JWT Token for User with UID: {uid} \n")
+
+    return signAdminJWT(uid)    
 
 @router.get("/token/verify", dependencies=[Depends(JWTBearer())])
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
@@ -118,9 +100,6 @@ async def generate_token(request: Request, uid = Depends(getUIDFromAuthorization
     except auth.UserNotFoundError:
         raise HTTPException(404, detail=f"User with UID = {uid} could not found")
  
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
     return Response(content=f"JWT token is valid for user of UID = {uid} ", status_code=200)
 
 
@@ -141,6 +120,10 @@ async def map_users_from_auth():
 @router.delete('/delete/{uid}')
 async def delete_user(uid: str):
     auth.delete_user(uid)
+
+    user_ref = db.collection(u'users').document(uid)
+    courses_ref = user_ref.collection(u'courses')
+    delete_collection(courses_ref, 1000)
     db.collection(u'users').document(uid).delete()
 
     return f"Deleted user {uid}"
@@ -153,6 +136,11 @@ async def delete_all_users():
     uids = [user.uid for user in auth.list_users().iterate_all()]
     result = auth.delete_users(uids)
 
+    for uid in uids:
+        user_doc_ref = db.collection(u'users').document(uid)
+        courses_ref = user_doc_ref.collection(u'courses')
+        delete_collection(courses_ref, 1000)
+
     user_collection = db.collection(u'users')
     delete_collection(user_collection, 1000)
 
@@ -160,13 +148,31 @@ async def delete_all_users():
 
 
 # Helper functions
+def _get_user(uid: str):
+    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+    
+    courses_ref = user_doc_ref.collection(u'courses')
+    courses_docs = courses_ref.stream()
+    courses_dict = {}
+    for course_doc in courses_docs:
+        courses_dict[course_doc.id] = course_doc.to_dict()
+    
+    user_dict = user_doc.to_dict()
+    if len(courses_dict) > 0:
+        user_dict['courses'] = courses_dict
+
+    return user_dict
+
 def create_user(uid, username, email):
     doc_ref = db.collection(u'users').document(uid)
     user = User(uid=uid, username=username, email=email)
-    # print(user.__dict__)
     doc_ref.set(user.__dict__)
 
-def delete_collection(coll_ref, batch_size):
+def delete_collection(coll_ref, batch_size=1000):
     docs = coll_ref.list_documents(page_size=batch_size)
     deleted = 0
 
