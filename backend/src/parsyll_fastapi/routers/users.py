@@ -69,40 +69,25 @@ async def create_user_from_auth(uid: str):
         create_user(user.uid, user.display_name, user.email)
     
     except auth.UserNotFoundError:
-        raise HTTPException(404, detail="User not found")
- 
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
+        raise HTTPException(404, detail="User not found") 
     
     return signJWT(uid)
-    # return "User added to database"
 
 @router.post("/token/create")
 async def generate_token(request: Request):
-    try:
-        request = await request.json()
-        uid = request['uid']
-        print(f"Generated JWT Token for User with UID: {uid} \n")
-        return signJWT(uid)
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
-    # return "User added to database"
+    request = await request.json()
+    uid = request['uid']
+    print(f"Generated JWT Token for User with UID: {uid} \n")
+
+    return signJWT(uid) 
 
 @router.post("/admin/token/create")
 async def generate_token(request: Request):
-    try:
-        request = await request.json()
-        uid = request['uid']
-        print(f"Generated JWT Token for User with UID: {uid} \n")
-        return signAdminJWT(uid)
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
-    
-    # return "User added to database"
+    request = await request.json()
+    uid = request['uid']
+    print(f"Generated JWT Token for User with UID: {uid} \n")
+
+    return signAdminJWT(uid)    
 
 @router.get("/token/verify", dependencies=[Depends(JWTBearer())])
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
@@ -115,9 +100,6 @@ async def generate_token(request: Request, uid = Depends(getUIDFromAuthorization
     except auth.UserNotFoundError:
         raise HTTPException(404, detail=f"User with UID = {uid} could not found")
  
-    except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(500, detail="Something went wrong")
     return Response(content=f"JWT token is valid for user of UID = {uid} ", status_code=200)
 
 
