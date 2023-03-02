@@ -34,11 +34,9 @@ const signInWithGoogle = async () => {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
     var returnObj;
-    console.log(user)
     await axios.post(`http://localhost:8000/users/create/${user.uid}`)
     .then(
       (res) => {
-        console.log(res.data)
         returnObj =  {
           access_token : res.data.access_token,
           user : user
