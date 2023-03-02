@@ -1,5 +1,5 @@
 import mimetypes
-import shutil
+import os
 
 from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
@@ -9,6 +9,8 @@ from database import db, auth, bucket
 from auth.auth_bearer import JWTBearer
 from auth.auth_handler import getUIDFromAuthorizationHeader
 from models.model import User, Course
+
+from parsing.parser_class import Parser
 
 router = APIRouter(
     prefix="/pdfs",
@@ -81,9 +83,38 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
         file_obj.write(file.file.read())
 
     # parse
-    
+    parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
+      pdf_file = './parsing/etc/s1.pdf', 
+      prompt_file = 'parsing/prompts/class_timings2.txt', 
+      temperature = 0.1, 
+      max_tokens =  1250,
+      gpt_model = "text-davinci-003",
+      DOW_promptfile= 'parsing/prompts/DOW_prompt.txt')
 
-    # delete temp file
+    parser.gpt_parse()
+
+    # generate temp ICS file, convert to string 
+    parser.write_ics()
+
+    # store parsed info along with string ICS file in Firestore
+    try: 
+        user = auth.get_user(uid)
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User {uid} not found")
+    
+    user_doc_ref = db.collection(u'users').document(user.uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+
+    course = Course(locations=[parser.response['class_location']])
+    user_doc_ref.collection(u'courses').add(course.__dict__)
+    
+    return f"Stored parsed info in db for user {user.uid}"
+
+
+    # delete temp pdf file and temp ICS file
 
 # user upload file
 @router.post("/submit", dependencies=[Depends(JWTBearer())])

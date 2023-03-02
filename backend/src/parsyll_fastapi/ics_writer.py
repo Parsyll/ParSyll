@@ -36,7 +36,9 @@ format = '%Y-%m-%d %I:%M%p'
 
 start_date = start_date.strftime('%Y-%m-%d') + ' ' + response[1]
 
-# TODO: Issue with timezone settings, need to add 5 hours right now
+# TODO: Issue with timezone settings, need to add 5 hours right now since
+# EST is 5 hours behind UTC
+
 start_date = datetime.strptime(start_date, format) + timedelta(hours=5) 
 print("lecture start date is: ", start_date)
 
