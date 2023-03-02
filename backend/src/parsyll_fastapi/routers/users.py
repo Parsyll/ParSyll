@@ -68,9 +68,7 @@ async def create_user_manually(request : Request):
         disabled=False
         )
 
-    db.collection(u'users').document(user.uid).delete()
-
-    create_user(user.uid, request['username'], request['email'])
+    res = create_user(user.uid, request['username'], request['email'])
 
     returnObj = {
         "uid" : user.uid,
