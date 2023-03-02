@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from typing import Union, List, Any
+from pydantic import BaseModel, EmailStr
+from typing import Union, List, Any, Dict
 
 class Course(BaseModel):
     name: str = ''
@@ -13,7 +13,7 @@ class Course(BaseModel):
 class User(BaseModel):
     uid: str
     username: str
-    email: Union[str, None] = None
+    email: Union[EmailStr, None] = None
     schools: List[str] = [] 
     # courses: List[Course] = []  ## will create courses collection in firestore instead
 

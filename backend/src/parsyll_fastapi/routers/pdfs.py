@@ -187,9 +187,13 @@ async def delete_all_file_in_firebase():
     
     for user in auth.list_users().iterate_all():
         user_doc_ref = db.collection(u'users').document(user.uid)
-        user_doc_ref.update({
-            u'syllabus': []
-        })
+        courses_ref = user_doc_ref.collection(u'courses')
+
+        courses_docs = courses_ref.stream()
+        for course_doc in courses_docs:
+            courses_ref.document(course_doc.id).update({
+                u'syllabus': ""
+            })
 
     return "Deleted all files in storage bucket!"
 
