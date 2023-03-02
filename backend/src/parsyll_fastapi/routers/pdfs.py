@@ -5,10 +5,10 @@ from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
 from uuid import uuid4
-from database import db, auth, bucket
-from auth.auth_bearer import JWTBearer
-from auth.auth_handler import getUIDFromAuthorizationHeader
-from models.model import User, Course
+from parsyll_fastapi.database import db, auth, bucket
+from parsyll_fastapi.auth.auth_bearer import JWTBearer
+from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
+from parsyll_fastapi.models.model import User, Course
 
 from parsing.parser_class import Parser
 
@@ -111,7 +111,7 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
     course = Course(locations=[parser.response['class_location']])
     user_doc_ref.collection(u'courses').add(course.__dict__)
     
-    return f"Stored parsed info in db for user {user.uid}"
+    return f"Stored parsed information in db for user {user.uid}"
 
 
     # delete temp pdf file and temp ICS file
@@ -143,7 +143,10 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
     user_doc_ref.collection(u'courses').add(course.__dict__)
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
-    return f"Uploaded {file.filename} for user {user.uid}"
+    return {
+        "filename": file.filename,
+        "file_id" : file_id,
+    }
 
 ## DELETE file endpoints
 
@@ -166,7 +169,7 @@ async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
 
     delete_blob(file_id)
 
-    return f"Deleted file {file_id}"
+    return {"file_id" : file_id}
 
 # Delete all file of user:uid
 @router.delete("/user/{uid}")
@@ -218,7 +221,7 @@ async def delete_user_file(uid: str, file_id: str):
     
     delete_blob(file_id)
  
-    return f"Deleted file {file_id} from User {uid}"
+    return {"file_id" : file_id}
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
 # Remove this endpoint for prod
@@ -230,9 +233,13 @@ async def delete_all_file_in_firebase():
     
     for user in auth.list_users().iterate_all():
         user_doc_ref = db.collection(u'users').document(user.uid)
-        user_doc_ref.update({
-            u'syllabus': []
-        })
+        courses_ref = user_doc_ref.collection(u'courses')
+
+        courses_docs = courses_ref.stream()
+        for course_doc in courses_docs:
+            courses_ref.document(course_doc.id).update({
+                u'syllabus': ""
+            })
 
     return "Deleted all files in storage bucket!"
 

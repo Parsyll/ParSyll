@@ -5,6 +5,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import LoadingButton from '@mui/lab/LoadingButton';
 import SaveIcon from '@mui/icons-material/Save';
+import CopyAllIcon from '@mui/icons-material/CopyAll';
 
 export const PdfViewer = ({pdfFile, handleSendPdf, loading}) => {  
   useEffect(() => { pdfjs.GlobalWorkerOptions.workerSrc =`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;});
@@ -40,8 +41,8 @@ export const PdfViewer = ({pdfFile, handleSendPdf, loading}) => {
         </div>
         <LoadingButton
           loading={loading}
-          loadingPosition="start"
-          startIcon={<SaveIcon />}
+          loadingPosition="end"
+          endIcon={<CopyAllIcon />}
           variant="contained"
           sx={{ mt: 4, p:3}}
           onClick={handleSendPdf}

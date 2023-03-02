@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
 import PdfViewer from './PdfViewer';
 import axios from 'axios';
-import { getJWTToken } from '../helper/jwt';
+import { getJWTToken } from '../../helper/jwt';
 
 axios.interceptors.request.use(config => {
   const token = getJWTToken();
@@ -42,7 +42,6 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
         await axios
           .post("http://127.0.0.1:8000/pdfs/submit", formData, headers)
           .then((res) => {
-            console.log(res);
           })
           .catch((err) => {
             console.error(err.response);

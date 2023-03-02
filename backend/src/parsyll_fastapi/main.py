@@ -3,8 +3,8 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from routers import users
-from routers import pdfs
+from parsyll_fastapi.routers import users
+from parsyll_fastapi.routers import pdfs
 
 from starlette.responses import JSONResponse, Response
 

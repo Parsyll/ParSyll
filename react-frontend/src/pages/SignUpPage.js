@@ -14,7 +14,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../components/firebase';
+import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../helper/firebase';
 import { setJWTToken } from '../helper/jwt';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
@@ -24,7 +24,7 @@ import ErrorMessage from '../components/ErrorMessage';
 
 const theme = createTheme();
 
-export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
+export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfilePic, setUserName}) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -72,7 +72,11 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
 
       if (res) {
         handleSetLogin(true)
-        const jwtToken = res.data['access_token']
+        const jwtToken = res['access_token']
+        const user = res.user
+
+        setProfilePic(user["photoURL"])
+        setUserName(user["displayName"])
         setJWTToken(jwtToken, rememberMe);
       }
     } catch (error) {
@@ -94,7 +98,11 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin}) {
       
       if (res) {
         handleSetLogin(true)
-        const jwtToken = res.data['access_token']
+        const jwtToken = res['access_token']
+        const user = res.user
+
+        setProfilePic(user["photoURL"])
+        setUserName(user["displayName"])
         setJWTToken(jwtToken, rememberMe);
       }
     } catch (error) {
