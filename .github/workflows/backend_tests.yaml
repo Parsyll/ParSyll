@@ -43,6 +43,9 @@ jobs:
         pip install pytest flake8 mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .
+    - name: check environment var
+      run: printenv
+      
     - name: Test with pytest
       run: pytest tests/
 

@@ -97,7 +97,10 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
     user_doc_ref.collection(u'courses').add(course.__dict__)
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
-    return f"Uploaded {file.filename} for user {user.uid}"
+    return {
+        "filename": file.filename,
+        "file_id" : file_id,
+    }
 
 ## DELETE file endpoints
 
@@ -120,7 +123,7 @@ async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
 
     delete_blob(file_id)
 
-    return f"Deleted file {file_id}"
+    return {"file_id" : file_id}
 
 # Delete all file of user:uid
 @router.delete("/user/{uid}")
@@ -172,7 +175,7 @@ async def delete_user_file(uid: str, file_id: str):
     
     delete_blob(file_id)
  
-    return f"Deleted file {file_id} from User {uid}"
+    return {"file_id" : file_id}
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
 # Remove this endpoint for prod
