@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-JWT_SECRET = os.getenv("secret")
-JWT_ALGORITHM = os.getenv("algorithm")
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
 
 def token_response(token: str):
