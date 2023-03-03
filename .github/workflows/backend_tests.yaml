@@ -45,10 +45,7 @@ jobs:
     #     pip install -e .
 
     - name: check environment var
-      run: |
-        printenv | grep jwt
-        printenv | grep admin
-        printenv | grep firebase
+      run: printenv | grep firebase
       
     # - name: Test with pytest
     #   run: pytest tests/
