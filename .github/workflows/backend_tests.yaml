@@ -45,7 +45,10 @@ jobs:
     #     pip install -e .
 
     - name: check environment var
-      run: printenv | grep firebase
+      run: |
+        echo $0
+        echo $FIREBASE_CONFIG
+        echo $FIREBASE_SERVICE_ACCOUNT
       
     # - name: Test with pytest
     #   run: pytest tests/
