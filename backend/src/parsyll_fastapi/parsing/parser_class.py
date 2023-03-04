@@ -126,10 +126,11 @@ class Parser():
 
         self.response['course'] = response[0]
         self.response['class_start_time'] = response[1]
-        self.response['class_duration'] = response[2]
+        self.response['class_end_time'] = response[2]
         self.response['days_of_week'] = response[3]
         self.response['class_location'] = response[4]
-
+        self.response['prof_name'] = response[5]
+        
         # print(self.response)
         self.postprocess()
         print(self.response)
@@ -163,23 +164,31 @@ class Parser():
             
             print(start_date)
             # add start time to current start_date
-            start_date = start_date.strftime('%Y-%m-%d') + ' ' + self.response['class_start_time']
+            start_time = start_date.strftime('%Y-%m-%d') + ' ' + self.response['class_start_time']
+            end_time = start_date.strftime('%Y-%m-%d') + ' ' + self.response['class_end_time']
+
 
             # TODO: Issue with timezone settings, need to add 5 hours right now since
             # EST is 5 hours behind UTC
-            start_date = datetime.strptime(start_date, format) + timedelta(hours=5) 
-            print("lecture start date is: ", start_date)
+            start_time = datetime.strptime(start_time, format) + timedelta(hours=5) 
+            end_time = datetime.strptime(end_time, format) + timedelta(hours=5) 
 
+            # # end date 
+            # end_date = start_date + timedelta(minutes=int(self.response['class_duration']))
+
+            print("lecture start date is: ", (start_time))
+            print("lecture end date is: ", (end_time))
 
             c = Calendar()
             e = Event()
             e.name = f"{self.response['course']} ({self.response['class_location']})" #course number (location)
-            e.begin = start_date
-            e.duration = timedelta(minutes=int(self.response['class_duration']))
-            # e.end = end_date
+            e.begin = start_time
+            # e.duration = timedelta(minutes=int(self.response['class_duration']))
+            e.end = end_time
             c.events.add(e)
             c.events
             with open('my.ics', 'w') as my_file:
                 my_file.writelines(c.serialize_iter())
+                self.response['ics'] = c.serialize_iter()
 
-
+            print(self.response['ics'])

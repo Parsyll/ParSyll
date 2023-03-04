@@ -6,9 +6,11 @@ class Course(BaseModel):
     instructors: List[str] = []
     locations: List[str] = []
     syllabus: str = ''
-    class_times: List[Any] = []
+    class_start: str = ''
+    class_end: str = ''
+    days_of_week: List[str] = []
     office_hrs: List[Any] = []
-    ics_file: str = ''
+    ics_file: List[str] = []
     textbook: str = ''
 
 class User(BaseModel):

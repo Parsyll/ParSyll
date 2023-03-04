@@ -84,7 +84,7 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
 
     # parse
     parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-      pdf_file = './parsing/etc/s1.pdf', 
+      pdf_file = 'filename.pdf', 
       prompt_file = 'parsing/prompts/class_timings2.txt', 
       temperature = 0.1, 
       max_tokens =  1250,
@@ -108,7 +108,14 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    course = Course(locations=[parser.response['class_location']])
+    course = Course(name=parser.response['course'], 
+                    locations=[parser.response['class_location']],
+                    class_start=parser.response['class_start_time'],
+                    class_end=parser.response['class_end_time'],
+                    days_of_week=parser.response['days_of_week'],
+                    ics_file = parser.response['ics'],
+                    instructors = [parser.response['prof_name']]
+                    )
     user_doc_ref.collection(u'courses').add(course.__dict__)
     
     return f"Stored parsed information in db for user {user.uid}"
