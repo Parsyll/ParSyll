@@ -1,0 +1,2 @@
+Return the days of the week comma separated. Only return this and nothing else please. 
+What days of the week does the following string represent?

@@ -52,6 +52,7 @@ async def create_user_manually(request : Request):
 async def create_user_manually(request : Request):
     request = await request.json()
     res = ""
+    print(request)
     try:
         res = auth.get_user_by_email(request['email'])
     except Exception as e:

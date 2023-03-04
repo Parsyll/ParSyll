@@ -1,4 +1,6 @@
 import mimetypes
+import os
+
 from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
@@ -7,6 +9,8 @@ from parsyll_fastapi.database import db, auth, bucket
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
 from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
 from parsyll_fastapi.models.model import User, Course
+
+from parsing.parser_class import Parser
 
 router = APIRouter(
     prefix="/pdfs",
@@ -36,7 +40,6 @@ async def get_file(file_id: str):
 
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
-# TODO get uid from JWT token instead of path
 @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
@@ -69,6 +72,56 @@ async def user_get_file(uid: str, file_id: str):
     return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
 
 ## Upload file endpoints
+
+# user parses file
+
+@router.post("/parse", dependencies=[Depends(JWTBearer())])
+async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+
+    # download temp file
+    with open('filename.pdf', 'wb+') as file_obj:
+        file_obj.write(file.file.read())
+
+    # parse
+    parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
+      pdf_file = 'filename.pdf', 
+      prompt_file = 'parsing/prompts/class_timings2.txt', 
+      temperature = 0.1, 
+      max_tokens =  1250,
+      gpt_model = "text-davinci-003",
+      DOW_promptfile= 'parsing/prompts/DOW_prompt.txt')
+
+    parser.gpt_parse()
+
+    # generate temp ICS file, convert to string 
+    parser.write_ics()
+
+    # store parsed info along with string ICS file in Firestore
+    try: 
+        user = auth.get_user(uid)
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User {uid} not found")
+    
+    user_doc_ref = db.collection(u'users').document(user.uid)
+    user_doc = user_doc_ref.get()
+
+    if not user_doc.exists:
+        raise HTTPException(404, detail=f"User {uid} does not exist")
+
+    course = Course(name=parser.response['course'], 
+                    locations=[parser.response['class_location']],
+                    class_start=parser.response['class_start_time'],
+                    class_end=parser.response['class_end_time'],
+                    days_of_week=parser.response['days_of_week'],
+                    ics_file = parser.response['ics'],
+                    instructors = [parser.response['prof_name']]
+                    )
+    user_doc_ref.collection(u'courses').add(course.__dict__)
+    
+    return f"Stored parsed information in db for user {user.uid}"
+
+
+    # delete temp pdf file and temp ICS file
 
 # user upload file
 @router.post("/submit", dependencies=[Depends(JWTBearer())])

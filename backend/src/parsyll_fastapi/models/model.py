@@ -4,11 +4,14 @@ from typing import Union, List, Any, Dict
 class Course(BaseModel):
     name: str = ''
     instructors: List[str] = []
-    locations: List[Any] = []
+    locations: List[str] = []
     syllabus: str = ''
-    class_times: List[str] = []
-    office_hrs: List[str] = []
-    ics_file: str = ''
+    class_start: str = ''
+    class_end: str = ''
+    days_of_week: List[str] = []
+    office_hrs: List[Any] = []
+    ics_file: List[str] = []
+    textbook: str = ''
 
 class User(BaseModel):
     uid: str
