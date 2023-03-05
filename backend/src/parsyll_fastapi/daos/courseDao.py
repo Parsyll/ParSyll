@@ -1,5 +1,6 @@
 from parsyll_fastapi.database import db
 from parsyll_fastapi.models.model import Course, CourseBase
+from typing import List
 
 class CourseDAO:
     user_collection_name = "users"
@@ -24,7 +25,7 @@ class CourseDAO:
             return Course(**course_doc.to_dict())
         return None
 
-    def get_all(self, uid: str) -> Course:
+    def get_all(self, uid: str) -> List[Course]:
         user_ref = db.collection(self.user_collection_name).document(uid)
         course_ref = user_ref.collection(self.collection_name)
 
