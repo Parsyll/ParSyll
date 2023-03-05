@@ -154,6 +154,8 @@ async def create_user_from_auth(uid: str):
     
     except auth.UserNotFoundError:
         raise HTTPException(404, detail="User not found") 
+    except:
+        print("we got a boo boo")
     
     return signJWT(uid)
 
