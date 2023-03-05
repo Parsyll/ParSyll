@@ -34,8 +34,20 @@ class UserDAO:
 
         return user_list
 
-    def update(self):
-        pass
+    def update(self, uid: str, user: User) -> User:
+        data = user.dict()
+        user_doc_ref = db.collection(self.collection_name).document(uid)
+
+        user_doc = user_doc_ref.get()
+        if not user_doc.exists:
+            return None
+
+        if data['uid'] != uid:
+            data['uid'] = uid
+
+        user_doc_ref.update(data)
+        
+        return self.get(uid)
 
     def delete(self):
         pass

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Request, Depends, Response
+from fastapi import APIRouter, Request, Depends, Response, Body
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from typing import Union
-from parsyll_fastapi.models.model import User, Course
+from typing import List
+from parsyll_fastapi.models.model import User, UserResponse, Course
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.daos.courseDao import CourseDAO
 from parsyll_fastapi.daos.userDao import UserDAO
@@ -144,20 +144,29 @@ async def add_dummy_users():
 
 
 # Retrieve users endpoints
-@router.get("/")
+@router.get("/", response_model=List[UserResponse])
 async def get_all_users():
     users = user_dao.get_all()
 
     return users
 
-
-@router.get("/{uid}")
+@router.get("/{uid}", response_model=UserResponse)
 async def get_user(uid: str):
     user = user_dao.get(uid)
     if not user:
         raise HTTPException(404, detail=f"User {uid} not found") 
 
     return user
+
+
+## Update users endpoint
+@router.put("/{uid}", response_model=User)
+async def update_user(uid: str, user: User = Body(...)):
+    updated_user = user_dao.update(uid, user)
+    if not updated_user:
+        raise HTTPException(404, detail=f"User {uid} not found") 
+
+    return updated_user
      
 # Create users endpoints
 '''
