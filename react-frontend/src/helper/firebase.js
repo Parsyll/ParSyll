@@ -75,7 +75,6 @@ const registerWithEmailAndPassword = async (name, email, password) => {
   try {
     const res = await createUserWithEmailAndPassword(auth, email, password);
     const user = res.user;
-    
     const returnObj = await axios.post(`http://localhost:8000/users/create/${user.uid}`)
 
     const returnObjWithUser = {
