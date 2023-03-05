@@ -8,7 +8,8 @@ from uuid import uuid4
 from parsyll_fastapi.database import db, auth, bucket
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
 from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
-from parsyll_fastapi.models.model import User, Course
+from parsyll_fastapi.models.model import User, Course, CourseBase
+from parsyll_fastapi.daos.courseDao import CourseDAO
 
 from parsyll_fastapi.parsing.parser_class import Parser
 
@@ -16,6 +17,8 @@ router = APIRouter(
     prefix="/pdfs",
     tags=["pdfs"]
 )
+
+course_dao = CourseDAO()
 
 ## Download File endpoints
 
@@ -146,8 +149,7 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
     blob.upload_from_string(file_contents, content_type=file.content_type)
 
-    course = Course(syllabus=str(file_id))
-    user_doc_ref.collection(u'courses').add(course.__dict__)
+    course_dao.create(uid, CourseBase(syllabus=str(file_id))) 
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
     return {

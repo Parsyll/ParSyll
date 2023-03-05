@@ -19,15 +19,15 @@ def create_course(uid: str, course: CourseBase = Body(...)):
 def get_course(uid: str, course_id: str):
     course = course_dao.get(uid, course_id)
     if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
+        raise HTTPException(status_code=404, detail="Invalid user id or course id")
     return course
 
 
 @router.get("/{uid}", response_model=List[Course])
 def list_courses(uid: str):
     course_list = course_dao.get_all(uid)
-    if not course_list:
-        raise HTTPException(status_code=404, detail="No courses found")
+    if course_list is None:
+        raise HTTPException(status_code=404, detail=f"User id {uid} does not exist to get courses")
     return course_list
 
 
@@ -35,7 +35,7 @@ def list_courses(uid: str):
 def update_course(uid: str, course_id: str, course: Course = Body(...)):
     course = course_dao.update(uid, course_id, course)
     if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
+        raise HTTPException(status_code=404, detail="Invalid user id or course id")
     return course
 
 

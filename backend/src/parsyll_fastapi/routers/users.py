@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request, Depends, Response
+from fastapi import APIRouter, Request, Depends, Response, Body
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from typing import Union
-from parsyll_fastapi.models.model import User, Course
+from typing import List
+from parsyll_fastapi.models.model import User, UserResponse, Course
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.daos.courseDao import CourseDAO
+from parsyll_fastapi.daos.userDao import UserDAO
 from parsyll_fastapi.auth.auth_handler import signJWT, signAdminJWT
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
 from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
@@ -15,6 +16,7 @@ router = APIRouter(
 )
 
 course_dao = CourseDAO()
+user_dao = UserDAO()
 
 # FOR TESTING PURPOSES ONLY
 @router.post("/create_user_manually")
@@ -94,6 +96,27 @@ async def generate_token(request: Request):
         print(f"Error: {e}")
         raise HTTPException(500, detail="Something went wrong")
 
+@router.post("/token/create")
+async def generate_token(request: Request):
+    request = await request.json()
+    uid = request['uid']
+    print(f"Generated JWT Token for User with UID: {uid} \n")
+
+    return signJWT(uid) 
+
+@router.get("/token/verify", dependencies=[Depends(JWTBearer())])
+async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
+    print(uid)
+    try:
+        user = auth.get_user(uid)
+        print('Successfully fetched user data: {0}'.format(user.uid))
+        create_user(user.uid, user.display_name, user.email)
+    
+    except auth.UserNotFoundError:
+        raise HTTPException(404, detail=f"User with UID = {uid} could not found")
+ 
+    return Response(content=f"JWT token is valid for user of UID = {uid} ", status_code=200)
+
 
 # FOR TESTING PURPOSES ONLY
 @router.post("/add_dummy_users")
@@ -121,24 +144,30 @@ async def add_dummy_users():
 
 
 # Retrieve users endpoints
-@router.get("/")
+@router.get("/", response_model=List[UserResponse])
 async def get_all_users():
-    users = []    
-    for user in auth.list_users().iterate_all():
-        users.append(_get_user(user.uid))
+    users = user_dao.get_all()
 
     return users
 
-@router.get("/get_current_user", dependencies=[Depends(JWTBearer())])
-async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
-    user = _get_user(uid)
-    return user
-
-@router.get("/{uid}")
+@router.get("/{uid}", response_model=UserResponse)
 async def get_user(uid: str):
-    user = _get_user(uid)
+    user = user_dao.get(uid)
+    if not user:
+        raise HTTPException(404, detail=f"User {uid} not found") 
+
     return user
 
+
+## Update users endpoint
+@router.put("/{uid}", response_model=User)
+async def update_user(uid: str, user: User = Body(...)):
+    updated_user = user_dao.update(uid, user)
+    if not updated_user:
+        raise HTTPException(404, detail=f"User {uid} not found") 
+
+    return updated_user
+     
 # Create users endpoints
 '''
 Create users assumes user has signed up through auth
@@ -158,27 +187,6 @@ async def create_user_from_auth(uid: str):
         print("we got a boo boo")
     
     return signJWT(uid)
-
-@router.post("/token/create")
-async def generate_token(request: Request):
-    request = await request.json()
-    uid = request['uid']
-    print(f"Generated JWT Token for User with UID: {uid} \n")
-
-    return signJWT(uid) 
-
-@router.get("/token/verify", dependencies=[Depends(JWTBearer())])
-async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
-    print(uid)
-    try:
-        user = auth.get_user(uid)
-        print('Successfully fetched user data: {0}'.format(user.uid))
-        create_user(user.uid, user.display_name, user.email)
-    
-    except auth.UserNotFoundError:
-        raise HTTPException(404, detail=f"User with UID = {uid} could not found")
- 
-    return Response(content=f"JWT token is valid for user of UID = {uid} ", status_code=200)
 
 # Delete endpoints
 @router.delete('/delete/{uid}')
@@ -212,20 +220,6 @@ async def delete_all_users():
 
 
 # Helper functions
-def _get_user(uid: str):
-    user_doc_ref = db.collection(u'users').document(uid)
-    user_doc = user_doc_ref.get()
-
-    if not user_doc.exists:
-        raise HTTPException(404, detail=f"User {uid} does not exist")
-    
-    courses_list = course_dao.get_all(uid)
-    
-    user_dict = user_doc.to_dict()
-    user_dict['courses'] = courses_list
-
-    return user_dict
-
 def create_user(uid, username, email):
     doc_ref = db.collection(u'users').document(uid)
     user = User(uid=uid, username=username, email=email)
