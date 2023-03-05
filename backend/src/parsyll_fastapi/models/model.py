@@ -21,7 +21,8 @@ class User(BaseModel):
     username: str
     email: Union[EmailStr, None] = None
     schools: List[str] = [] 
-    # courses: List[Course] = []  ## will create courses collection in firestore instead
 
+class UserResponse(User):
+    courses: List[Course]
 
 
