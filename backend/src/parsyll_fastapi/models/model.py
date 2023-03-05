@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from typing import Union, List, Any, Dict
 
-class Course(BaseModel):
+class CourseBase(BaseModel):
     name: str = ''
     instructors: List[str] = []
     locations: List[str] = []
@@ -12,6 +12,9 @@ class Course(BaseModel):
     office_hrs: List[Any] = []
     ics_file: List[str] = []
     textbook: str = ''
+
+class Course(CourseBase):
+    id: str
 
 class User(BaseModel):
     uid: str

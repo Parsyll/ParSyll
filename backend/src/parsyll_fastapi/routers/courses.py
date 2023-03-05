@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Response, Body
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
 from typing import List
-from parsyll_fastapi.models.model import User, Course
+from parsyll_fastapi.models.model import User, Course, CourseBase
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.daos.courseDao import CourseDAO
 
@@ -10,7 +10,7 @@ router = APIRouter(prefix="/courses", tags=["courses"])
 course_dao = CourseDAO()
 
 @router.post("/{uid}")
-def create_course(uid: str, course: Course = Body(...)):
+def create_course(uid: str, course: CourseBase = Body(...)):
     course_id = course_dao.create(uid, course)
     return course_id
 
