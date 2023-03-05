@@ -10,7 +10,7 @@ from parsyll_fastapi.auth.auth_bearer import JWTBearer
 from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
 from parsyll_fastapi.models.model import User, Course
 
-from parsing.parser_class import Parser
+from parsyll_fastapi.parsing.parser_class import Parser
 
 router = APIRouter(
     prefix="/pdfs",

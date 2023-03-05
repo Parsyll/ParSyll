@@ -3,8 +3,7 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from parsyll_fastapi.routers import users
-from parsyll_fastapi.routers import pdfs
+from parsyll_fastapi.routers import users, pdfs, courses
 
 from starlette.responses import JSONResponse, Response
 
@@ -12,6 +11,7 @@ from starlette.responses import JSONResponse, Response
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(pdfs.router)
+app.include_router(courses.router)
 
 origins = [
     "http://localhost:3000"

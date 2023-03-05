@@ -17,7 +17,7 @@ class CourseDAO:
     def get(self, uid: str, course_id: str) -> Course:
         user_ref = db.collection(self.user_collection_name).document(uid)
         course_ref = user_ref.collection(self.collection_name)
-        course_doc = course_ref.get()
+        course_doc = course_ref.document(course_id).get()
         if course_doc.exists:
             return Course(**course_doc.to_dict())
         return None
