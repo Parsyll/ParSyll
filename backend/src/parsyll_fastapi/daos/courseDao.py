@@ -1,15 +1,17 @@
 from parsyll_fastapi.database import db
-from parsyll_fastapi.models.model import Course
+from parsyll_fastapi.models.model import Course, CourseBase
 
 class CourseDAO:
     user_collection_name = "users"
     collection_name = "courses"
 
     # create returns course_id that was created
-    def create(self, uid: str, course: Course) -> str:
-        data = course.dict()
+    def create(self, uid: str, course: CourseBase) -> str:
         user_ref = db.collection(self.user_collection_name).document(uid)
         course_doc = user_ref.collection(self.collection_name).document()
+
+        data = course.dict()
+        data["id"] = course_doc.id
         course_doc.set(data)
 
         return course_doc.id
@@ -36,6 +38,10 @@ class CourseDAO:
         data = course.dict()
         user_ref = db.collection(self.user_collection_name).document(uid)
         course_doc = user_ref.collection(self.collection_name).document(course_id)
+
+        if data["id"] != course_id:
+            data["id"] = course_id
+
         course_doc.update(data)
 
         return self.get(uid, course_id)
