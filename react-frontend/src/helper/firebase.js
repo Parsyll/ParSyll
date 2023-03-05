@@ -19,7 +19,7 @@ import {
 
 import axios from 'axios'
 import {firebaseConfig} from '../components/credentials'
-
+import { setJWTToken } from "./jwt";
 // PASTE FIRESTORE CREDENTIALS HERE
 
 
@@ -122,6 +122,33 @@ const firebaseErrorHandeling = (error) => {
   }
 }
 
+const handleGoogleSignIn = async (setLoadingGoogle, setProfilePic, setUserName, 
+  displayErrorMessage, rememberMe, login) => {
+  setLoadingGoogle(true);
+  try {
+    var res = await signInWithGoogle();
+
+    if (res instanceof Error) {
+      throw res;
+    }
+
+    if (res) {
+      console.log(res);
+      const jwtToken = res["access_token"];
+      const user = res.user;
+      setProfilePic(user["photoURL"]);
+      setUserName(user["displayName"]);
+      setJWTToken(jwtToken, rememberMe);
+      login();
+    }
+  } catch (error) {
+    console.log(error);
+    const errorText = firebaseErrorHandeling(error);
+    displayErrorMessage(errorText);
+  }
+  setLoadingGoogle(false);
+}
+
 export {
   auth,
   db,
@@ -130,5 +157,6 @@ export {
   registerWithEmailAndPassword,
   sendPasswordReset,
   logout,
-  firebaseErrorHandeling
+  firebaseErrorHandeling,
+  handleGoogleSignIn
 };

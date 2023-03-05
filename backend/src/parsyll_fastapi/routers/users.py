@@ -127,15 +127,18 @@ async def get_all_users():
     for user in auth.list_users().iterate_all():
         users.append(_get_user(user.uid))
 
-
     return users
 
+@router.get("/get_current_user", dependencies=[Depends(JWTBearer())])
+async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
+    user = _get_user(uid)
+    return user
 
 @router.get("/{uid}")
 async def get_user(uid: str):
     user = _get_user(uid)
     return user
-     
+
 # Create users endpoints
 '''
 Create users assumes user has signed up through auth

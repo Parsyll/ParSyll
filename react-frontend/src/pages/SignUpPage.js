@@ -13,18 +13,17 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { registerWithEmailAndPassword, signInWithGoogle, logInWithEmailAndPassword, sendPasswordReset, firebaseErrorHandeling} from '../helper/firebase';
+import { registerWithEmailAndPassword, firebaseErrorHandeling, handleGoogleSignIn} from '../helper/firebase';
 import { setJWTToken } from '../helper/jwt';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import GoogleIcon from '@mui/icons-material/Google';
-import AlertTitle from '@mui/material/AlertTitle';
 import ErrorMessage from '../components/ErrorMessage';
+import { AuthContext} from '../hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
-const theme = createTheme();
 
-export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfilePic, setUserName}) {
+export default function SignUpPage({setProfilePic, setUserName}) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -32,6 +31,9 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfi
   const [loadingGoogle, setLoadingGoogle] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+
+  const {login} = React.useContext(AuthContext)
+  const navigate = useNavigate()
 
   const handlePasswordChange = (e) => {
     e.preventDefault()
@@ -71,13 +73,13 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfi
       }
 
       if (res) {
-        handleSetLogin(true)
         const jwtToken = res['access_token']
         const user = res.user
 
         setProfilePic(user["photoURL"])
         setUserName(user["displayName"])
         setJWTToken(jwtToken, rememberMe);
+        login();
       }
     } catch (error) {
       const errorText = firebaseErrorHandeling(error)
@@ -86,31 +88,9 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfi
     setLoading(false)
   };
 
-  const handleGoogleSignIn = async (e) => {
+  const signInWithGoogle = async (e) => {
     e.preventDefault()
-    setLoadingGoogle(true)
-    try{
-      const res = await signInWithGoogle()
-
-      if(res instanceof Error) {
-        throw res;
-      }
-      
-      if (res) {
-        handleSetLogin(true)
-        const jwtToken = res['access_token']
-        const user = res.user
-
-        setProfilePic(user["photoURL"])
-        setUserName(user["displayName"])
-        setJWTToken(jwtToken, rememberMe);
-      }
-    } catch (error) {
-      console.log(error)
-      const errorText = firebaseErrorHandeling(error)
-      displayErrorMessage(errorText)
-    }
-    setLoadingGoogle(false)
+    handleGoogleSignIn(setLoadingGoogle, setProfilePic, setUserName, displayErrorMessage, rememberMe, login)
   }
 
   return (
@@ -228,13 +208,17 @@ export default function SignUpPage({handleSetLoginPage, handleSetLogin, setProfi
                 loading={loadingGoogle}
                 loadingPosition='end'
                 endIcon={<GoogleIcon />}
-                onClick={handleGoogleSignIn}
+                onClick={signInWithGoogle}
               >
                 Sign In With Google
               </LoadingButton>
               <Grid container>
                 <Grid item>
-                  <Button onClick={handleSetLoginPage}>
+                  <Button onClick={ (e) => {
+                    e.preventDefault();
+                    navigate("/login");
+                  }
+                  }>
                     Have an account already?
                   </Button>
                 </Grid>
