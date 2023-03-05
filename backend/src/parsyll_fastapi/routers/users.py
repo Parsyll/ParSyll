@@ -4,6 +4,7 @@ from fastapi.exceptions import HTTPException
 from typing import Union
 from parsyll_fastapi.models.model import User, Course
 from parsyll_fastapi.database import db, auth
+from parsyll_fastapi.daos.courseDao import CourseDAO
 from parsyll_fastapi.auth.auth_handler import signJWT, signAdminJWT
 from parsyll_fastapi.auth.auth_bearer import JWTBearer
 from parsyll_fastapi.auth.auth_handler import getUIDFromAuthorizationHeader
@@ -12,6 +13,8 @@ router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
+
+course_dao = CourseDAO()
 
 # FOR TESTING PURPOSES ONLY
 @router.post("/create_user_manually")
@@ -130,11 +133,7 @@ async def get_all_users():
 
 @router.get("/{uid}")
 async def get_user(uid: str):
-    try:
-        user = auth.get_user(uid)
-    except auth.UserNotFoundError:
-        raise HTTPException(404, detail=f"User {uid} not found")
-
+    user = _get_user(uid)
     return user
      
 # Create users endpoints
@@ -215,15 +214,10 @@ def _get_user(uid: str):
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
     
-    courses_ref = user_doc_ref.collection(u'courses')
-    courses_docs = courses_ref.stream()
-    courses_dict = {}
-    for course_doc in courses_docs:
-        courses_dict[course_doc.id] = course_doc.to_dict()
+    courses_list = course_dao.get_all(uid)
     
     user_dict = user_doc.to_dict()
-    if len(courses_dict) > 0:
-        user_dict['courses'] = courses_dict
+    user_dict['courses'] = courses_list
 
     return user_dict
 
