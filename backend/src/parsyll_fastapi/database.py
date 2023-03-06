@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # cred3312412343434313232
-print(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
-print(os.getenv("FIREBASE_CONFIG"))
+print(os.getenv("FIREBASE_SERVICE_ACCOUNT") + "joe")
+print(os.getenv("FIREBASE_CONFIG") + "joe")
 cred = json.loads(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
 config = json.loads(os.getenv("FIREBASE_CONFIG"))
 

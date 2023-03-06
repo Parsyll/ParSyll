@@ -43,13 +43,13 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         pip install -e .
 
-    - name: check environment var
-      run: |
-        JWT_SECRET=${{ secrets.JWT_SECRET }} 
-        JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }} 
-        ADMIN_UID=${{ secrets.ADMIN_UID }}
-        FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }}
-        FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+    # - name: check environment var
+    #   run: |
+    #     JWT_SECRET=${{ secrets.JWT_SECRET }} 
+    #     JWT_ALGORITHM=${{ secrets.JWT_ALGORITHM }} 
+    #     ADMIN_UID=${{ secrets.ADMIN_UID }}
+    #     FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }}
+    #     FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       
     - name: Test with pytest
       env:
