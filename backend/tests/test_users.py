@@ -49,6 +49,7 @@ class TestUsers:
             "username": "dummydummy"
         }
         response = client.post("/users/create_user_manually", headers=header, json=body)
+        print("JOE")
         response_json = response.json()
         uid = response_json['uid']
         header_temp = { 'Authorization': f"Bearer {response_json['jwtToken']}" }
