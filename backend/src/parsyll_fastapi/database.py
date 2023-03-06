@@ -8,12 +8,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-cred_path = os.path.join(os.path.join(os.path.dirname(__file__), os.getenv("FIREBASE_SERVICE_ACCOUNT")))
-config_path = os.path.join(os.path.join(os.path.dirname(__file__), os.getenv("FIREBASE_CONFIG")))
+cred_path = json.loads(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
+config_path = json.loads(os.getenv("FIREBASE_CONFIG"))
+
 
 cred = credentials.Certificate(cred_path)
 firebase_admin.initialize_app(cred, {'storageBucket': 'parsyll.appspot.com'})
-config = json.load(open(config_path))
+# config = json.load(open(config_path))
+config = config_path
 pb = pyrebase.initialize_app(config)
 db = firestore.client()
 bucket = storage.bucket()
