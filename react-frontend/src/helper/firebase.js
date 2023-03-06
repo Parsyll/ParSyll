@@ -33,8 +33,14 @@ const signInWithGoogle = async () => {
   try {
     const res = await signInWithPopup(auth, googleProvider);
     const user = res.user;
+    console.log(user.displayName)
+    const body = {
+      uid : user.uid,
+      username: user.displayName,
+      email: user.email
+    }
     var returnObj;
-    await axios.post(`http://localhost:8000/users/create/${user.uid}`)
+    await axios.post(`http://localhost:8000/users/create/${user.uid}`, body)
     .then(
       (res) => {
         returnObj =  {

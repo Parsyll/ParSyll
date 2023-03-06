@@ -186,9 +186,11 @@ Create users assumes user has signed up through auth
 # Maybe add a user already exists check here to prevent duplicate adds
 @router.post("/create/{uid}")
 async def create_user_from_auth(uid: str, userBody: User = Body(...)):
+    print(userBody)
     try:
         user = auth.get_user(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
+        print(userBody)
         username = userBody.username if not user.display_name else user.display_name
         create_user(user.uid, username, user.email)
     
