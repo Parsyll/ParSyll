@@ -18,8 +18,11 @@ from .mocks import MockUserRecord, MockUser
 
 load_dotenv()
 
-admin_jwt_token = os.getenv("ADMIN_JWT_TOKEN").strip()
-admin_uid = os.getenv("ADMIN_UID").strip()
+admin_jwt_token = os.getenv("ADMIN_JWT_TOKEN")
+admin_uid = os.getenv("ADMIN_UID")
+
+print(admin_jwt_token)
+print(admin_uid)
 
 header = { 'Authorization': f'Bearer {admin_jwt_token}' }
 client = TestClient(app)
