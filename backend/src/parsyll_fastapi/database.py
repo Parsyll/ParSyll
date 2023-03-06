@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# cred331241234343431
+# cred3312412343434313232
 print(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
 print(os.getenv("FIREBASE_CONFIG"))
 cred = json.loads(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
