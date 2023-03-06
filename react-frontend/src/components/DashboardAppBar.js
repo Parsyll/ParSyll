@@ -46,7 +46,7 @@ export default function DashboardAppBar({profilePic}) {
               <ContentCutIcon />
             </IconButton> 
           }
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} onClick={()=>navigate("/")}>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} onClick={()=>navigate("/")} className="cursor-pointer">
             Parsyll
           </Typography>
           {authed ?
