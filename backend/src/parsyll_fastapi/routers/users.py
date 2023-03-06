@@ -190,7 +190,6 @@ async def create_user_from_auth(uid: str, userBody: User = Body(...)):
     try:
         user = auth.get_user(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
-        print(userBody)
         username = userBody.username if not user.display_name else user.display_name
         create_user(user.uid, username, user.email)
     
