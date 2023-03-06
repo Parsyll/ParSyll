@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # cred33124123
+print(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
+print(os.getenv("FIREBASE_CONFIG"))
 cred_path = json.loads(os.getenv("FIREBASE_SERVICE_ACCOUNT"))
 config_path = json.loads(os.getenv("FIREBASE_CONFIG"))
 
