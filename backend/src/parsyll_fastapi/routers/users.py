@@ -150,6 +150,15 @@ async def get_all_users():
 
     return users
 
+@router.get("/get_current_user", response_model=UserResponse, dependencies=[Depends(JWTBearer)])
+async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
+    user = user_dao.get(uid)
+    print("JOE")
+    if not user:
+        raise HTTPException(404, detail=f"User {uid} not found") 
+
+    return user
+
 @router.get("/{uid}", response_model=UserResponse)
 async def get_user(uid: str):
     user = user_dao.get(uid)
@@ -157,6 +166,7 @@ async def get_user(uid: str):
         raise HTTPException(404, detail=f"User {uid} not found") 
 
     return user
+
 
 
 ## Update users endpoint
@@ -175,16 +185,15 @@ Create users assumes user has signed up through auth
 
 # Maybe add a user already exists check here to prevent duplicate adds
 @router.post("/create/{uid}")
-async def create_user_from_auth(uid: str):
+async def create_user_from_auth(uid: str, userBody: User = Body(...)):
     try:
         user = auth.get_user(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
-        create_user(user.uid, user.display_name, user.email)
+        username = userBody.username if not user.display_name else user.display_name
+        create_user(user.uid, username, user.email)
     
     except auth.UserNotFoundError:
         raise HTTPException(404, detail="User not found") 
-    except:
-        print("we got a boo boo")
     
     return signJWT(uid)
 
