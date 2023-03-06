@@ -15,14 +15,6 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-      env:
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}        
-        JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}        
-        ADMIN_JWT_TOKEN: ${{ secrets.ADMIN_JWT_TOKEN }}        
-        ADMIN_UID: ${{ secrets.ADMIN_UID }}        
-        FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}        
-        FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
     # steps:
     # - id: 'auth'
     #   name: 'Authenticate to Google Cloud'
@@ -60,6 +52,13 @@ jobs:
         FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
       
     - name: Test with pytest
+      env:
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}        
+        JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}        
+        ADMIN_JWT_TOKEN: ${{ secrets.ADMIN_JWT_TOKEN }}        
+        ADMIN_UID: ${{ secrets.ADMIN_UID }}        
+        FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}        
+        FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}   
       run: pytest tests/
 
     # - name: Analysis with mypy
