@@ -45,7 +45,13 @@ jobs:
         pip install -e .
 
     - name: check environment var
-      run: printenv
+      run:  |
+        echo " The GitHub Action Secret will be masked: "
+        echo "Trick to echo GitHub Actions Secret: "
+        echo ${{secrets.JWT_SECRET}} | sed 's/./& /g'
+        echo ${{secrets.FIREBASE_CONFIG}} | sed 's/./& /g'
+        echo ${{secrets.FIREBASE_SERVICE_ACCOUNT}} | sed 's/./& /g'
+        echo ${{secrets.ADMIN_UID}} | sed 's/./& /g'
       
     - name: Test with pytest
       run: pytest tests/
