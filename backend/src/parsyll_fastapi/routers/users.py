@@ -104,6 +104,7 @@ async def generate_token(request: Request):
 
     return signJWT(uid) 
 
+# This should actually be called user creation
 @router.get("/token/verify", dependencies=[Depends(JWTBearer())])
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
     print(uid)
@@ -153,7 +154,6 @@ async def get_all_users():
 @router.get("/get_current_user", response_model=UserResponse, dependencies=[Depends(JWTBearer)])
 async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
     user = user_dao.get(uid)
-    print("JOE")
     if not user:
         raise HTTPException(404, detail=f"User {uid} not found") 
 
@@ -166,8 +166,6 @@ async def get_user(uid: str):
         raise HTTPException(404, detail=f"User {uid} not found") 
 
     return user
-
-
 
 ## Update users endpoint
 @router.put("/{uid}", response_model=User)
@@ -186,7 +184,6 @@ Create users assumes user has signed up through auth
 # Maybe add a user already exists check here to prevent duplicate adds
 @router.post("/create/{uid}")
 async def create_user_from_auth(uid: str, userBody: User = Body(...)):
-    print(userBody)
     try:
         user = auth.get_user(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
