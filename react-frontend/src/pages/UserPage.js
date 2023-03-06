@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, useContext } from "react"
 import courseList from "../helper/course"
 import Button from '@mui/material/Button';
 import { removeJWTToken } from '../helper/jwt';
@@ -6,16 +6,46 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
+import { getJWTToken } from '../helper/jwt';
+import axios from 'axios';
+import { AuthContext } from "../hooks/useAuth";
 
 
+axios.interceptors.request.use(config => {
+    const token = getJWTToken();
+    config.headers["Authorization"] = `Bearer ${token}`;
+    return config;
+  });
 
-const UserPage = ({handleSetLogin}) => {
+
+const UserPage = () => {
     const [courses, setCourses] = useState([])
+    const [userInfo, setUserInfo] = useState({})
+    const [email, setEmail] = useState("")
+    const [uid, setUid] = useState("")
     const [loading, setLoading] = useState(false)
+    const [username, setUsername] = useState("")
 
-    useEffect(() => {
-        setCourses(courseList)
+    useEffect( () => {
+        // setCourses(courseList)
+        getUserInformation()
     }, [])
+
+    const {logout} = useContext(AuthContext)
+
+    const getUserInformation = async () => {
+        let res = await axios
+        .get("http://localhost:8000/users/get_current_user")
+        .then(res => {
+            let userData = res.data
+            setUserInfo(userData)
+            setCourses(userData.courses)
+            setEmail(userData.email)
+            setUid(userData.uid)
+            setUsername(userData.username)
+        })
+        return res
+    }
 
     const handleLogOutLogic = (e) => {
         setLoading(true)
@@ -23,12 +53,14 @@ const UserPage = ({handleSetLogin}) => {
             setLoading(false)
             e.preventDefault();
             removeJWTToken();
-            handleSetLogin(false);
+            logout();
         }, 2500)
     }
 
     return (
         <div className=" flex flex-col align-middle mt-6 h-screen pl-3">
+            <h1 className=" text-5xl text-center font-bold">{username}</h1>
+            <h1 className=" pl-3 pt-4 text-3xl font-bold text-center">email: {email}</h1>
             <LoadingButton
                 loading={loading}
                 loadingPosition="end"
