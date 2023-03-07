@@ -21,7 +21,7 @@ const Features = () => {
 
     return (
         <section className="text-gray-600 body-font">
-            <div className="container px-5 py-24 mx-auto flex flex-wrap">
+            <div className="container px-5 py-2 mx-auto flex flex-wrap">
                 {feature_data.map((feature, ind) => {
                     return (
                         <FeatureCard

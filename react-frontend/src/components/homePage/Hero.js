@@ -1,5 +1,7 @@
 // Using components from: https://tailblocks.cc/
 
+import demo_img from "../../assets/demo.png"
+
 const Hero = () => {
     return ( 
         <section className="text-gray-600 body-font">
@@ -23,9 +25,10 @@ const Hero = () => {
                 </div>
                 <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">
                     <img
-                        className="object-cover object-center rounded"
+                        className="object-cover object-center rounded border-2"
                         alt="hero"
-                        src="https://dummyimage.com/720x600"
+                        // src="https://dummyimage.com/720x600"
+                        src={demo_img}
                     />
                 </div>
             </div>
