@@ -1,9 +1,12 @@
 // Using components from: https://tailblocks.cc/
 
-import demo_img from "../../assets/demo.png"
+import { useNavigate } from "react-router-dom";
+import demo_img from "../../assets/demo.png";
 
 const Hero = () => {
-    return ( 
+    const navigate = useNavigate();
+
+    return (
         <section className="text-gray-600 body-font">
             <div className="container mx-auto flex px-5 py-24 md:flex-row flex-col items-center">
                 <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
@@ -12,14 +15,27 @@ const Hero = () => {
                     </h1>
                     <p className="mb-8 leading-relaxed">
                         We aim to automate your early semester syllabus reading.
-                        ParSyll parses key information from your syllabus such as class times, office hours, and locations! 
+                        ParSyll parses key information from your syllabus such
+                        as class times, office hours, and locations!
                     </p>
                     <div className="flex justify-center">
-                        <button className="inline-flex text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg">
-                            Button
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate("/signup");
+                            }}
+                            className="inline-flex text-white bg-blue-500 border-0 py-2 px-6 focus:outline-none hover:bg-blue-600 rounded text-lg"
+                        >
+                            Sign up
                         </button>
-                        <button className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg">
-                            Button
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate("/login");
+                            }}
+                            className="ml-4 inline-flex text-gray-700 bg-gray-100 border-0 py-2 px-6 focus:outline-none hover:bg-gray-200 rounded text-lg"
+                        >
+                            Login
                         </button>
                     </div>
                 </div>
@@ -33,8 +49,7 @@ const Hero = () => {
                 </div>
             </div>
         </section>
-
     );
-}
- 
+};
+
 export default Hero;
