@@ -1,4 +1,7 @@
 import TeamCard from "./helper/TeamCard";
+import dan_img from "../../assets/dan.jpg"
+import abhi_img from "../../assets/abhi.jpg"
+import kennth_img from "../../assets/kenneth.jpg"
 
 const Team = () => {
     const team_data = [
@@ -7,24 +10,24 @@ const Team = () => {
             email: "pongpatapee1021@gmail.com",
             position: "Software Engineer",
             description: "I'm Dan",
-            imgsrc: "",
-            socials: {},
+            imgsrc: dan_img,
+            socials: {github: "https://github.com/pongpatapee"},
         },
         {
             name: "Abhirakshak Raja",
             email: "abhirakshak10@gmail.com",
             position: "Software Engineer",
             description: "I'm Abhi",
-            imgsrc: "",
-            socials: {},
+            imgsrc: abhi_img,
+            socials: {github: "https://github.com/Abhirakshak"},
         },
         {
             name: "Kenneth Wong Hon Nam",
             email: "cankennethwong@gmail.com",
             position: "Software Engineer",
             description: "I'm Kenneth",
-            imgsrc: "",
-            socials: {},
+            imgsrc: kennth_img, 
+            socials: {github: "https://github.com/KennethWrong"},
         },
     ];
 
