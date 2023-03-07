@@ -37,7 +37,7 @@ export default function CourseTab({courses, setCourse}) {
       >
         
         {courses.map((course, index) => (
-          <Tab key={index} label={course.name} {...a11yProps(index)} onClick={() => {setCourse(index)}}/>
+          <Tab key={index} label={course.name} {...a11yProps(index)} onClick={() => {handleSetCourse(index)}}/>
         ))}
       </Tabs>
     </Box>

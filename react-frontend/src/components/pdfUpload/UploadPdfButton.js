@@ -2,11 +2,18 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import PdfViewer from './PdfViewer';
 import axios from 'axios';
 import { getJWTToken } from '../../helper/jwt';
+import { createTheme } from '@mui/material/styles';
 
 import parseApp from '../../api/Axios';
+import PdfEdit from './PdfEdit';
 
 const style = {
   position: 'absolute',
@@ -15,12 +22,27 @@ const style = {
   transform: 'translate(-50%, -50%)',
   bgcolor: 'background.paper',
   border: '2px solid #000',
+  overflow:'scroll',
   boxShadow: 24,
   p: 4,
 };
 
-export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
+const styles = createTheme({
+  modalStyle1:{
+    position:'absolute',
+    top:'10%',
+    left:'10%',
+    overflow:'scroll',
+    height:'100%',
+    display:'block'
+  }
+});
+
+
+export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile, handleErrorMessage}) {
   const [loading, setLoading] = useState(false);
+  const [parsesuccess, setParseSuccess] = useState(false);
+  const [parseContent, setParseContent] = useState(null)
   const handleCloseModal = (e) => {
     e.preventDefault();
     setPdfFile(null);
@@ -35,26 +57,31 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
         var formData = new FormData();
         var headers = {'Content-Type': 'multipart/form-data'};
         let course_id = "";
+        let file_id = "";
         formData.append('file', pdfFile);
         await parseApp
           .post("/pdfs/submit", formData, headers)
           .then((res) => {
             console.log(res)
             course_id = res.data.course_id
+            file_id = res.data.file_id // syllabus_id
           })
           .catch((err) => {
             console.error(err.response);
           });
         
-        await parseApp.post(`pdfs/parse/${course_id}`, formData, headers)
+        await parseApp.post(`pdfs/parse/${course_id}/${file_id}`, formData, headers)
           .then((res) => {
             console.log(res)
+            setParseContent(res.data)
+            setParseSuccess(true);
           })
-
-          setPdfFile(null);
+          // setPdfFile(null);
       }
     } catch (e) {
       console.log(e)
+      handleErrorMessage("Something wrong has occured when parsing your pdf. Please Try Again.")
+      setPdfFile(null);
     }
     setLoading(false);
   }
@@ -63,14 +90,21 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
     <div>
       <Button hidden>UPLOAD PDF</Button>
       <Modal
+        style={{overflow:"scroll"}}
+        disableEnforceFocus
         open={openPdf}
         onClose={handleCloseModal}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
-          <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf} loading={loading}/>
-        </Box>
+        {parsesuccess?
+          <Box>
+            <PdfEdit course={parseContent}/>
+          </Box>:
+          <Box sx={style}>
+            <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf} loading={loading}/>
+          </Box>
+        }
       </Modal>
     </div>
   );

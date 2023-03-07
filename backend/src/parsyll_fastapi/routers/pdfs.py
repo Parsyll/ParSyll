@@ -78,8 +78,8 @@ async def user_get_file(uid: str, file_id: str):
 
 # user parses file
 
-@router.post("/parse/{course_id}", dependencies=[Depends(JWTBearer())])
-async def user_parse_file( course_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+@router.post("/parse/{course_id}/{syllabus_id}", dependencies=[Depends(JWTBearer())])
+async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # download temp file
     with open('filename.pdf', 'wb+') as file_obj:
@@ -117,7 +117,8 @@ async def user_parse_file( course_id: str, file: UploadFile, uid = Depends(getUI
                     days_of_week=parser.response['days_of_week'],
                     ics_file = parser.response['ics'],
                     instructors = [parser.response['prof_name']],
-                    id=course_id
+                    id=course_id,
+                    syllabyus=syllabus_id
                     )
     # user_doc_ref.collection(u'courses').add(course.__dict__)
     course = course_dao.update(uid=uid, course_id=course_id, course=course)

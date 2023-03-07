@@ -123,6 +123,7 @@ class Parser():
                 # stream=True
             )
   
+        print(response)
         response = (response.choices[0].text.replace("-",",")).split(",")
 
         self.response['course'] = response[0]
@@ -132,9 +133,7 @@ class Parser():
         self.response['class_location'] = response[4]
         self.response['prof_name'] = response[5]
         
-        print(self.response['days_of_week'])
         self.postprocess()
-        # print(self.response)
 
     def write_ics(self):
         if self.response:
@@ -168,12 +167,22 @@ class Parser():
             # add time to lecture start date
             format = '%Y-%m-%d %I:%M %p'
             
-            print(start_date)
             # add start time to current start_date
             print(self.response["class_start_time"], self.response["class_end_time"])
 
-            start_time = re.search(r"([0-9]\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time']).groups()
-            end_time = re.search(r"([0-9]\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time']).groups()
+            start_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time'])
+
+            end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time'])
+
+            if start_time:
+                start_time = start_time.groups()
+            else:
+                start_time = ("10:00", "am")
+            
+            if end_time:
+                end_time = end_time.groups()
+            else:
+                end_time = ("11:00", "am")
             print(start_time)
             print(end_time)
 

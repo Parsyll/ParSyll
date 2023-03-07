@@ -154,7 +154,6 @@ async def get_all_users():
 @router.get("/get_current_user", response_model=UserResponse, dependencies=[Depends(JWTBearer)])
 async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
     user = user_dao.get(uid)
-    print(user)
     if not user:
         raise HTTPException(404, detail=f"User {uid} not found") 
 
