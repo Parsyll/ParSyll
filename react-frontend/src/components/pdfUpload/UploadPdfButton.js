@@ -6,11 +6,7 @@ import PdfViewer from './PdfViewer';
 import axios from 'axios';
 import { getJWTToken } from '../../helper/jwt';
 
-axios.interceptors.request.use(config => {
-  const token = getJWTToken();
-  config.headers["Authorization"] = `Bearer ${token}`;
-  return config;
-});
+import parseApp from '../../api/Axios';
 
 const style = {
   position: 'absolute',
@@ -38,14 +34,23 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile}) {
       if(pdfFile) {
         var formData = new FormData();
         var headers = {'Content-Type': 'multipart/form-data'};
+        let course_id = "";
         formData.append('file', pdfFile);
-        await axios
-          .post("http://127.0.0.1:8000/pdfs/submit", formData, headers)
+        await parseApp
+          .post("/pdfs/submit", formData, headers)
           .then((res) => {
+            console.log(res)
+            course_id = res.data.course_id
           })
           .catch((err) => {
             console.error(err.response);
           });
+        
+        await parseApp.post(`pdfs/parse/${course_id}`, formData, headers)
+          .then((res) => {
+            console.log(res)
+          })
+
           setPdfFile(null);
       }
     } catch (e) {

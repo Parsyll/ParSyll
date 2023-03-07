@@ -32,6 +32,7 @@ const UserPage = () => {
     }, [])
 
     const {logout} = useContext(AuthContext)
+    console.log(courses)
 
     const getUserInformation = async () => {
         let res = await axios
@@ -77,6 +78,7 @@ const UserPage = () => {
                     style={{width: '95%', height: '400px'}}>
                     <h1 key={index} className="text-center">{course.courseName}</h1>
                     <Typography sx={{ mb: 1.5, textAlign:"center"}} color="text.secondary">
+                        {course.name}
                     </Typography>
                     </Card>
                 ))}

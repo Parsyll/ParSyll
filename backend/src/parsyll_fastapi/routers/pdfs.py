@@ -78,8 +78,8 @@ async def user_get_file(uid: str, file_id: str):
 
 # user parses file
 
-@router.post("/parse", dependencies=[Depends(JWTBearer())])
-async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+@router.post("/parse/{course_id}", dependencies=[Depends(JWTBearer())])
+async def user_parse_file( course_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # download temp file
     with open('filename.pdf', 'wb+') as file_obj:
@@ -95,7 +95,6 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
       DOW_promptfile= 'parsing/prompts/DOW_prompt.txt')
 
     parser.gpt_parse()
-
     # generate temp ICS file, convert to string 
     parser.write_ics()
 
@@ -117,11 +116,13 @@ async def user_parse_file( file: UploadFile, uid = Depends(getUIDFromAuthorizati
                     class_end=parser.response['class_end_time'],
                     days_of_week=parser.response['days_of_week'],
                     ics_file = parser.response['ics'],
-                    instructors = [parser.response['prof_name']]
+                    instructors = [parser.response['prof_name']],
+                    id=course_id
                     )
-    user_doc_ref.collection(u'courses').add(course.__dict__)
+    # user_doc_ref.collection(u'courses').add(course.__dict__)
+    course = course_dao.update(uid=uid, course_id=course_id, course=course)
     
-    return f"Stored parsed information in db for user {user.uid}"
+    return course
 
 
     # delete temp pdf file and temp ICS file
@@ -149,12 +150,13 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
     blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
     blob.upload_from_string(file_contents, content_type=file.content_type)
 
-    course_dao.create(uid, CourseBase(syllabus=str(file_id))) 
+    course_id = course_dao.create(uid, CourseBase(syllabus=str(file_id))) 
 
     #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
     return {
         "filename": file.filename,
         "file_id" : file_id,
+        "course_id": course_id
     }
 
 ## DELETE file endpoints

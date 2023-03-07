@@ -18,23 +18,23 @@ const CourseDisplay = ({course}) => {
         <div className=" flex flex-col align-middle justify-center mt-6 items-center pl-3">
         {course ? 
             <div>
-                <h1 className=" text-5xl text-center font-bold">{course.courseName}</h1>
-                <ProfessorCard professor={course.professor} />
+                <h1 className=" text-5xl text-center font-bold">{course.name}</h1>
+                {/* <ProfessorCard professor={course.professor} /> */}
                 
                 <h1 className=" pl-3 pt-4 text-3xl font-bold">Teaching Assistants:</h1>
-                <div className={`grid grid-cols-${Math.min(course.tas.length, 3)} p-4 mt-6"`}>
+                {/* <div className={`grid grid-cols-${Math.min(course.tas.length, 3)} p-4 mt-6"`}>
                     {course.tas.map( (ta, index) => (
                         <TaCard key={index} ta={ta} index={index}/>
                     ))}
-                </div>
+                </div> */}
 
                 <h1 className=" pl-3 pt-4 text-3xl font-bold">Lecture times: </h1>
-                <div className={`grid grid-cols-${Math.min(course.classTimes.length, 3)} p-4`}>
+                {/* <div className={`grid grid-cols-${Math.min(course.classTimes.length, 3)} p-4`}>
                     {course.classTimes.map( (time, index) => (
                         <ClassHourCard time={time} key={index}/>
                     ))}
 
-                </div>
+                </div> */}
                 <Button variant="text">Download ICS</Button>
             </div>
             : 

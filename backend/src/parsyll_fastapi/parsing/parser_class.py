@@ -5,6 +5,7 @@ import wandb
 import nltk
 import ssl
 from nltk.corpus import stopwords
+import re
 
 from dotenv import load_dotenv
 from ics import Calendar, Event
@@ -82,7 +83,7 @@ class Parser():
                         "Wed" : "Wednesday", "Thur" : "Thursday", "Th" : "Thursday", "Thurs" : "Thursday", 
                         "Fri" : "Friday", "Sat": "Saturday", "Sun": "Sunday", "Monday" : "Monday", "Tuesday" : "Tuesday",
                         "Wednesday" : "Wednesday", "Thurday" : "Thursday", "Friday" : "Friday", "Saturday" : "Saturday",
-                        "Sunday" : "Sunday"
+                        "Sunday" : "Sunday", "M":"Monday", "W":"Wednesday", "F":"Friday"
             }
             res_set = set()
             for key in DOW_repr.keys():
@@ -111,7 +112,7 @@ class Parser():
         # ensure text to parsed does not exceed model's maximum 
         # content length (1 token is abour 4 chars)
         if self.pdf_text:
-            pdf_text = self.pdf_text[0:8000]
+            pdf_text = self.pdf_text[0:min(len(self.pdf_text), 8000)]
 
         gpt_prompt = pdf_text + prompt_text
         response = openai.Completion.create(
@@ -121,8 +122,8 @@ class Parser():
                 temperature=self.temperature,
                 # stream=True
             )
-        
-        response = (response.choices[0].text).split(",")
+  
+        response = (response.choices[0].text.replace("-",",")).split(",")
 
         self.response['course'] = response[0]
         self.response['class_start_time'] = response[1]
@@ -131,9 +132,9 @@ class Parser():
         self.response['class_location'] = response[4]
         self.response['prof_name'] = response[5]
         
-        # print(self.response)
+        print(self.response['days_of_week'])
         self.postprocess()
-        print(self.response)
+        # print(self.response)
 
     def write_ics(self):
         if self.response:
@@ -150,6 +151,11 @@ class Parser():
                 "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
 
             # get start date for lecture in python datetime
+            # print(self.response)
+            if not self.response['days_of_week']:
+                self.response['ics'] = []
+                return None
+            
             day_diff = timedelta(days=0)
             curr_day = DAYS_OF_WEEK[self.response['days_of_week'][0].upper()]
             if today_day > curr_day:
@@ -164,8 +170,16 @@ class Parser():
             
             print(start_date)
             # add start time to current start_date
-            start_time = start_date.strftime('%Y-%m-%d') + ' ' + self.response['class_start_time']
-            end_time = start_date.strftime('%Y-%m-%d') + ' ' + self.response['class_end_time']
+            print(self.response["class_start_time"], self.response["class_end_time"])
+
+            start_time = re.search(r"([0-9]\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time']).groups()
+            end_time = re.search(r"([0-9]\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time']).groups()
+            print(start_time)
+            print(end_time)
+
+
+            start_time = start_date.strftime('%Y-%m-%d') + ' ' + start_time[0] + ' ' + start_time[1]
+            end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
 
 
             # TODO: Issue with timezone settings, need to add 5 hours right now since
