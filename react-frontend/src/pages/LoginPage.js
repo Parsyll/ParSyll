@@ -82,7 +82,7 @@ export default function LoginPage({
         setProfilePic(user["photoURL"]);
         setUserName(user["displayName"]);
         setJWTToken(jwtToken, rememberMe);
-        login();
+        login(user);
       }
     } catch (error) {
       const errorText = firebaseErrorHandeling(error);

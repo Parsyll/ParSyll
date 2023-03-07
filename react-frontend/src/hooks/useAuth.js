@@ -9,6 +9,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
   const [authed, setAuthed] = useLocalStorage("jwt-token", "");
+  const [user, setUser] = useState("")
   const navigate = useNavigate();
 
     const persistUser = async () => {
@@ -36,13 +37,15 @@ export const AuthProvider = ({children}) => {
             }
     }
 
-    const login = () => {
+    const login = (user) => {
         setAuthed(true);
+        setUser(user);
         navigate("/dashboard/courses")
     }
 
     const logout = () => {
         setAuthed(false);
+        setUser("");
         removeJWTToken();
         navigate("/login");
     }
@@ -50,6 +53,7 @@ export const AuthProvider = ({children}) => {
     const value = useMemo(
         () => ({
           authed,
+          user,
           persistUser,
           login,
           logout

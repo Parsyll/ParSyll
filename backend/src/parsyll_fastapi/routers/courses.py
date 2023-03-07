@@ -5,6 +5,7 @@ from typing import List
 from parsyll_fastapi.models.model import User, Course, CourseBase
 from parsyll_fastapi.database import db, auth
 from parsyll_fastapi.daos.courseDao import CourseDAO
+from parsyll_fastapi.auth.auth_bearer import JWTBearer
 
 router = APIRouter(prefix="/courses", tags=["courses"])
 course_dao = CourseDAO()
@@ -31,7 +32,7 @@ def list_courses(uid: str):
     return course_list
 
 
-@router.put("/{uid}/{course_id}", response_model=Course)
+@router.put("/{uid}/{course_id}", response_model=Course, dependencies=[Depends(JWTBearer)])
 def update_course(uid: str, course_id: str, course: Course = Body(...)):
     course = course_dao.update(uid, course_id, course)
     if not course:

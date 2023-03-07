@@ -1,12 +1,20 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import Button from '@mui/material/Button';
 import UploadPdfButton from '../components/pdfUpload/UploadPdfButton'
 import { DropZone } from "../components/pdfUpload/DropZone";
+import ErrorMessage from "../components/ErrorMessage";
 
 export const ParsePdfPage = () => {
   const [pdfFile, setPdfFile] = useState(null);
-  const [pdfFileError, setPdfFileError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [openPdf, setOpenPdf] = useState(false);
+
+  const handleErrorMessage = (text) => {
+    setErrorMessage(text)
+    setTimeout(() => {
+      setErrorMessage("")
+    }, 2000)
+  }
 
   const handlePdfFileChange = (selectedFile) => {
     // let selectedFile = e.target.files[0];
@@ -16,17 +24,13 @@ export const ParsePdfPage = () => {
         // console.log(selectedFile)
         setPdfFile(selectedFile);
         setOpenPdf(true);
-        setPdfFileError("");
+        setErrorMessage("");
       } else {
         setPdfFile(null);
-        setPdfFileError("Please select valid pdf file");
+        handleErrorMessage("Please select a valid PDF file")
       }
-    } else {
-      console.log("select your file");
     }
   };
-
-  // const ref = useRef();
 
   return (
     <div className='flex items-center justify-center flex-col'>
@@ -36,11 +40,11 @@ export const ParsePdfPage = () => {
           Parse PDF 
         </h1>
         <DropZone handlePdfFileChange={handlePdfFileChange}/>
-        {pdfFileError && <div className="error-msg">{pdfFileError}</div>}
+        {errorMessage ? <ErrorMessage text={errorMessage} /> : ""}
         
         {pdfFile? 
           <div>
-            <UploadPdfButton openPdf={openPdf} setOpenPdf={setOpenPdf} pdfFile={pdfFile} setPdfFile={setPdfFile}/>
+            <UploadPdfButton openPdf={openPdf} setOpenPdf={setOpenPdf} pdfFile={pdfFile} setPdfFile={setPdfFile} handleErrorMessage={handleErrorMessage}/>
           </div> : ""
         }
     </div>
