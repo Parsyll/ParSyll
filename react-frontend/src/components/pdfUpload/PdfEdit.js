@@ -1,12 +1,14 @@
 import InstructorField from "../pdfEdit/InstructorField";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DaysOfWeekField from "../pdfEdit/DaysOfWeekField";
 import LocationsField from "../pdfEdit/LocationsField";
 import TimePicker from "../pdfEdit/TimePicker";
 import AddButton from "../pdfEdit/AddButton";
 import parseApp from "../../api/Axios";
+import { AuthContext } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
-export const PdfEdit = ({course}) => {
+export const PdfEdit = ({course, fileInfo}) => {
     const [classStart, setClassStart] = useState("")
     const [classEnd, setClassEnd] = useState("")
     const [daysOfWeek, setDaysOfWeek] = useState([])
@@ -15,6 +17,12 @@ export const PdfEdit = ({course}) => {
     const [name, setName] = useState("")
     const [officeHours, setOfficeHours] = useState([])
     const [textbook, setTextBook] = useState("")
+    const [courseId, setCourseId] = useState("")
+    const [icsFile, setIcsFile] = useState([])
+    const [syllabus, setSyllabus] = useState("")
+    const [id, setId] = useState("")
+
+    let navigate = useNavigate()
 
     useEffect(() => {
         setClassStart(course.class_start)
@@ -25,11 +33,39 @@ export const PdfEdit = ({course}) => {
         setName(course.name)
         setOfficeHours(course.office_hrs)
         setTextBook(course.textbook)
+        setCourseId(course.id)
+        setIcsFile(course.ics_file)
+        setSyllabus(course.syllabus)
+        setId(course.id)
     }, [course])
+
+    let {user} = useContext(AuthContext);
+    let uid = user.uid
 
     const handlePDFParseSubmission = (e) => {
         e.preventDefault()
-        parseApp.put()
+
+        let userBody = {
+            name: name,
+            instructors: instructors,
+            locations: locations,
+            syllabus: syllabus,
+            class_start: classStart,
+            class_end: classEnd,
+            days_of_week: daysOfWeek,
+            office_hrs: officeHours,
+            ics_file: icsFile,
+            textbook: textbook,
+            id: id
+        }
+
+
+        parseApp.put(`/courses/${uid}/${fileInfo.course_id}`, userBody)
+        .then((res) => {
+            console.log(res)
+            navigate("/dashboard/courses")
+
+        })
     }
 
     return (

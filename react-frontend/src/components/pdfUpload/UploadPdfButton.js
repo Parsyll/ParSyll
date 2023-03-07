@@ -43,6 +43,7 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile, ha
   const [loading, setLoading] = useState(false);
   const [parsesuccess, setParseSuccess] = useState(false);
   const [parseContent, setParseContent] = useState(null)
+  const [fileInfo, setFileInfo] = useState("")
   const handleCloseModal = (e) => {
     e.preventDefault();
     setPdfFile(null);
@@ -57,6 +58,7 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile, ha
         var formData = new FormData();
         var headers = {'Content-Type': 'multipart/form-data'};
         let course_id = "";
+        let file_info = "";
         let file_id = "";
         formData.append('file', pdfFile);
         await parseApp
@@ -64,6 +66,7 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile, ha
           .then((res) => {
             console.log(res)
             course_id = res.data.course_id
+            setFileInfo(res.data)
             file_id = res.data.file_id // syllabus_id
           })
           .catch((err) => {
@@ -99,13 +102,29 @@ export default function BasicModal({openPdf, setOpenPdf, pdfFile, setPdfFile, ha
       >
         {parsesuccess?
           <Box>
-            <PdfEdit course={parseContent}/>
+            <PdfEdit course={parseContent} fileInfo={fileInfo}/>
           </Box>:
           <Box sx={style}>
-            <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf} loading={loading}/>
+            <PdfViewer pdfFile={pdfFile} handleSendPdf={handleSendPdf} loading={loading} />
           </Box>
         }
       </Modal>
     </div>
   );
 }
+
+/*
+<div className="mt-5">
+  <label className="input-field inline-flex items-baseline border-2 border-black rounded  p-4">
+      <span className="text-md font-semibold text-zinc-900 mr-4" htmlFor="name">
+          ClassTime
+      </span>
+  <div className="flex-1 leading-none">
+      <input id="handle" type="text" className="w-full mr-2 pl-1 bg-transparent focus:outline-none" name="handle" placeholder="start-time" value={classStart}/>
+  </div>
+  <div className="flex-1 leading-none">
+      <input id="handle" type="text" className="w-full pl-1 bg-transparent focus:outline-none" name="handle" placeholder="end-time" value={classEnd}/>
+  </div>
+  </label>
+</div> 
+            */
