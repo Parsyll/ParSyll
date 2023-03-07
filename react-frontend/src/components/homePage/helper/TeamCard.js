@@ -14,7 +14,7 @@ const TeamCard = ({ name, position, description, image, socials, email }) => {
                     <h3 className="text-gray-500 mb-3"> {position} </h3>
                     <p className="mb-4">{description}</p>
                     <span className="inline-flex">
-                        <a className="text-gray-500" href={socials.github} target="_blank">
+                        <a className="text-gray-500" href={socials.github} target="_blank" rel="noopener noreferrer">
                             <svg
                                 // fill="none"
                                 // stroke="currentColor"

@@ -43,9 +43,10 @@ const Team = () => {
                     </p>
                 </div>
                 <div className="flex flex-wrap -m-4 justify-center">
-                    {team_data.map((member) => {
+                    {team_data.map((member, ind) => {
                         return (
                             <TeamCard
+                                key={ind}
                                 name={member.name}
                                 position={member.position}
                                 description={member.description}
