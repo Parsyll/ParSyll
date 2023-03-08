@@ -134,9 +134,6 @@ class Parser():
         self.response['prof_name'] = response[5]
         
         self.postprocess()
-    
-    # def get_calendar_event(self):
-
 
     def write_ics(self):
         if self.response:
