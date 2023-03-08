@@ -52,7 +52,7 @@ export default function DaysOfWeekField({daysOfWeek, setDaysOfWeek}) {
 
   return (
     <div>
-      <FormControl sx={{ m: 1, width: 300 }}>
+      <FormControl sx={{ mt: 1, width: 300 }}>
         <InputLabel shrink={false}>{daysOfWeek.length <= 0 && "Days of classes"}</InputLabel>
         <Select
           labelId="demo-multiple-chip-label"
