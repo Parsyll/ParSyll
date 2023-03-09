@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import { getJWTToken } from '../helper/jwt';
 import axios from 'axios';
 import { AuthContext } from "../hooks/useAuth";
+import parseApp from "../api/Axios";
 
 
 axios.interceptors.request.use(config => {
@@ -35,8 +36,8 @@ const UserPage = () => {
     console.log(courses)
 
     const getUserInformation = async () => {
-        let res = await axios
-        .get("http://localhost:8000/users/get_current_user")
+        let res = await parseApp
+        .get("/users/get_current_user")
         .then(res => {
             let userData = res.data
             setUserInfo(userData)

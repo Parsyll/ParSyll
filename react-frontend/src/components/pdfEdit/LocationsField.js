@@ -1,3 +1,4 @@
+import MinusButton from "./MinusButton";
 
 export const LocationsField = ({location, index, locations, setLocations}) => {
 
@@ -10,7 +11,7 @@ export const LocationsField = ({location, index, locations, setLocations}) => {
     }
 
     return(
-        <label className="relative block p-3 border-2 border-black rounded mt-5" htmlFor="name">
+        <label className="relative block p-3 border-2 border-black rounded mt-5 w-11/12" htmlFor="name">
                 <span className="text-md font-semibold text-zinc-900" htmlFor="name">
                 Locations #{index + 1}
                 </span>

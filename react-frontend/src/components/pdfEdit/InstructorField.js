@@ -9,7 +9,7 @@ export const InstructorField = ({instructor , index, setInstructors, instructors
     }
 
     return(
-        <label className="relative block p-3 border-2 border-black rounded" htmlFor="name">
+        <label className="relative block p-3 border-2 border-black rounded w-11/12 mt-5" htmlFor="name">
                 <span className="text-md font-semibold text-zinc-900" htmlFor="name">
                 Instructor # {index + 1}
                 </span>

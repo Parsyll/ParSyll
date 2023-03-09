@@ -12,8 +12,8 @@ function a11yProps(index) {
   };
 }
 
-export default function CourseTab({courses, setCourse}) {
-  const [value, setValue] = React.useState(0);
+export default function CourseTab({courses, setCourse, course}) {
+  const [value, setValue] = React.useState(course);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);

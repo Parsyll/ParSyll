@@ -140,14 +140,14 @@ class Parser():
 
             # get current datetime
             dt = datetime.today()
-            print('Datetime is:', dt)
 
             # get day of week as an integer
             today_day = datetime.now().weekday()
-            print('Day of the week is:', today_day)
 
             DAYS_OF_WEEK = {"MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2, 
                 "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
+            
+            c = Calendar()
 
             # get start date for lecture in python datetime
             # print(self.response)
@@ -155,63 +155,69 @@ class Parser():
                 self.response['ics'] = []
                 return None
             
-            day_diff = timedelta(days=0)
-            curr_day = DAYS_OF_WEEK[self.response['days_of_week'][0].upper()]
-            if today_day > curr_day:
-                day_diff = timedelta(days=today_day - curr_day)
-            elif today_day < curr_day:
-                day_diff = timedelta(days=curr_day - today_day)
+            for i in range(len(self.response['days_of_week'])):
+                day_diff = timedelta(days=0)
+                curr_day = DAYS_OF_WEEK[self.response['days_of_week'][i].upper()]
+                if today_day > curr_day:
+                    day_diff = timedelta(days=today_day - curr_day)
+                elif today_day < curr_day:
+                    day_diff = timedelta(days=today_day - curr_day + 7)
 
-            start_date = dt + day_diff
+                start_date = dt + day_diff
 
-            # add time to lecture start date
-            format = '%Y-%m-%d %I:%M %p'
+                # add time to lecture start date
+                format = '%Y-%m-%d %I:%M %p'
+                
+                # add start time to current start_date
+
+                start_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time'])
+                end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time'])
+
+                if start_time:
+                    start_time = start_time.groups()
+                else:
+                    start_time = ("10:00", "am")
+                
+                if end_time:
+                    end_time = end_time.groups()
+                else:
+                    end_time = ("11:00", "am")
+
+
+                start_time = start_date.strftime('%Y-%m-%d') + ' ' + start_time[0] + ' ' + start_time[1]
+                print(start_time, curr_day)
+                end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
+
+
+                # TODO: Issue with timezone settings, need to add 5 hours right now since
+                # EST is 5 hours behind UTC
+                start_time = datetime.strptime(start_time, format) + timedelta(hours=5) 
+                end_time = datetime.strptime(end_time, format) + timedelta(hours=5) 
+
+                # # end date 
+                # end_date = start_date + timedelta(minutes=int(self.response['class_duration']))
+
+                e = Event()
+                e.name = f"{self.response['course']} ({self.response['class_location']})" #course number (location)
+                e.begin = start_time
+                e.location = "" if not self.response['class_location'] else self.response['class_location'][0]
+                # e.duration = timedelta(minutes=int(self.response['class_duration']))
+                e.end = end_time
+                c.events.add(e)
             
-            # add start time to current start_date
-            print(self.response["class_start_time"], self.response["class_end_time"])
-
-            start_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time'])
-
-            end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time'])
-
-            if start_time:
-                start_time = start_time.groups()
-            else:
-                start_time = ("10:00", "am")
-            
-            if end_time:
-                end_time = end_time.groups()
-            else:
-                end_time = ("11:00", "am")
-            print(start_time)
-            print(end_time)
-
-
-            start_time = start_date.strftime('%Y-%m-%d') + ' ' + start_time[0] + ' ' + start_time[1]
-            end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
-
-
-            # TODO: Issue with timezone settings, need to add 5 hours right now since
-            # EST is 5 hours behind UTC
-            start_time = datetime.strptime(start_time, format) + timedelta(hours=5) 
-            end_time = datetime.strptime(end_time, format) + timedelta(hours=5) 
-
-            # # end date 
-            # end_date = start_date + timedelta(minutes=int(self.response['class_duration']))
-
-            print("lecture start date is: ", (start_time))
-            print("lecture end date is: ", (end_time))
-
-            c = Calendar()
-            e = Event()
-            e.name = f"{self.response['course']} ({self.response['class_location']})" #course number (location)
-            e.begin = start_time
-            # e.duration = timedelta(minutes=int(self.response['class_duration']))
-            e.end = end_time
-            c.events.add(e)
-            c.events
+            # c.events
             with open('my.ics', 'w') as my_file:
                 my_file.writelines(c.serialize_iter())
                 self.response['ics'] = c.serialize_iter()
 
-            print(self.response['ics'])
+            
+            repeat_weekly = "RRULE:FREQ=WEEKLY;UNTIL=20240101T000000Z\r\n"
+            done = []
+            for i, s in enumerate(self.response['ics']):
+                done.append(s)
+                if "DTSTART" in s:
+                    done.append(repeat_weekly)
+            
+            print(done)
+            self.response['ics'] = done
+            # print(self.response['ics'])

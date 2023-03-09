@@ -7,6 +7,7 @@ import AddButton from "../pdfEdit/AddButton";
 import parseApp from "../../api/Axios";
 import { AuthContext } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import MinusButton from "../pdfEdit/MinusButton";
 
 export const PdfEdit = ({course, fileInfo}) => {
     const [classStart, setClassStart] = useState("")
@@ -77,7 +78,7 @@ export const PdfEdit = ({course, fileInfo}) => {
             <form className="mx-5 my-5">
 
             <h1 className="text-2xl font-semibold mt-10 mb-3">Class Information :</h1>
-            <label className="relative block p-3 border-2 border-black rounded mb-4" htmlFor="name">
+            <label className="relative block p-3 border-2 border-black rounded mb-4 w-11/12" htmlFor="name">
                 <span className="text-md font-semibold text-zinc-900" htmlFor="name">
                 Name of Class
                 </span>
@@ -92,8 +93,11 @@ export const PdfEdit = ({course, fileInfo}) => {
             {
                 instructors?
                 instructors.map((instructor, index) => (
-                    <InstructorField instructor={instructor} key={index} index={index} 
-                    setInstructors={setInstructors} instructors={instructors}/>
+                    <div className=" flex flex-row align-middle justify-between" key={index}>
+                        <InstructorField instructor={instructor} index={index} 
+                        setInstructors={setInstructors} instructors={instructors}/>
+                        <MinusButton index={index} originalValue={instructors} setValue={setInstructors}/>
+                    </div>
                 )):""
             }
             
@@ -105,8 +109,11 @@ export const PdfEdit = ({course, fileInfo}) => {
             {
                 locations?
                 locations.map((location, index) => (
-                    <LocationsField location={location} key={index} index={index}
-                    setLocations={setLocations} locations={locations}/>
+                    <div className=" flex flex-row align-middle justify-between" key={index}>
+                        <LocationsField location={location} key={index} index={index}
+                        setLocations={setLocations} locations={locations}/>
+                        <MinusButton index={index} originalValue={locations} setValue={setLocations}/>
+                    </div>
                 )):""
             }
             <h1 className="text-2xl font-semibold mt-10">Class Times :</h1>
@@ -131,7 +138,7 @@ export const PdfEdit = ({course, fileInfo}) => {
                     <AddButton /> 
                 </span>
             </h1>
-            <label className="relative block p-3 border-2 mt-5 border-black rounded" htmlFor="name">
+            <label className="relative block p-3 border-2 mt-5 border-black rounded w-11/12" htmlFor="name">
                 <span className="text-md font-semibold text-zinc-900" htmlFor="name">
                 Textbook
                 </span>

@@ -9,10 +9,11 @@ import axios from 'axios'
 const CoursePage = () => {
     const [courses, setCourses] = useState([])
     const [course, setCourse] = useState(0)
+    const [hasBeenEdited, setHasBeenEdited] = useState(false)
     
     useEffect(() => {
         getUserInformation()
-    }, [])
+    }, [hasBeenEdited]) 
 
     const getUserInformation = async () => {
         let res = await axios
@@ -21,6 +22,7 @@ const CoursePage = () => {
             let userData = res.data
             console.log(userData.courses)
             setCourses(userData.courses)
+            setCourse(userData.courses.length - 1)
         })
         return res
     }
@@ -28,11 +30,11 @@ const CoursePage = () => {
     return (
         <div className="grid grid-cols-8">
             <div className=" col-start-1 col-end-2 col-span-1">
-                <CourseTab courses={courses} setCourse={setCourse}/>
+                <CourseTab courses={courses} setCourse={setCourse} course={course}/>
             </div>
             <div className="col-start-2 col-end-8 col-span-2">
                 {courses ? 
-                    <CourseDisplay course={courses[course]}/>
+                    <CourseDisplay course={courses[course]}  hasBeenEdited={hasBeenEdited} setHasBeenEdited={setHasBeenEdited}/>
                     : <h1>BRUH</h1>
                 }
             </div>
