@@ -12,6 +12,7 @@ import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { removeJWTToken } from '../helper/jwt';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 import { AuthContext } from '../hooks/useAuth';
+import ParsyllLogo from '../assets/ParsyllLogo.svg'
 
 
 export default function DashboardAppBar({profilePic}) {
@@ -33,21 +34,13 @@ export default function DashboardAppBar({profilePic}) {
               component={Link} to="/dashboard/courses"
             >
               <MenuIcon />
-            </IconButton> :
-
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              disabled
-              sx={{ mr: 2 }}
-            >
-              <ContentCutIcon />
-            </IconButton> 
+            </IconButton> : ""
+          // <Typography variant="h6" component="div" onClick={()=>navigate("/")} className="cursor-pointer">
+          //   Parsyll
+          // </Typography>
           }
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }} onClick={()=>navigate("/")} className="cursor-pointer">
-            Parsyll
+            <img src={ParsyllLogo} alt="Parsyll" className='w-12'/>
           </Typography>
           {authed ?
           <Box sx={{display:'flex'}}>

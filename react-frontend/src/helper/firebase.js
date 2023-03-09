@@ -17,9 +17,9 @@ import {
   addDoc,
 } from "firebase/firestore";
 
-import axios from 'axios'
 import {firebaseConfig} from '../components/credentials'
 import { setJWTToken } from "./jwt";
+import parseApp from "../api/Axios";
 // PASTE FIRESTORE CREDENTIALS HERE
 
 
@@ -40,7 +40,7 @@ const signInWithGoogle = async () => {
       email: user.email
     }
     var returnObj;
-    await axios.post(`http://localhost:8000/users/create/${user.uid}`, body)
+    await parseApp.post(`/users/create/${user.uid}`, body)
     .then(
       (res) => {
         returnObj =  {
@@ -62,7 +62,7 @@ const logInWithEmailAndPassword = async (email, password) => {
     let uid = res.user.uid
     const user = res.user
     let returnObj;
-    await axios.post("http://localhost:8000/users/token/create",
+    await parseApp.post("/users/token/create",
     { "uid":uid })
     .then((res) => {
       returnObj = {
@@ -88,7 +88,7 @@ const registerWithEmailAndPassword = async (name, email, password) => {
       email: email
     }
 
-    const returnObj = await axios.post(`http://localhost:8000/users/create/${user.uid}`, body)
+    const returnObj = await parseApp.post(`/users/create/${user.uid}`, body)
 
     const returnObjWithUser = {
       access_token : returnObj.data.access_token,

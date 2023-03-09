@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { getJWTToken, removeJWTToken } from "../helper/jwt";
 import { useLocalStorage } from "./useLocalStorage";
 import axios from 'axios'
+import parseApp from "../api/Axios";
 
 export const AuthContext = createContext();
 
@@ -22,7 +23,7 @@ export const AuthProvider = ({children}) => {
         });
         try{
             if(token) {
-                axios.get('http://localhost:8000/users/token/verify').then((res) => {
+                parseApp.get('/users/token/verify').then((res) => {
                     const data = res;
                     if (data.status == 200) {
                         setAuthed(true);

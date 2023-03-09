@@ -43,7 +43,8 @@ async def get_file(file_id: str):
 
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
-@router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
+# @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
+@router.get("/{uid}/{file_id}")
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -118,7 +119,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
                     ics_file = parser.response['ics'],
                     instructors = [parser.response['prof_name']],
                     id=course_id,
-                    syllabyus=syllabus_id
+                    syllabus=syllabus_id
                     )
     # user_doc_ref.collection(u'courses').add(course.__dict__)
     course = course_dao.update(uid=uid, course_id=course_id, course=course)

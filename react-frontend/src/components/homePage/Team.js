@@ -39,7 +39,8 @@ const Team = () => {
                         OUR TEAM
                     </h1>
                     <p className="lg:w-2/3 mx-auto leading-relaxed text-base">
-                        Our team's description :D
+                        This is our team!!! We are all seniors in ECE and will be graduating this semester.
+                        This is our project for ECE49595: Open-Source Software Senior Design.
                     </p>
                 </div>
                 <div className="flex flex-wrap -m-4 justify-center">
