@@ -5,6 +5,7 @@ import CourseTab from "../components/CourseTab";
 import CourseDisplay from "../components/CourseDisplay";
 import courseList from "../helper/course";
 import axios from 'axios'
+import parseApp from "../api/Axios";
 
 const CoursePage = () => {
     const [courses, setCourses] = useState([])
@@ -16,7 +17,7 @@ const CoursePage = () => {
     }, [hasBeenEdited]) 
 
     const getUserInformation = async () => {
-        let res = await axios
+        let res = await parseApp
         .get("http://localhost:8000/users/get_current_user")
         .then(res => {
             let userData = res.data

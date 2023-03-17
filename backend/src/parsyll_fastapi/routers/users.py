@@ -105,18 +105,18 @@ async def generate_token(request: Request):
     return signJWT(uid) 
 
 # This should actually be called user creation
-@router.get("/token/verify", dependencies=[Depends(JWTBearer())])
+@router.get("/token/verify", dependencies=[Depends(JWTBearer())], response_model=UserResponse)
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
     print(uid)
     try:
-        user = auth.get_user(uid)
+        user = user_dao.get(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))
-        create_user(user.uid, user.display_name, user.email)
+        # create_user(user.uid, user.display_name, user.email)
     
     except auth.UserNotFoundError:
         raise HTTPException(404, detail=f"User with UID = {uid} could not found")
  
-    return Response(content=f"JWT token is valid for user of UID = {uid} ", status_code=200)
+    return user
 
 
 # FOR TESTING PURPOSES ONLY

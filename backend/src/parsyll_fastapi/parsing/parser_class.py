@@ -13,6 +13,9 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
+from parsyll_fastapi.models.model import Course
+from parsyll_fastapi.parsing.regex_helper import RegexHelper
+
 load_dotenv()  # take environment variables from .env.
 
 # try:
@@ -26,12 +29,15 @@ load_dotenv()  # take environment variables from .env.
 
 from nltk.tokenize import word_tokenize
 
+DAYS_OF_WEEK = {"MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2, 
+    "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
+
 
 # TODO: add default values to arguments
 class Parser():
-    def __init__(self, openai_key, pdf_file, prompt_file, 
-                 temperature, max_tokens, gpt_model, 
-                 DOW_promptfile):
+    def __init__(self, openai_key=None, pdf_file=None, prompt_file=None, 
+                 temperature=None, max_tokens=None, gpt_model=None, 
+                 DOW_promptfile=None):
         self.openai_key = openai_key
         self.pdf_file = pdf_file
         self.prompt_file = prompt_file
@@ -126,17 +132,40 @@ class Parser():
         print(response)
         response = (response.choices[0].text.replace("-",",")).split(",")
 
+        start_time = RegexHelper().format_time(response[1])
+        end_time = RegexHelper().format_time(response[2])
+
+        if start_time and end_time:
+            print(start_time.group(), end_time.group())
+        else:
+            print(start_time, end_time)
+
         self.response['course'] = response[0]
-        self.response['class_start_time'] = response[1]
-        self.response['class_end_time'] = response[2]
+        self.response['class_start_time'] = "" if not start_time else start_time.group()
+        self.response['class_end_time'] = "" if not end_time else end_time.group()
         self.response['days_of_week'] = response[3]
         self.response['class_location'] = response[4]
         self.response['prof_name'] = response[5]
         
         self.postprocess()
 
-    def write_ics(self):
-        if self.response:
+    def write_ics(self, courseObj: Course = None):
+
+        if (self.response and self.response['days_of_week']) or courseObj:
+            if self.response:
+                days_of_week = self.response['days_of_week']
+                course = self.response['course']
+                class_location = self.response['class_location']
+                class_start_time = self.response['class_start_time']
+                class_end_time = self.response['class_end_time']
+            else:
+                days_of_week = courseObj.days_of_week
+                course =  courseObj.name
+                class_location = courseObj.locations
+                class_start_time = courseObj.class_start
+                class_end_time = courseObj.class_end
+
+            c = Calendar() # Calendar object
 
             # get current datetime
             dt = datetime.today()
@@ -144,20 +173,9 @@ class Parser():
             # get day of week as an integer
             today_day = datetime.now().weekday()
 
-            DAYS_OF_WEEK = {"MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2, 
-                "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
-            
-            c = Calendar()
-
-            # get start date for lecture in python datetime
-            # print(self.response)
-            if not self.response['days_of_week']:
-                self.response['ics'] = []
-                return None
-            
-            for i in range(len(self.response['days_of_week'])):
+            for i in range(len(days_of_week)):
                 day_diff = timedelta(days=0)
-                curr_day = DAYS_OF_WEEK[self.response['days_of_week'][i].upper()]
+                curr_day = DAYS_OF_WEEK[days_of_week[i].upper()]
                 if today_day > curr_day:
                     day_diff = timedelta(days=today_day - curr_day)
                 elif today_day < curr_day:
@@ -170,8 +188,8 @@ class Parser():
                 
                 # add start time to current start_date
 
-                start_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_start_time'])
-                end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", self.response['class_end_time'])
+                start_time = re.search(r"([0-9]{,2}\s*:\s*[1-9]{,2})\s*(pm|am)", class_start_time)
+                end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", class_end_time)
 
                 if start_time:
                     start_time = start_time.groups()
@@ -185,7 +203,6 @@ class Parser():
 
 
                 start_time = start_date.strftime('%Y-%m-%d') + ' ' + start_time[0] + ' ' + start_time[1]
-                print(start_time, curr_day)
                 end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
 
 
@@ -198,9 +215,9 @@ class Parser():
                 # end_date = start_date + timedelta(minutes=int(self.response['class_duration']))
 
                 e = Event()
-                e.name = f"{self.response['course']} ({self.response['class_location']})" #course number (location)
                 e.begin = start_time
-                e.location = "" if not self.response['class_location'] else self.response['class_location'][0]
+                e.location = "" if not class_location else class_location[0]
+                e.name = f"{course} lecture" #course number (location)
                 # e.duration = timedelta(minutes=int(self.response['class_duration']))
                 e.end = end_time
                 c.events.add(e)
@@ -210,14 +227,16 @@ class Parser():
                 my_file.writelines(c.serialize_iter())
                 self.response['ics'] = c.serialize_iter()
 
-            
-            repeat_weekly = "RRULE:FREQ=WEEKLY;UNTIL=20240101T000000Z\r\n"
-            done = []
+            current_month = (datetime.today() + timedelta(weeks=16)).strftime('%Y%m%d')
+            repeat_weekly = f"RRULE:FREQ=WEEKLY;UNTIL={current_month}T000000Z\r\n"
+
+            ics_with_repeat = []
             for i, s in enumerate(self.response['ics']):
-                done.append(s)
+                ics_with_repeat.append(s)
                 if "DTSTART" in s:
-                    done.append(repeat_weekly)
+                    ics_with_repeat.append(repeat_weekly)
             
-            print(done)
-            self.response['ics'] = done
-            # print(self.response['ics'])
+            self.response['ics'] = ics_with_repeat
+        else:
+            self.response['ics'] = []
+            return

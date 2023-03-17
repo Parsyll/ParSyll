@@ -6,17 +6,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
-import { getJWTToken } from '../helper/jwt';
-import axios from 'axios';
-import { AuthContext } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth";
 import parseApp from "../api/Axios";
-
-
-axios.interceptors.request.use(config => {
-    const token = getJWTToken();
-    config.headers["Authorization"] = `Bearer ${token}`;
-    return config;
-  });
 
 
 const UserPage = () => {
@@ -32,7 +23,7 @@ const UserPage = () => {
         getUserInformation()
     }, [])
 
-    const {logout} = useContext(AuthContext)
+    const {logout} = useAuth()
     console.log(courses)
 
     const getUserInformation = async () => {

@@ -13,6 +13,7 @@ import { Modal } from "@mui/material";
 import PdfViewer from "./pdfUpload/PdfViewer";
 
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../hooks/useUser";
 
 const style = {
   position: 'absolute',
@@ -30,7 +31,7 @@ const style = {
 const CourseDisplay = ({course, hasBeenEdited, setHasBeenEdited}) => {
     const [viewPdf, setViewPdf] = useState(false)
     const [pdfFile, setPdfFile] = useState("")
-    let {user} = useContext(AuthContext);
+    let {user} = useUser()
     let uid = user.uid
     let navigate = useNavigate()
 
