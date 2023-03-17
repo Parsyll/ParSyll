@@ -2,14 +2,7 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Modal from '@mui/material/Modal';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import PdfViewer from './PdfViewer';
-import axios from 'axios';
-import { getJWTToken } from '../../helper/jwt';
 import { createTheme } from '@mui/material/styles';
 
 import parseApp from '../../api/Axios';

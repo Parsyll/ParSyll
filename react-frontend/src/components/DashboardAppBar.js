@@ -10,15 +10,14 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import { Navigate, Link, useNavigate } from 'react-router-dom';
 import { removeJWTToken } from '../helper/jwt';
-import ContentCutIcon from '@mui/icons-material/ContentCut';
-import { AuthContext } from '../hooks/useAuth';
 import ParsyllLogo from '../assets/ParsyllLogo.svg'
+import { useUser } from '../hooks/useUser';
 
 
 export default function DashboardAppBar({profilePic}) {
   const navigate = useNavigate()
 
-  const {authed} = useContext(AuthContext)
+  const {authed} = useUser()
 
   return (
     <Box sx={{ flexGrow: 1 }}>

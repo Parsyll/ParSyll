@@ -19,7 +19,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import LoginIcon from '@mui/icons-material/Login';
 import GoogleIcon from '@mui/icons-material/Google';
 import ErrorMessage from '../components/ErrorMessage';
-import { AuthContext} from '../hooks/useAuth';
+import {useAuth} from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -32,7 +32,7 @@ export default function SignUpPage({setProfilePic, setUserName}) {
   const [rememberMe, setRememberMe] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
 
-  const {login} = React.useContext(AuthContext)
+  const {login} = useAuth()
   const navigate = useNavigate()
 
   const handlePasswordChange = (e) => {

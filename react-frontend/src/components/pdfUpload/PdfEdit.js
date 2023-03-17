@@ -5,9 +5,9 @@ import LocationsField from "../pdfEdit/LocationsField";
 import TimePicker from "../pdfEdit/TimePicker";
 import AddButton from "../pdfEdit/AddButton";
 import parseApp from "../../api/Axios";
-import { AuthContext } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import MinusButton from "../pdfEdit/MinusButton";
+import { useUser } from "../../hooks/useUser";
 
 export const PdfEdit = ({course, fileInfo}) => {
     const [classStart, setClassStart] = useState("")
@@ -40,7 +40,7 @@ export const PdfEdit = ({course, fileInfo}) => {
         setId(course.id)
     }, [course])
 
-    let {user} = useContext(AuthContext);
+    let {user} = useUser();
     let uid = user.uid
 
     const handlePDFParseSubmission = (e) => {
@@ -117,7 +117,8 @@ export const PdfEdit = ({course, fileInfo}) => {
                 )):""
             }
             <h1 className="text-2xl font-semibold mt-10">Class Times :</h1>
-            <TimePicker label={"Start-Time"}/> <TimePicker label={"End-Time"}/>
+            <TimePicker label={"Start-Time"} time={classStart} setTime={setClassStart}/>
+            <TimePicker label={"End-Time"} time={classEnd} setTime={setClassEnd} />
             <DaysOfWeekField daysOfWeek={daysOfWeek} setDaysOfWeek={setDaysOfWeek}/>
             
             <h1 className="text-2xl font-semibold mt-3">Office Hours:

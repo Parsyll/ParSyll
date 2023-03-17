@@ -36,8 +36,7 @@ class TestJWT:
 
     def test_token_verification_success_and_user_creation(self, monkeypatch):
 
-        monkeypatch.setattr(auth, "get_user", mockuser.mock_auth_get_user_success)
-        monkeypatch.setattr(users, "create_user", mockuser.mock_create_user_success)
+        monkeypatch.setattr(UserDAO, "get", mockuser.mock_userdao_get_success)
         response = client.get("/users/token/verify", headers=header)
 
         assert response.status_code == 200
