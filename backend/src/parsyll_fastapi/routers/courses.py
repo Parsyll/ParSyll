@@ -11,6 +11,7 @@ from parsyll_fastapi.parsing.parser_class import Parser
 router = APIRouter(prefix="/courses", tags=["courses"])
 course_dao = CourseDAO()
 
+
 @router.post("/{uid}")
 def create_course(uid: str, course: CourseBase = Body(...)):
     course_id = course_dao.create(uid, course)
@@ -29,15 +30,22 @@ def get_course(uid: str, course_id: str):
 def list_courses(uid: str):
     course_list = course_dao.get_all(uid)
     if course_list is None:
-        raise HTTPException(status_code=404, detail=f"User id {uid} does not exist to get courses")
+        raise HTTPException(
+            status_code=404,
+            detail=f"User id {uid} does not exist to get courses",
+        )
     return course_list
 
 
-@router.put("/{uid}/{course_id}", response_model=Course, dependencies=[Depends(JWTBearer)])
+@router.put(
+    "/{uid}/{course_id}",
+    response_model=Course,
+    dependencies=[Depends(JWTBearer)],
+)
 def update_course(uid: str, course_id: str, course: Course = Body(...)):
     parser = Parser()
     parser.write_ics(course)
-    course.ics_file = parser.response['ics']
+    course.ics_file = parser.response["ics"]
     print(course.ics_file)
     course = course_dao.update(uid, course_id, course)
     if not course:

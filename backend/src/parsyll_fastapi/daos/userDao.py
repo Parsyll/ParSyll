@@ -5,6 +5,7 @@ from typing import List
 
 course_dao = CourseDAO()
 
+
 class UserDAO:
     collection_name = "users"
 
@@ -12,15 +13,15 @@ class UserDAO:
         pass
 
     def get(self, uid: str) -> UserResponse:
-        
+
         user_doc_ref = db.collection(self.collection_name).document(uid)
         user_doc = user_doc_ref.get()
         if not user_doc.exists:
             return None
-        
+
         user_dict = user_doc.to_dict()
-        courses_list = course_dao.get_all(uid) 
-        user_dict['courses'] = courses_list
+        courses_list = course_dao.get_all(uid)
+        user_dict["courses"] = courses_list
 
         return UserResponse(**user_dict)
 
@@ -29,7 +30,7 @@ class UserDAO:
         user_list = []
         for user_doc in user_ref.stream():
             user_dict = user_doc.to_dict()
-            user_dict['courses'] = course_dao.get_all(user_doc.id)
+            user_dict["courses"] = course_dao.get_all(user_doc.id)
             user_list.append(UserResponse(**user_dict))
 
         return user_list
@@ -42,11 +43,11 @@ class UserDAO:
         if not user_doc.exists:
             return None
 
-        if data['uid'] != uid:
-            data['uid'] = uid
+        if data["uid"] != uid:
+            data["uid"] = uid
 
         user_doc_ref.update(data)
-        
+
         return self.get(uid)
 
     def delete(self):

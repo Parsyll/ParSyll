@@ -60,5 +60,5 @@ warn_unreachable = true
 warn_unused_configs = true
 no_implicit_reexport = true
 
-[flake8]
-max-line-length = 160
+[tool.black]
+line-length = 88

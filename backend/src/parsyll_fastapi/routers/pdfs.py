@@ -13,10 +13,7 @@ from parsyll_fastapi.daos.courseDao import CourseDAO
 
 from parsyll_fastapi.parsing.parser_class import Parser
 
-router = APIRouter(
-    prefix="/pdfs",
-    tags=["pdfs"]
-)
+router = APIRouter(prefix="/pdfs", tags=["pdfs"])
 
 course_dao = CourseDAO()
 
@@ -30,15 +27,19 @@ async def get_file(file_id: str):
 
     # filename for pdf download
     filename = file_id
-    if 'filename' in blob.metadata:
-        filename = blob.metadata['filename']
+    if "filename" in blob.metadata:
+        filename = blob.metadata["filename"]
     else:
         file_ext = mimetypes.guess_extension(blob.content_type)
         filename += file_ext
-    
+
     # TODO error handling for bucket.get_blob with no valid file_id
 
-    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+    return Response(
+        content=contents,
+        media_type=blob.content_type,
+        headers={"Content-Disposition": f"attachment;filename={filename}"},
+    )
 
 
 # This endpoint can only download file user:uid owns
@@ -46,195 +47,209 @@ async def get_file(file_id: str):
 # @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
 @router.get("/{uid}/{file_id}")
 async def user_get_file(uid: str, file_id: str):
-    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc_ref = db.collection("users").document(uid)
     user_doc = user_doc_ref.get()
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    courses_ref = user_doc_ref.collection(u'courses')
-    syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id)) 
+    courses_ref = user_doc_ref.collection("courses")
+    syllabus_query = courses_ref.where("syllabus", "==", str(file_id))
 
     # check if file_id belongs to this user
     if len(syllabus_query.get()) <= 0:
         raise HTTPException(404, detail=f"File {file_id} does not exist for user {uid}")
 
-    
     blob = bucket.get_blob(file_id)
     contents = blob.download_as_bytes()
 
     # filename for pdf download
     filename = file_id
-    if 'filename' in blob.metadata:
-        filename = blob.metadata['filename']
+    if "filename" in blob.metadata:
+        filename = blob.metadata["filename"]
     else:
         file_ext = mimetypes.guess_extension(blob.content_type)
         filename += file_ext
 
     # TODO error handling for bucket.get_blob with no valid file_id
-     
-    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+
+    return Response(
+        content=contents,
+        media_type=blob.content_type,
+        headers={"Content-Disposition": f"attachment;filename={filename}"},
+    )
+
 
 ## Upload file endpoints
 
 # user parses file
 
+
 @router.post("/parse/{course_id}/{syllabus_id}", dependencies=[Depends(JWTBearer())])
-async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+async def user_parse_file(
+    course_id: str,
+    syllabus_id: str,
+    file: UploadFile,
+    uid=Depends(getUIDFromAuthorizationHeader),
+):
 
     # download temp file
-    with open('filename.pdf', 'wb+') as file_obj:
+    with open("filename.pdf", "wb+") as file_obj:
         file_obj.write(file.file.read())
 
     # parse
-    parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-      pdf_file = 'filename.pdf', 
-      prompt_file = 'parsing/prompts/class_timings2.txt', 
-      temperature = 0.1, 
-      max_tokens =  1250,
-      gpt_model = "text-davinci-003",
-      DOW_promptfile= 'parsing/prompts/DOW_prompt.txt')
+    parser = Parser(
+        openai_key=os.getenv("OPENAI_API_KEY"),
+        pdf_file="filename.pdf",
+        prompt_file="parsing/prompts/class_timings2.txt",
+        temperature=0.1,
+        max_tokens=1250,
+        gpt_model="text-davinci-003",
+        DOW_promptfile="parsing/prompts/DOW_prompt.txt",
+    )
 
     parser.gpt_parse()
-    # generate temp ICS file, convert to string 
+    # generate temp ICS file, convert to string
     parser.write_ics()
 
     # store parsed info along with string ICS file in Firestore
-    try: 
+    try:
         user = auth.get_user(uid)
     except auth.UserNotFoundError:
         raise HTTPException(404, detail=f"User {uid} not found")
-    
-    user_doc_ref = db.collection(u'users').document(user.uid)
+
+    user_doc_ref = db.collection("users").document(user.uid)
     user_doc = user_doc_ref.get()
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    course = Course(name=parser.response['course'], 
-                    locations=[parser.response['class_location']],
-                    class_start=parser.response['class_start_time'],
-                    class_end=parser.response['class_end_time'],
-                    days_of_week=parser.response['days_of_week'],
-                    ics_file = parser.response['ics'],
-                    instructors = [parser.response['prof_name']],
-                    id=course_id,
-                    syllabus=syllabus_id
-                    )
+    course = Course(
+        name=parser.response["course"],
+        locations=[parser.response["class_location"]],
+        class_start=parser.response["class_start_time"],
+        class_end=parser.response["class_end_time"],
+        days_of_week=parser.response["days_of_week"],
+        ics_file=parser.response["ics"],
+        instructors=[parser.response["prof_name"]],
+        id=course_id,
+        syllabus=syllabus_id,
+    )
     # user_doc_ref.collection(u'courses').add(course.__dict__)
     course = course_dao.update(uid=uid, course_id=course_id, course=course)
-    
-    return course
 
+    return course
 
     # delete temp pdf file and temp ICS file
 
+
 # user upload file
 @router.post("/submit", dependencies=[Depends(JWTBearer())])
-async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+async def user_upload_file(
+    file: UploadFile, uid=Depends(getUIDFromAuthorizationHeader)
+):
 
-    try: 
+    try:
         user = auth.get_user(uid)
     except auth.UserNotFoundError:
         raise HTTPException(404, detail=f"User {uid} not found")
-    
-    user_doc_ref = db.collection(u'users').document(user.uid)
+
+    user_doc_ref = db.collection("users").document(user.uid)
     user_doc = user_doc_ref.get()
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    file_contents = await file.read() 
+    file_contents = await file.read()
     file_id = uuid4()
 
     blob = bucket.blob(str(file_id))
     # add user in metadata to associate file with user
-    blob.metadata = {'Content-Type': file.content_type, 'filename': file.filename, 'user': user.uid}
+    blob.metadata = {
+        "Content-Type": file.content_type,
+        "filename": file.filename,
+        "user": user.uid,
+    }
     blob.upload_from_string(file_contents, content_type=file.content_type)
 
-    course_id = course_dao.create(uid, CourseBase(syllabus=str(file_id))) 
+    course_id = course_dao.create(uid, CourseBase(syllabus=str(file_id)))
 
-    #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ###### 
+    #### MAYBE WE SHOULD RETURN DIC WITH FILE.FILENAME ######
     return {
         "filename": file.filename,
-        "file_id" : file_id,
-        "course_id": course_id
+        "file_id": file_id,
+        "course_id": course_id,
     }
+
 
 ## DELETE file endpoints
 
-# Delete file: fileid 
+# Delete file: fileid
 @router.delete("/file/{file_id}", dependencies=[Depends(JWTBearer())])
 async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
     blob = bucket.get_blob(file_id)
-    
-    if 'user' in blob.metadata:
-        uid = blob.metadata['user']
-        user_doc_ref = db.collection(u'users').document(uid)
-        courses_ref = user_doc_ref.collection(u'courses')
-        syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id))
+
+    if "user" in blob.metadata:
+        uid = blob.metadata["user"]
+        user_doc_ref = db.collection("users").document(uid)
+        courses_ref = user_doc_ref.collection("courses")
+        syllabus_query = courses_ref.where("syllabus", "==", str(file_id))
 
         for course_doc in syllabus_query.get():
-            courses_ref.document(course_doc.id).update({
-                u'syllabus': ""
-            })
-
+            courses_ref.document(course_doc.id).update({"syllabus": ""})
 
     delete_blob(file_id)
 
-    return {"file_id" : file_id}
+    return {"file_id": file_id}
+
 
 # Delete all file of user:uid
 @router.delete("/user/{uid}")
-async def delete_user_files(uid: str): 
-    user_doc_ref = db.collection(u'users').document(uid)
+async def delete_user_files(uid: str):
+    user_doc_ref = db.collection("users").document(uid)
     user_doc = user_doc_ref.get()
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    courses_ref = user_doc_ref.collection(u'courses')
+    courses_ref = user_doc_ref.collection("courses")
     courses_docs = courses_ref.stream()
-    
+
     user_syllabus_list = []
     for course_doc in courses_docs:
-        user_syllabus_list.append(course_doc.get(u'syllabus'))
-        courses_ref.document(course_doc.id).update({
-            u'syllabus': ""
-        })
-    
+        user_syllabus_list.append(course_doc.get("syllabus"))
+        courses_ref.document(course_doc.id).update({"syllabus": ""})
 
     for file_id in user_syllabus_list:
         if file_id != "" and file_id != None:
             delete_blob(file_id)
-    
 
     return f"Deleted all files associated with User {uid}"
+
 
 # Delete file:file_id of user:uid
 @router.delete("/user/{uid}/{file_id}")
 async def delete_user_file(uid: str, file_id: str):
-    user_doc_ref = db.collection(u'users').document(uid)
+    user_doc_ref = db.collection("users").document(uid)
     user_doc = user_doc_ref.get()
 
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
-    
-    courses_ref = user_doc_ref.collection(u'courses')
-    syllabus_query = courses_ref.where(u'syllabus', u'==', str(file_id))
+
+    courses_ref = user_doc_ref.collection("courses")
+    syllabus_query = courses_ref.where("syllabus", "==", str(file_id))
 
     if len(syllabus_query.get()) <= 0:
         raise HTTPException(404, detail=f"File {file_id} does not exist for user {uid}")
 
     # There should only be one doc corresponding to file_id, but for loop just incase
     for course_doc in syllabus_query.get():
-        courses_ref.document(course_doc.id).update({
-            u'syllabus': ""
-        })
-    
+        courses_ref.document(course_doc.id).update({"syllabus": ""})
+
     delete_blob(file_id)
- 
-    return {"file_id" : file_id}
+
+    return {"file_id": file_id}
+
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
 # Remove this endpoint for prod
@@ -243,19 +258,16 @@ async def delete_all_file_in_firebase():
     # print(bucket.list_blobs)
     for blob in bucket.list_blobs():
         delete_blob(blob.name)
-    
+
     for user in auth.list_users().iterate_all():
-        user_doc_ref = db.collection(u'users').document(user.uid)
-        courses_ref = user_doc_ref.collection(u'courses')
+        user_doc_ref = db.collection("users").document(user.uid)
+        courses_ref = user_doc_ref.collection("courses")
 
         courses_docs = courses_ref.stream()
         for course_doc in courses_docs:
-            courses_ref.document(course_doc.id).update({
-                u'syllabus': ""
-            })
+            courses_ref.document(course_doc.id).update({"syllabus": ""})
 
     return "Deleted all files in storage bucket!"
-
 
 
 # Helper functions

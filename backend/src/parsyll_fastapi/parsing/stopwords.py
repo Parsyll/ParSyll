@@ -21,10 +21,10 @@ from nltk.tokenize import word_tokenize
 
 
 def remove_stopwords(pdf_file):
-    pdf_file = open(pdf_file, 'rb')
+    pdf_file = open(pdf_file, "rb")
 
     reader = PyPDF2.PdfReader(pdf_file)
-    full_text = ''
+    full_text = ""
     for i in range(len(reader.pages)):
         page = reader.pages[i]
         page_text = page.extract_text()
@@ -36,10 +36,10 @@ def remove_stopwords(pdf_file):
 
     # to reduce look up time to O(1)
     stopwords_set = set(stopwords.words())
-    
+
     tokens_without_sw = [word for word in text_tokens if not word in stopwords_set]
     print(len(tokens_without_sw))
     print(" ".join(tokens_without_sw))
 
 
-remove_stopwords('./etc/s1.pdf')
+remove_stopwords("./etc/s1.pdf")

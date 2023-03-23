@@ -2,6 +2,7 @@ from parsyll_fastapi.database import db
 from parsyll_fastapi.models.model import Course, CourseBase
 from typing import List
 
+
 class CourseDAO:
     user_collection_name = "users"
     collection_name = "courses"
@@ -33,11 +34,11 @@ class CourseDAO:
         user_ref = db.collection(self.user_collection_name).document(uid)
         if not user_ref.get().exists:
             return None
-        
+
         course_ref = user_ref.collection(self.collection_name)
         course_list = []
         for course_doc in course_ref.stream():
-            course_list.append(Course(**course_doc.to_dict())) 
+            course_list.append(Course(**course_doc.to_dict()))
 
         return course_list
 

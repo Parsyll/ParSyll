@@ -12,7 +12,7 @@ import wandb
 #     course_num: IE314,
 #     class_timings: [Tuesday, 3:30pm, 60minutes], [Thursday, 6:00pm, 60minutes],
 #     location: EE129,
-#     instructors: 
+#     instructors:
 #     {
 #         {
 #             name : Prof Davis,
@@ -37,11 +37,12 @@ import wandb
 #     textbook: "Introduction to Real Analysis 4th Edition",
 # }
 
+
 def parse_gpt(pdfFile, promptFile):
     # run = wandb.init(project='Parsyll GPT Parsing')
     # prediction_table = wandb.Table(columns=["prompt", "completion"])
 
-    pdf_file = open(pdfFile, 'rb')
+    pdf_file = open(pdfFile, "rb")
 
     reader = PyPDF2.PdfReader(pdf_file)
 
@@ -49,21 +50,20 @@ def parse_gpt(pdfFile, promptFile):
         page = reader.pages[i]
         page_text = page.extract_text()
         # print(page_text)
-    
+
         openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
-        with open(promptFile, 'r') as file:
-            prompt_text = file.read().replace('\n', '')
+        with open(promptFile, "r") as file:
+            prompt_text = file.read().replace("\n", "")
 
         gpt_prompt = page_text + prompt_text
         response = openai.Completion.create(
-                model="text-davinci-003",
-                prompt=f'{gpt_prompt}', 
-                max_tokens=1250,
-                temperature=0.3,
-                # stream=True
-            )
+            model="text-davinci-003",
+            prompt=f"{gpt_prompt}",
+            max_tokens=1250,
+            temperature=0.3,
+            # stream=True
+        )
         # prediction_table.add_data(gpt_prompt, response['choices'][0]['text'])
         # parse next page only if not found on this page (class timings)
         if response != "0":
@@ -74,9 +74,7 @@ def parse_gpt(pdfFile, promptFile):
 
     print(response.choices[0].text)
     pdf_file.close()
-    return (response.choices[0].text.split(','))
-
-
+    return response.choices[0].text.split(",")
 
 
 # parse_gpt('./etc/ie335_syllabus.pdf', 'prompts/class_timings2.txt')
