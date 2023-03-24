@@ -10,9 +10,14 @@ load_dotenv()
 
 cred = str(os.getenv("FIREBASE_SERVICE_ACCOUNT")).strip("'<>() ").replace('\'', '\"')
 config = str(os.getenv("FIREBASE_CONFIG")).strip("'<>() ").replace('\'', '\"')
+with open(cred, "r") as file:
+    cred1 = file.read()
 
-cred = json.loads(cred)
-config = json.loads(config)
+with open(config, "r") as file:
+    config1 = file.read()
+
+cred = json.loads(cred1)
+config = json.loads(config1)
 
 
 cred = credentials.Certificate(cred)

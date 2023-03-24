@@ -16,6 +16,7 @@ from datetime import timedelta
 from parsyll_fastapi.models.model import Course
 from parsyll_fastapi.parsing.regex_helper import RegexHelper
 
+
 load_dotenv()  # take environment variables from .env.
 
 # try:
