@@ -84,7 +84,8 @@ async def user_get_file(uid: str, file_id: str):
 async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # get configs
-    filename = "backend/src/parsyll_fastapi/parsing/config.ini"
+    print((os.getcwd()))
+    filename = os.getcwd() + "/parsing/config.ini"
     if os.path.isfile(filename):
         # parser = ConfigParser.SafeConfigParser()
         configs = ConfigParser()
@@ -102,10 +103,10 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
 
     # parse
     parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-      pdf_file = configs["parsing"]["PDF_FILE"], 
-      prompt_file = configs["parsing"]["PROMPT_FILE"], 
-      temperature = configs["parsing"]["TEMPERATURE"], 
-      max_tokens =  configs["parsing"]["MAX_TOKENS"],
+      pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
+      prompt_file = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
+      temperature = float(configs["parsing"]["TEMPERATURE"]), 
+      max_tokens =  int(configs["parsing"]["MAX_TOKENS"]),
       gpt_model = configs["parsing"]["GPT_MODEL"],
       DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"])
 
