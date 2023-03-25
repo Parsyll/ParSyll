@@ -107,6 +107,30 @@ class Parser():
     def postprocess(self):
         self.get_days_of_week()
 
+    def gpt_parse_office_hours(self):
+        # pre-processing
+        self.preprocess()
+
+        openai.api_key = self.openai_key
+
+        with open(self.prompt_file, 'r') as file:
+            prompt_text = file.read().replace('\n', '')
+
+        # ensure text to parsed does not exceed model's maximum 
+        # content length (1 token is abour 4 chars)
+        if self.pdf_text:
+            pdf_text = self.pdf_text[0:min(len(self.pdf_text), 8000)]
+
+        gpt_prompt = pdf_text + prompt_text
+        response = openai.Completion.create(
+                model=self.gpt_model,
+                prompt=f'{gpt_prompt}', 
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                # stream=True
+            )
+
+        print(response)
     def gpt_parse(self):
         # pre-processing
         self.preprocess()
