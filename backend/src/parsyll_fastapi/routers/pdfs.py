@@ -1,6 +1,9 @@
 import mimetypes
 import os
 
+from configparser import ConfigParser
+
+
 from fastapi import APIRouter, Request, UploadFile, File, Form, Depends
 from fastapi.responses import JSONResponse, Response, FileResponse
 from fastapi.exceptions import HTTPException
@@ -75,12 +78,24 @@ async def user_get_file(uid: str, file_id: str):
      
     return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
 
-## Upload file endpoints
 
-# user parses file
 
 @router.post("/parse/{course_id}/{syllabus_id}", dependencies=[Depends(JWTBearer())])
 async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
+
+    # get configs
+    print((os.getcwd()))
+    filename = os.getcwd() + "/parsing/config.ini"
+    if os.path.isfile(filename):
+        # parser = ConfigParser.SafeConfigParser()
+        configs = ConfigParser()
+        configs.read(filename)
+
+        # print(configs.sections())
+        # print(type((configs["parsing"]["PROMPT_FILE"])))
+    else:
+        print("Config file not found")
+
 
     # download temp file
     with open('filename.pdf', 'wb+') as file_obj:
@@ -88,12 +103,12 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
 
     # parse
     parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-      pdf_file = 'filename.pdf', 
-      prompt_file = 'parsing/prompts/class_timings2.txt', 
-      temperature = 0.1, 
-      max_tokens =  1250,
-      gpt_model = "text-davinci-003",
-      DOW_promptfile= 'parsing/prompts/DOW_prompt.txt')
+      pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
+      prompt_file = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
+      temperature = float(configs["parsing"]["TEMPERATURE"]), 
+      max_tokens =  int(configs["parsing"]["MAX_TOKENS"]),
+      gpt_model = configs["parsing"]["GPT_MODEL"],
+      DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"])
 
     parser.gpt_parse()
     # generate temp ICS file, convert to string 
@@ -127,7 +142,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     return course
 
 
-    # delete temp pdf file and temp ICS file
+    # TODO: delete temp pdf file and temp ICS file
 
 # user upload file
 @router.post("/submit", dependencies=[Depends(JWTBearer())])
