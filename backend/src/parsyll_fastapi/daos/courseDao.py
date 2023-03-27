@@ -32,7 +32,7 @@ class CourseDAO:
     def get_all(self, uid: str) -> List[Course]:
         user_ref = db.collection(self.user_collection_name).document(uid)
         if not user_ref.get().exists:
-            return None
+            return []
         
         course_ref = user_ref.collection(self.collection_name)
         course_list = []
