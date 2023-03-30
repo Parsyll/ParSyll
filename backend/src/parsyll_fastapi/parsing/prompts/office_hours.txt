@@ -1,4 +1,4 @@
 The previous text was taken from a page of a college course syllabus.
-Return the instructors / TA names, their office hours start time with specification of am/pm, office hours end time with specification of am/pm, office hours days of the week, office hours location in that order in csv format
+Return the instructors / TA names, their office hours start time with specification of am/pm, office hours end time with specification of am/pm, office hours days of the week, office hours location(building and room number) in that order in csv format
 Give only this information, no other wording or explanation please. 
 If no information was found for a field then put 0 for that field

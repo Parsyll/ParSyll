@@ -84,7 +84,7 @@ async def user_get_file(uid: str, file_id: str):
 async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # get configs
-    print((os.getcwd()))
+    # print((os.getcwd()))
     filename = os.getcwd() + "/parsing/config.ini"
     if os.path.isfile(filename):
         # parser = ConfigParser.SafeConfigParser()
