@@ -106,9 +106,11 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
       pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
       prompt_file = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
       temperature = float(configs["parsing"]["TEMPERATURE"]), 
-      max_tokens =  int(configs["parsing"]["MAX_TOKENS"]),
+      max_tokens_completion =  int(configs["parsing"]["MAX_TOKENS_COMPLETION"]),
+      max_tokens_context=int(configs["parsing"]["MAX_TOKENS_CONTEXT"]),
       gpt_model = configs["parsing"]["GPT_MODEL"],
-      DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"])
+      DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"],
+      OH_prompt=configs['parsing']['OH_PROMPT'])
 
     parser.gpt_parse()
     # generate temp ICS file, convert to string 
