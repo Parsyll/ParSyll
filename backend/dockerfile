@@ -1,0 +1,25 @@
+FROM python:3.9
+
+WORKDIR /code
+COPY ./requirements.txt .
+COPY ./requirements_dev.txt .
+COPY ./src/parsyll_fastapi/parsing/nltk_download_script.py .
+
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt 
+
+# RUN python3 nltk_download_script.py
+
+
+COPY . /code/src
+
+ENV FLASK_DEBUG=1
+ENV FLASK_ENV=development
+
+WORKDIR /code/src
+RUN pip install -e .
+
+EXPOSE 8000
+
+WORKDIR /code/src/src/parsyll_fastapi
+
+CMD ["python3", "/code/src/src/parsyll_fastapi/main.py"]
