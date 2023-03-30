@@ -28,7 +28,7 @@ def text_to_chunks(text, chunk_size=2000, overlap=100):
 
 
 parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-    pdf_file = 'backend/src/parsyll_fastapi/parsing/etc/s1.pdf', 
+    pdf_file = 'backend/src/parsyll_fastapi/parsing/etc/s3.pdf', 
     prompt_file = 'backend/src/parsyll_fastapi/parsing/prompts/class_timings2.txt', 
     temperature = 0.1, 
     max_tokens_completion =  1250,

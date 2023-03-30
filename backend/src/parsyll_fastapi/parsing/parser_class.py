@@ -163,6 +163,9 @@ class Parser():
         
         print(self.response['office_hours'])
 
+        # TODO: need to do postprocessing for days of the week
+
+
     def gpt_parse(self):
         # pre-processing
         self.preprocess()
