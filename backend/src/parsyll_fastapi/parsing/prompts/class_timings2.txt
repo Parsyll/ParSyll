@@ -1,5 +1,5 @@
 The previous text was taken from a page of a college course syllabus.
 Return the two letter course initials with course number (not course name), in person (synchronous) class start time with specification of am/pm, 
-in person (synchronous) class end time with specification of am/pm, days of the week(full word not short form and separated by space if multiple), location and instructor name in that order in csv format
+in person (synchronous) class end time with specification of am/pm, days of the week(full word not short form and separated by space if multiple), location and instructor names in that order in csv format
 Give only this information, no other wording or explanation please. 
-If no class timings were found then return a string with only a 0 (no dict)
+If one of the fields were found then return a string with only a 0 for that field

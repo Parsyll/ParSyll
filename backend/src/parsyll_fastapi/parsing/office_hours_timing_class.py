@@ -9,3 +9,4 @@ class OfficeHourTiming(Timing):
                  
         super().__init__(location=location, start=start, end=end, days_of_week=days_of_week, attribute=attribute)
         self.instructor = instructor
+

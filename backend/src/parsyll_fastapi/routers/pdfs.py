@@ -112,7 +112,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
       DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"],
       OH_prompt=configs['parsing']['OH_PROMPT'])
 
-    parser.gpt_parse()
+    parser.gpt_parse_class_timings()
     # generate temp ICS file, convert to string 
     parser.write_ics()
 

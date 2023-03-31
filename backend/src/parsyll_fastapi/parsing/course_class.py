@@ -5,7 +5,7 @@ from person_class import Person
 from grading_scheme_class import GradingScheme
 from office_hours_timing_class import OfficeHourTiming
 
-class Course:
+class CourseInfo:
     def __init__(self, name: str = '', instructors: List[Person] = [], syllabus: str = '',
                  office_hrs: List[OfficeHourTiming] = [], ics_file: List[str] = [],
                  textbook: List[str] = [], class_times: List[Timing] = [],

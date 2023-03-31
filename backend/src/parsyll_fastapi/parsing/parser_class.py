@@ -14,8 +14,16 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-from parsyll_fastapi.models.model import Course
+from utility import process_days
+
+from parsyll_fastapi.models.model import Course, Timing, CourseBase
 from parsyll_fastapi.parsing.regex_helper import RegexHelper
+
+# from course_class import CourseInfo
+# from timing_class import Timing
+# from person_class import Person
+# from grading_scheme_class import GradingScheme
+# from office_hours_timing_class import OfficeHourTiming
 
 
 load_dotenv()  # take environment variables from .env.
@@ -55,6 +63,7 @@ class Parser():
         self.stopwords = set(stopwords.words())
         self.response = dict()
 
+        self.course = CourseBase()
 
     def extract_text(self):
         pdf_file = open(self.pdf_file, 'rb')
@@ -73,34 +82,6 @@ class Parser():
             tokens_without_sw = [word for word in text_tokens if not word in self.stopwords]
             self.pdf_text = " ".join(tokens_without_sw)
         
-    # costly to have another api call, find better way
-    def get_days_of_week(self):
-        if self.response:
-            # openai.api_key = self.openai_key
-
-            # gpt_prompt =  self.DOW_promptfile + self.response['days_of_week']
-            # response =  openai.Completion.create(
-            #     model=self.gpt_model,
-            #     prompt=f'{gpt_prompt}', 
-            #     max_tokens=self.max_tokens,
-            #     temperature=self.temperature,
-            #     # stream=True
-            # )
-
-            # self.response['days_of_week'] = (response.choices[0].text).split(",")
-
-            DOW_repr = { "Tu": "Tuesday", "Tue": "Tuesday", "Tues": "Tuesday", "Mon" : "Monday",
-                        "Wed" : "Wednesday", "Thur" : "Thursday", "Th" : "Thursday", "Thurs" : "Thursday", 
-                        "Fri" : "Friday", "Sat": "Saturday", "Sun": "Sunday", "Monday" : "Monday", "Tuesday" : "Tuesday",
-                        "Wednesday" : "Wednesday", "Thurday" : "Thursday", "Friday" : "Friday", "Saturday" : "Saturday",
-                        "Sunday" : "Sunday", "M":"Monday", "W":"Wednesday", "F":"Friday"
-            }
-            res_set = set()
-            for key in DOW_repr.keys():
-                if key in self.response['days_of_week']:
-                    res_set.add(DOW_repr[key]) 
-
-            self.response['days_of_week'] = list(res_set)
 
     def get_num_tokens(self, text=None, file=None):
         if file:
@@ -111,10 +92,10 @@ class Parser():
         tokens = encoding.encode(text)
         return len(tokens), tokens, encoding
 
-    def text_to_chunks(self, chunk_size=2000, overlap=100):
+    def text_to_chunks(self, prompt_file, chunk_size=2000, overlap=100):
 
         # max tokens context >= prompt tokens + chunk tokens + completion tokens
-        chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(file=self.prompt_file))[0]
+        chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(file=prompt_file))[0]
         print(chunk_size)
         num_pdf_tokens, tokens, encoding = self.get_num_tokens(text=self.pdf_text)
 
@@ -124,28 +105,28 @@ class Parser():
             chunks.append(chunk)
         
         print(len(chunks))
-        self.chunks = [encoding.decode(chunk) for chunk in chunks]
-        return 
+        chunks = [encoding.decode(chunk) for chunk in chunks]
+        return chunks
 
     # puts together the different methods in the preprocessing pipeline
     def preprocess(self):
         self.extract_text()
         self.remove_stopwords()
-        self.text_to_chunks()
 
-    def postprocess(self):
-        self.get_days_of_week()
+    # def postprocess(self):
+    #     self.get_days_of_week()
 
     def gpt_parse_office_hours(self):
         # pre-processing
         self.preprocess()
+        chunks = self.text_to_chunks(prompt_file=self.OH_prompt)
 
         openai.api_key = self.openai_key
 
         with open(self.OH_prompt, 'r') as file:
             prompt_text = file.read().replace('\n', '')
 
-        for pdf_text in self.chunks:
+        for pdf_text in chunks:
             # loop api calls so we go through all characters in self.pdf_text
             gpt_prompt = pdf_text + prompt_text
             response = openai.Completion.create(
@@ -161,12 +142,12 @@ class Parser():
 
             self.response['office_hours'].extend(response)
         
-        print(self.response['office_hours'])
-
+        print(self.response)
+        
         # TODO: need to do postprocessing for days of the week and office hours list
         
 
-    def gpt_parse(self):
+    def gpt_parse_class_timings(self):
         # pre-processing
         self.preprocess()
 
@@ -175,6 +156,10 @@ class Parser():
         with open(self.prompt_file, 'r') as file:
             prompt_text = file.read().replace('\n', '')
 
+
+        # TODO: fix to make it like gpt_OH (look at only first page chunk though,
+        # if through testing you find this is not enough then look through all the 
+        # chunks)
         # ensure text to parsed does not exceed model's maximum 
         # content length (1 token is abour 4 chars)
         if self.pdf_text:
@@ -189,25 +174,36 @@ class Parser():
                 # stream=True
             )
   
+        response = (response.choices[0].text).split(";")
         print(response)
-        response = (response.choices[0].text.replace("-",",")).split(",")
 
-        start_time = RegexHelper().format_time(response[1])
-        end_time = RegexHelper().format_time(response[2])
+        # start_time = RegexHelper().format_time(response[1])
+        # end_time = RegexHelper().format_time(response[2])
 
-        if start_time and end_time:
-            print(start_time.group(), end_time.group())
-        else:
-            print(start_time, end_time)
+        # if start_time and end_time:
+        #     print(start_time.group(), end_time.group())
+        # else:
+        #     print(start_time, end_time)
 
-        self.response['course'] = response[0]
-        self.response['class_start_time'] = "" if not start_time else start_time.group()
-        self.response['class_end_time'] = "" if not end_time else end_time.group()
-        self.response['days_of_week'] = response[3]
-        self.response['class_location'] = response[4]
-        self.response['prof_name'] = response[5]
-        
-        self.postprocess()
+        # self.response['course'] = response[0]
+        # self.response['class_start_time'] = "" if not start_time else start_time.group()
+        # self.response['class_end_time'] = "" if not end_time else end_time.group()
+        # self.response['days_of_week'] = response[3]
+        # self.response['class_location'] = response[4]
+        self.response['prof_names'] = response[5].split(',')
+
+        self.course.name = response[0]
+
+        self.response['days_of_week'] = response[3].split(',')
+        self.response['days_of_week'] = process_days(self.response['days_of_week'])
+
+        self.course.class_times = [Timing(location=response[4], start=response[1], 
+                                            end=response[2], days_of_week=day, 
+                                            attribute='lec') for day in 
+                                            self.response['days_of_week']]
+
+        print(self.course)
+        # self.postprocess()
 
     def write_ics(self, courseObj: Course = None):
 
