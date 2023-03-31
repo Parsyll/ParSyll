@@ -19,12 +19,6 @@ from utility import process_days
 from parsyll_fastapi.models.model import Course, Timing, CourseBase
 from parsyll_fastapi.parsing.regex_helper import RegexHelper
 
-# from course_class import CourseInfo
-# from timing_class import Timing
-# from person_class import Person
-# from grading_scheme_class import GradingScheme
-# from office_hours_timing_class import OfficeHourTiming
-
 
 load_dotenv()  # take environment variables from .env.
 
