@@ -1,1 +1,2 @@
-def build_course()
+def build_course():
+    pass
