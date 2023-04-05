@@ -14,7 +14,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-from parsyll_fastapi.parsing.utility import process_days, process_office_hours, process_time
+from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
 
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
 from parsyll_fastapi.parsing.regex_helper import RegexHelper
@@ -33,11 +33,7 @@ load_dotenv()  # take environment variables from .env.
 
 from nltk.tokenize import word_tokenize
 
-DAYS_OF_WEEK = {"MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2, 
-    "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
 
-
-# TODO: add default values to arguments
 class Parser():
     def __init__(self, openai_key=None, pdf_file=None, class_timings_prompt=None, 
                  temperature=None, max_tokens_completion=None, max_tokens_context = None, 
@@ -121,7 +117,6 @@ class Parser():
         chunks = [encoding.decode(chunk) for chunk in chunks]
         return chunks
 
-    # puts together the different methods in the preprocessing pipeline
     def preprocess(self):
         self.extract_text()
         self.remove_stopwords()
@@ -224,72 +219,35 @@ class Parser():
             # get day of week as an integer
             today_day = datetime.now().weekday()
 
-            for i in range(len(days_of_week)):
-                day_diff = timedelta(days=0)
-                curr_day = DAYS_OF_WEEK[days_of_week[i].upper()]
-                if today_day > curr_day:
-                    day_diff = timedelta(days=today_day - curr_day)
-                elif today_day < curr_day:
-                    day_diff = timedelta(days=today_day - curr_day + 7)
+            # add events for class lectures
+            for timing in self.course.class_times:
+                c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
+                                  course_name=self.course.name)
 
-                start_date = dt + day_diff
-
-                # add time to lecture start date
-                format = '%Y-%m-%d %I:%M %p'
-                
-                # add start time to current start_date
-
-                start_time = re.search(r"([0-9]{,2}\s*:\s*[1-9]{,2})\s*(pm|am)", class_start_time)
-                end_time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", class_end_time)
-
-                if start_time:
-                    start_time = start_time.groups()
-                else:
-                    start_time = ("10:00", "am")
-                
-                if end_time:
-                    end_time = end_time.groups()
-                else:
-                    end_time = ("11:00", "am")
-
-
-                start_time = start_date.strftime('%Y-%m-%d') + ' ' + start_time[0] + ' ' + start_time[1]
-                end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
-
-
-                # TODO: Issue with timezone settings, need to add 5 hours right now since
-                # EST is 5 hours behind UTC
-                start_time = datetime.strptime(start_time, format) + timedelta(hours=5) 
-                end_time = datetime.strptime(end_time, format) + timedelta(hours=5) 
-
-                # # end date 
-                # end_date = start_date + timedelta(minutes=int(self.response['class_duration']))
-
-                e = Event()
-                e.begin = start_time
-                e.location = "" if not class_location else class_location[0]
-                e.name = f"{course} lecture" #course number (location)
-                # e.duration = timedelta(minutes=int(self.response['class_duration']))
-                e.end = end_time
-                c.events.add(e)
+            # add events for office hours
+            for timing in self.course.office_hrs:
+                c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
+                                  course_name=self.course.name)
             
-            # c.events
+
             with open('my.ics', 'w') as my_file:
                 my_file.writelines(c.serialize_iter())
-                self.response['ics'] = c.serialize_iter()
+                self.course.ics_file = c.serialize_iter()
 
             current_month = (datetime.today() + timedelta(weeks=16)).strftime('%Y%m%d')
             repeat_weekly = f"RRULE:FREQ=WEEKLY;UNTIL={current_month}T000000Z\r\n"
 
             ics_with_repeat = []
-            for i, s in enumerate(self.response['ics']):
+            for i, s in enumerate(self.course.ics_file):
                 ics_with_repeat.append(s)
                 if "DTSTART" in s:
                     ics_with_repeat.append(repeat_weekly)
             
-            self.response['ics'] = ics_with_repeat
+            self.course.ics_file = ics_with_repeat
+
+            
         else:
-            self.response['ics'] = []
+            self.course.ics_file = []
             return
 
     def gpt_parse(self):
