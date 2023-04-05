@@ -84,36 +84,34 @@ async def user_get_file(uid: str, file_id: str):
 async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # get configs
-    # print((os.getcwd()))
     filename = os.getcwd() + "/parsing/config.ini"
-    if os.path.isfile(filename):
-        # parser = ConfigParser.SafeConfigParser()
-        configs = ConfigParser()
-        configs.read(filename)
+    try: 
+        if os.path.isfile(filename):
+            # parser = ConfigParser.SafeConfigParser()
+            configs = ConfigParser()
+            configs.read(filename)
 
-        # print(configs.sections())
-        # print(type((configs["parsing"]["PROMPT_FILE"])))
-    else:
-        print("Config file not found")
-
+    except:
+        raise HTTPException(404, detail=f"Config file not found")
 
     # download temp file
     with open('filename.pdf', 'wb+') as file_obj:
         file_obj.write(file.file.read())
 
-    # parse
+    # create parser object from configs
     parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
       pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
-      prompt_file = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
+      class_timings_prompt = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
       temperature = float(configs["parsing"]["TEMPERATURE"]), 
       max_tokens_completion =  int(configs["parsing"]["MAX_TOKENS_COMPLETION"]),
       max_tokens_context=int(configs["parsing"]["MAX_TOKENS_CONTEXT"]),
       gpt_model = configs["parsing"]["GPT_MODEL"],
-      DOW_promptfile= configs["parsing"]["DOW_PROMPT_FILE"],
       OH_prompt=configs['parsing']['OH_PROMPT'])
 
-    parser.gpt_parse_class_timings()
-    # generate temp ICS file, convert to string 
+    # parse class timings and office hours
+    parser.gpt_parse()
+
+    # generate temp ICS file, converted to string 
     parser.write_ics()
 
     # store parsed info along with string ICS file in Firestore
@@ -128,21 +126,19 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    course = Course(name=parser.response['course'], 
-                    locations=[parser.response['class_location']],
-                    class_start=parser.response['class_start_time'],
-                    class_end=parser.response['class_end_time'],
-                    days_of_week=parser.response['days_of_week'],
-                    ics_file = parser.response['ics'],
-                    instructors = [parser.response['prof_name']],
+    course = Course(name=parser.course.name, 
+                    instructors=parser.course.instructors,
+                    syllabus=syllabus_id,
+                    office_hrs=parser.course.office_hrs,
+                    ics_file = parser.course.ics_file,
+                    class_times = parser.course.class_times,
                     id=course_id,
-                    syllabus=syllabus_id
                     )
+
     # user_doc_ref.collection(u'courses').add(course.__dict__)
     course = course_dao.update(uid=uid, course_id=course_id, course=course)
     
     return course
-
 
     # TODO: delete temp pdf file and temp ICS file
 
