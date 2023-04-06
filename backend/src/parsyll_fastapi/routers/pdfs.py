@@ -106,7 +106,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
       max_tokens_completion =  int(configs["parsing"]["MAX_TOKENS_COMPLETION"]),
       max_tokens_context=int(configs["parsing"]["MAX_TOKENS_CONTEXT"]),
       gpt_model = configs["parsing"]["GPT_MODEL"],
-      OH_prompt=configs['parsing']['OH_PROMPT'])
+      OH_prompt=os.getcwd() + "/parsing/prompts/" + configs["parsing"]["OH_PROMPT"])
 
     # parse class timings and office hours
     parser.gpt_parse()
