@@ -6,6 +6,7 @@ import nltk
 import ssl
 from nltk.corpus import stopwords
 import re
+import tiktoken
 
 from dotenv import load_dotenv
 from ics import Calendar, Event
@@ -45,14 +46,16 @@ DAYS_OF_WEEK = {"MONDAY": 0, "TUESDAY": 1, "WEDNESDAY": 2,
 # TODO: add default values to arguments
 class Parser():
     def __init__(self, openai_key=None, pdf_file=None, prompt_file=None, 
-                 temperature=None, max_tokens=None, gpt_model=None, 
-                 DOW_promptfile=None):
+                 temperature=None, max_tokens_completion=None, max_tokens_context = None, 
+                 gpt_model=None, DOW_promptfile=None, OH_prompt=None):
         self.openai_key = openai_key
         self.pdf_file = pdf_file
         self.prompt_file = prompt_file
+        self.OH_prompt = OH_prompt
         self.DOW_promptfile = DOW_promptfile
         self.temperature = temperature
-        self.max_tokens = max_tokens
+        self.max_tokens_completion = max_tokens_completion
+        self.max_tokens_context = max_tokens_context
         self.gpt_model = gpt_model
 
         # stores the extracted text from the pdf as a string
@@ -107,13 +110,69 @@ class Parser():
 
             self.response['days_of_week'] = list(res_set)
 
+    def get_num_tokens(self, text=None, file=None):
+        if file:
+            with open(file, 'r') as file1:
+                text = file1.read()
+        
+        encoding = tiktoken.get_encoding("gpt2")
+        tokens = encoding.encode(text)
+        return len(tokens), tokens, encoding
+
+    def text_to_chunks(self, chunk_size=2000, overlap=100):
+
+        # max tokens context >= prompt tokens + chunk tokens + completion tokens
+        chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(file=self.prompt_file))[0]
+        print(chunk_size)
+        num_pdf_tokens, tokens, encoding = self.get_num_tokens(text=self.pdf_text)
+
+        chunks = []
+        for i in range(0, num_pdf_tokens, chunk_size - overlap):
+            chunk = tokens[i:i + chunk_size]
+            chunks.append(chunk)
+        
+        print(len(chunks))
+        self.chunks = [encoding.decode(chunk) for chunk in chunks]
+        return 
+
     # puts together the different methods in the preprocessing pipeline
     def preprocess(self):
         self.extract_text()
         self.remove_stopwords()
+        self.text_to_chunks()
 
     def postprocess(self):
         self.get_days_of_week()
+
+    def gpt_parse_office_hours(self):
+        # pre-processing
+        self.preprocess()
+
+        openai.api_key = self.openai_key
+
+        with open(self.OH_prompt, 'r') as file:
+            prompt_text = file.read().replace('\n', '')
+
+        for pdf_text in self.chunks:
+            # loop api calls so we go through all characters in self.pdf_text
+            gpt_prompt = pdf_text + prompt_text
+            response = openai.Completion.create(
+                    model=self.gpt_model,
+                    prompt=f'{gpt_prompt}', 
+                    max_tokens=self.max_tokens_completion,
+                    temperature=self.temperature,
+                    # stream=True
+                )
+            response = (response.choices[0].text.replace("-",",")).split(",")
+            if not self.response.get('office_hours', 0):
+                self.response['office_hours'] = []
+
+            self.response['office_hours'].extend(response)
+        
+        print(self.response['office_hours'])
+
+        # TODO: need to do postprocessing for days of the week
+
 
     def gpt_parse(self):
         # pre-processing
@@ -133,7 +192,7 @@ class Parser():
         response = openai.Completion.create(
                 model=self.gpt_model,
                 prompt=f'{gpt_prompt}', 
-                max_tokens=self.max_tokens,
+                max_tokens=self.max_tokens_completion,
                 temperature=self.temperature,
                 # stream=True
             )
