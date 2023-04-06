@@ -17,7 +17,6 @@ from datetime import timedelta
 from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
 
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
-from parsyll_fastapi.parsing.regex_helper import RegexHelper
 
 
 load_dotenv()  # take environment variables from .env.
@@ -142,15 +141,15 @@ class Parser():
                     # stream=True
                 )
             response = (response.choices[0].text.split(";"))
-            print(response)
-            print()
+            # print(response)
+            # print()
             for office_hour in response:
                 self.response['office_hours'].extend(process_office_hours(office_hour))
 
         self.course.office_hrs = []
 
         # office_hour format: Instructor Name, Start Time, End Time, Day, Location
-        print(self.response)
+        # print(self.response)
         for office_hour in self.response['office_hours']:
             person = Person(name=office_hour[0], isProf=office_hour[0] in self.response['prof_names'])
             office_hour_timing = OfficeHourTiming(location=office_hour[4], start=office_hour[1], 
@@ -158,6 +157,7 @@ class Parser():
                                                   attribute='office hours', instructor=person)
             self.course.office_hrs.append(office_hour_timing)
 
+        print(self.course)
     def gpt_parse_class_timings(self):
         chunks = self.text_to_chunks(prompt_file=self.class_timings_prompt)
         openai.api_key = self.openai_key
@@ -203,7 +203,7 @@ class Parser():
                                             attribute='lec') for day in 
                                             self.response['days_of_week']]
 
-        print(self.course)
+        # print(self.course)
 
     def write_ics(self):
         '''

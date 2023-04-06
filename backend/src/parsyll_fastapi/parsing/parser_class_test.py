@@ -7,18 +7,26 @@ import openai
 import tiktoken
 
 load_dotenv()
+from configparser import ConfigParser
 
+# get configs
+filename = os.getcwd() + "config.ini"
+
+
+
+configs = ConfigParser()
+configs.read(filename)
 
 
 
 parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-    pdf_file = 'backend/src/parsyll_fastapi/parsing/etc/s2.pdf', 
-    class_timings_prompt = 'backend/src/parsyll_fastapi/parsing/prompts/class_timings3.txt', 
-    temperature = 0.1, 
-    max_tokens_completion =  1250,
-    max_tokens_context = 4000,
-    gpt_model = "text-davinci-003",
-    OH_prompt='backend/src/parsyll_fastapi/parsing/prompts/office_hours.txt')
+    pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
+    class_timings_prompt = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
+    temperature = float(configs["parsing"]["TEMPERATURE"]), 
+    max_tokens_completion =  int(configs["parsing"]["MAX_TOKENS_COMPLETION"]),
+    max_tokens_context=int(configs["parsing"]["MAX_TOKENS_CONTEXT"]),
+    gpt_model = configs["parsing"]["GPT_MODEL"],
+    OH_prompt=os.getcwd() + "/parsing/prompts/" + configs["parsing"]["OH_PROMPT"])
 
 
 parser.gpt_parse()

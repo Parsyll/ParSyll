@@ -111,7 +111,7 @@ def get_start_date(day_of_week, today_day, dt):
 
     return start_date
 
-def process_time(self, time):
+def process_time(time):
     time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
     return time
 
