@@ -1,8 +1,9 @@
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
+import LocationCard from './LocationCard';
 
 
-export const ClassHourCard = ({weekday, startTime, endTime, index}) => {
+export const ClassHourCard = ({weekday, startTime, endTime, location, index}) => {
     return (
         <div className={` col-start-${(index + 1) % 4} col-span-1`}>
             <Card variant="outlined" sx={{ alignItems: '', mt:1}} style={{width: '95%'}}>
@@ -11,6 +12,7 @@ export const ClassHourCard = ({weekday, startTime, endTime, index}) => {
                     {startTime} - {endTime}
                 </Typography>
             </Card>  
+            <LocationCard key={index} location={location} index={index}/>
         </div>
     )
 }

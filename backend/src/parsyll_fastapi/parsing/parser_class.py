@@ -17,7 +17,6 @@ from datetime import timedelta
 from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
 
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
-from parsyll_fastapi.parsing.regex_helper import RegexHelper
 
 
 load_dotenv()  # take environment variables from .env.
