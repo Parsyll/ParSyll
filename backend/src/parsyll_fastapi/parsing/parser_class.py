@@ -17,7 +17,6 @@ from datetime import timedelta
 from parsyll_fastapi.models.model import Course
 from parsyll_fastapi.parsing.regex_helper import RegexHelper
 
-
 load_dotenv()  # take environment variables from .env.
 
 # try:
@@ -25,7 +24,16 @@ load_dotenv()  # take environment variables from .env.
 # except AttributeError:
 #     pass
 # else:
-#     ssl._create_default_https_context = _create_unverified_https_context
+#     ssl._create_deCMDfault_https_context = _create_unverified_https_context
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('tokenizers/stopwords')
+except LookupError:
+    nltk.download('stopwords')
 # nltk.download('punkt')
 # nltk.download('stopwords')
 
@@ -266,8 +274,7 @@ class Parser():
                 end_time = start_date.strftime('%Y-%m-%d') + ' ' + end_time[0] + ' ' + end_time[1]
 
 
-                # TODO: Issue with timezone settings, need to add 5 hours right now since
-                # EST is 5 hours behind UTC
+                # TODO: Hardcoding timezone, NEED TO FIX
                 start_time = datetime.strptime(start_time, format) + timedelta(hours=5) 
                 end_time = datetime.strptime(end_time, format) + timedelta(hours=5) 
 
