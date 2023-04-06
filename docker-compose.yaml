@@ -3,18 +3,22 @@ version: '3'
 services:
   fastapi_backend:
     privileged: true
-    container_name: fastapi-backend
-    build: ./backend
+    container_name: fastapi_backend
+    # build: ./backend
+    image: werunm/parsyll_fastapi_backend:0.0.1
     ports:
       - 8000:8000
     volumes:
       - ./backend:/code/src
+    env_file:
+      - ./backend/src/parsyll_fastapi/.env
     restart: always
 
   
   react_frontend:
     container_name: react_frontend
-    build: ./react-frontend
+    # build: ./react-frontend
+    image: werunm/parsyll_react_frontend:0.0.1
     volumes:
       - './react-frontend:/app'
     ports:

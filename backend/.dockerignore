@@ -1,0 +1,18 @@
+.env
+/wandb
+firebase_config.json
+service_account.json
+__pycache__/
+test.py
+/src/parsyll_fastapi/.env
+/src/parsyll_fastapi/firebase_config.json
+/src/parsyll_fastapi/service_account.json
+dockerfile
+
+
+
+
+# packages built by setup.py
+*.egg-info
+build/
+dist/
