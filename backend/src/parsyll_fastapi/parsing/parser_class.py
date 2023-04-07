@@ -180,25 +180,28 @@ class Parser():
             break
     
         response = (response.choices[0].text).split(";")
-        print(response)
+        # print(response)
         # response format: [Course name, start time, end time, DOW, Location, Prof Names]
+        response_len = len(response)
 
-        start_time = process_time(response[1])
-        end_time = process_time(response[2])
+
+        start_time = process_time(response[1]) if 1 < response_len else "10:00 am"
+        end_time = process_time(response[2]) if 2 < response_len else "11:00 am"
 
         if start_time and end_time:
             print(start_time.group(), end_time.group())
         else:
             print(start_time, end_time)
 
-        self.response['prof_names'] = response[5].split(',')
+        self.response['prof_names'] = response[5].split(',') if 5 < response_len else ["Joe Mama"]
 
-        self.course.name = response[0]
+        self.course.name = response[0] if 0 < response_len else "ECE 20001"
 
-        self.response['days_of_week'] = response[3].split(',')
+        self.response['days_of_week'] = response[3].split(',') if 3 < response_len else ["Monday"]
         self.response['days_of_week'] = process_days(self.response['days_of_week'])
 
-        self.course.class_times = [Timing(location=response[4], start=response[1], 
+        location = response[4] if 4 < response_len else "Purdue"
+        self.course.class_times = [Timing(location=location  , start=response[1], 
                                             end=response[2], days_of_week=day, 
                                             attribute='lec') for day in 
                                             self.response['days_of_week']]
