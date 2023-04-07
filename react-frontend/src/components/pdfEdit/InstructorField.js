@@ -1,22 +1,47 @@
+import FieldInput from "./FieldInput";
+import AddButton from "./AddButton";
+import MinusButton from "./MinusButton";
 
-export const InstructorField = ({instructor , index, setInstructors, instructors}) => {
-
-    const handleOnChange = (e) => {
-        e.preventDefault();
-        let copied_instructors = JSON.parse(JSON.stringify(instructors));
-        copied_instructors[index] = e.target.value
-        setInstructors(copied_instructors)
-    }
-
-    return(
-        <label className="relative block p-3 border-2 border-black rounded w-11/12 mt-5" htmlFor="name">
-                <span className="text-md font-semibold text-zinc-900" htmlFor="name">
-                Instructor # {index + 1}
+export const InstructorField = ({
+    setInstructors,
+    instructors,
+}) => {
+    return (
+        <>
+            <h1 className="text-2xl font-semibold mt-10 mb-3">
+                Instructors:
+                <span>
+                    <AddButton
+                        originalValue={instructors}
+                        insertValue=""
+                        setValue={setInstructors}
+                    />
                 </span>
-                <input className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none" id="name" 
-                type="text" placeholder="instructor" value={instructor} onChange={handleOnChange}/>
-        </label>
-    )
-}
+            </h1>
+            {instructors
+                ? instructors.map((instructor, index) => (
+                      <div
+                          className=" flex flex-row align-middle justify-between"
+                          key={index}
+                      >
+                          <FieldInput
+                              title="Instructor"
+                              item={instructor}
+                              index={index}
+                              setItems={setInstructors}
+                              items={instructors}
+                          />
+                          
+                          <MinusButton
+                              index={index}
+                              originalValue={instructors}
+                              setValue={setInstructors}
+                          />
+                      </div>
+                  ))
+                : ""}
+        </>
+    );
+};
 
-export default InstructorField
+export default InstructorField;

@@ -15,6 +15,8 @@ import PdfViewer from "./pdfUpload/PdfViewer";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 
+import PdfEdit from "./pdfUpload/PdfEdit";
+
 const style = {
     position: "absolute",
     top: "50%",
@@ -29,6 +31,7 @@ const style = {
 
 const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
     const [viewPdf, setViewPdf] = useState(false);
+    const [editPdf, setEditPdf] = useState(false);
     const [pdfFile, setPdfFile] = useState("");
     let { user } = useUser();
     let uid = user.uid;
@@ -60,6 +63,11 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
         });
     };
 
+    const handleEditCourse = (e) => {
+        e.preventDefault();
+        setEditPdf(true);
+    };
+
     const handleGetSyllabus = (e) => {
         e.preventDefault();
         parseApp.get(`/pdfs/${uid}/${course.syllabus}`).then((res) => {
@@ -67,6 +75,11 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
             setViewPdf(true);
             setPdfFile(res.data);
         });
+    };
+
+    const handleCloseModal = (e) => {
+        e.preventDefault();
+        setEditPdf(false);
     };
 
     // Sort days of week
@@ -91,12 +104,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     <h1 className=" text-5xl text-center font-bold">
                         {course.name}
                     </h1>
-                    {/* <ProfessorCard professor={course.instructors} /> */}
-
-                    {/* <h1 className=" pl-3 pt-4 text-3xl font-bold">Location: </h1>
-                    {course.locations.map( (location, index) => (
-                        <LocationCard key={index} location={location} index={index}/>
-                    ))} */}
+                    <ProfessorCard professor={course.instructors} />
 
                     <h1 className=" pl-3 pt-4 text-3xl font-bold">
                         Instructors:
@@ -115,13 +123,6 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             />
                         ))}
                     </div>
-
-                    {/* <h1 className=" pl-3 pt-4 text-3xl font-bold">Lecture times: </h1>
-                <div className={`grid grid-cols-${Math.min(course.days_of_week.length, 3)} p-4`}>
-                    {course.days_of_week.map( (weekday, index) => (
-                        <ClassHourCard weekday={weekday} startTime={course.class_start} endTime={course.class_end} key={index} index={index}/>
-                    ))}
-                </div> */}
 
                     <h1 className=" pl-3 pt-4 text-3xl font-bold">
                         Class Timings:{" "}
@@ -163,6 +164,9 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                 Download File
                             </a>
                         </Button>
+                        <Button variant="outlined" onClick={handleEditCourse}>
+                            Edit Course
+                        </Button>
                         <Button
                             variant="outlined"
                             color="error"
@@ -171,28 +175,33 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             Delete Course
                         </Button>
                     </div>
-                    {viewPdf ? (
-                        <div>
-                            <Button hidden>View PDF</Button>
+
+                    {editPdf ? (
+                        <div className="border-4 flex flex-row pb-10 mb-10">
+
                             <Modal
                                 style={{ overflow: "scroll" }}
                                 disableEnforceFocus
-                                open={viewPdf}
-                                onClose={() => setViewPdf(false)}
+                                open={editPdf}
+                                onClose={handleCloseModal}
                                 aria-labelledby="modal-modal-title"
                                 aria-describedby="modal-modal-description"
                             >
-                                <Box sx={style}>
-                                    <PdfViewer
-                                        pdfFile={pdfFile}
-                                        handleSendPdf={handleDownloadIcsFile}
-                                        loading={false}
-                                    />
+                                {editPdf ? (
+                                <Box>
+                                    <PdfEdit course={course} />
                                 </Box>
+                                ) : (
+                                <Box sx={style}>
+                                </Box>
+                                )}
                             </Modal>
+
+
                         </div>
                     ) : (
-                        ""
+                        
+                        <div></div>
                     )}
                 </div>
             ) : (

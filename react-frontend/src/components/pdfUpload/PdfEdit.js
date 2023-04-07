@@ -8,168 +8,259 @@ import parseApp from "../../api/Axios";
 import { useNavigate } from "react-router-dom";
 import MinusButton from "../pdfEdit/MinusButton";
 import { useUser } from "../../hooks/useUser";
+import ClassTimeField from "../pdfEdit/ClassTimeField";
+import CategoryField from "../pdfEdit/CategoryField";
 
-export const PdfEdit = ({course, fileInfo}) => {
-    const [classStart, setClassStart] = useState("")
-    const [classEnd, setClassEnd] = useState("")
-    const [daysOfWeek, setDaysOfWeek] = useState([])
-    const [instructors, setInstructors] = useState([])
-    const [locations, setLocations] = useState([])
-    const [name, setName] = useState("")
-    const [officeHours, setOfficeHours] = useState([])
-    const [textbook, setTextBook] = useState("")
-    const [courseId, setCourseId] = useState("")
-    const [icsFile, setIcsFile] = useState([])
-    const [syllabus, setSyllabus] = useState("")
-    const [id, setId] = useState("")
+export const PdfEdit = ({ course }) => {
+    //i'm so sorry, it was the only way
+    const [name, setName] = useState(course.name ? course.name : "");
+    const [instructors, setInstructors] = useState(course.instructors ? course.instructors : []);
+    const [syllabus, setSyllabus] = useState(course.syllabus ? course.syllabus : "");
+    const [officeHours, setOfficeHours] = useState(course.office_hrs ? course.office_hrs : []);
+    const [icsFile, setIcsFile] = useState(course.ics_file ? course.ics_file : []);
+    const [textbook, setTextBook] = useState(course.textbook ? course.textbook : "");
+    const [classTimes, setClassTimes] = useState(course.class_times ? course.class_times : []);
+    const [school, setSchool] = useState(course.school ? course.school : "");
+    const [creditHrs, setCreditHrs] = useState(course.credit_hrs ? course.credit_hrs : 3);
+    const [gradingScheme, setGradingScheme] = useState(course.grading_scheme ? course.grading_scheme : null);
+    const [id, setId] = useState(course.id ? course.id : "");
 
-    let navigate = useNavigate()
+    const navigate = useNavigate();
+
+    const setFields = () => {
+        setName(course.name);
+        setInstructors(course.instructors);
+        setSyllabus(course.syllabus);
+        setOfficeHours(course.office_hrs);
+        setIcsFile(course.ics_file);
+        setTextBook(course.textbook);
+        setClassTimes(course.class_times);
+        setSchool(course.school);
+        setCreditHrs(course.credit_hrs);
+        setGradingScheme(course.grading_scheme);
+        setId(course.id);
+    }
+
+    //Run initial setFields because useEffect only run after the components are already rendered
+    // setFields();
 
     useEffect(() => {
-        setClassStart(course.class_start)
-        setClassEnd(course.class_end)
-        setDaysOfWeek(course.days_of_week)
-        setInstructors(course.instructors)
-        setLocations(course.locations)
-        setName(course.name)
-        setOfficeHours(course.office_hrs)
-        setTextBook(course.textbook)
-        setCourseId(course.id)
-        setIcsFile(course.ics_file)
-        setSyllabus(course.syllabus)
-        setId(course.id)
-    }, [course])
+        setFields();
 
-    let {user} = useUser();
-    let uid = user.uid
+    }, [course]);
+
+    let { user } = useUser();
+    let uid = user.uid;
 
     const handlePDFParseSubmission = (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         let userBody = {
             name: name,
             instructors: instructors,
-            locations: locations,
             syllabus: syllabus,
-            class_start: classStart,
-            class_end: classEnd,
-            days_of_week: daysOfWeek,
             office_hrs: officeHours,
             ics_file: icsFile,
             textbook: textbook,
-            id: id
-        }
+            class_times: classTimes,
+            school: school,
+            credit_hrs: creditHrs,
+            grading_scheme: gradingScheme,
+            id: id,
+        };
 
-
-        parseApp.put(`/courses/${uid}/${fileInfo.course_id}`, userBody)
-        .then((res) => {
-            console.log(res)
-            navigate("/dashboard/courses")
-
-        })
-    }
+        parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
+            console.log("Updating course with: ")
+            console.log(res);
+            navigate("/dashboard/courses");
+            // navigate("/");
+        });
+    };
 
     return (
-    <div style={{backgroundColor : 'white', overflowY:'scroll'}} className=" sm:mx-32 lg:mx-32 xl:mx-72 rounded-lg p-5">
-    <div className="flex justify-between container mx-auto">
-        <div className="w-full">
-        <div className="mt-4 px-4">
-            <h1 className="font-thinner flex text-4xl pt-10 px-5">Just a few more steps...</h1>
-            <form className="mx-5 my-5">
+        <div
+            style={{ backgroundColor: "white", overflowY: "scroll" }}
+            className=" sm:mx-32 lg:mx-32 xl:mx-72 rounded-lg p-5"
+        >
+            <div className="flex justify-between container mx-auto">
+                <div className="w-full">
+                    <div className="mt-4 px-4">
+                        <h1 className="font-thinner flex text-4xl pt-10 px-5">
+                            Just a few more steps...
+                        </h1>
+                        <form className="mx-5 my-5">
+                            <h1 className="text-2xl font-semibold mt-10 mb-3">
+                                Class Information :
+                            </h1>
+                            <label
+                                className="relative block p-3 border-2 border-black rounded mb-4 w-11/12"
+                                htmlFor="name"
+                            >
+                                <span
+                                    className="text-md font-semibold text-zinc-900"
+                                    htmlFor="name"
+                                >
+                                    Name of Class
+                                </span>
+                                <input
+                                    className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none"
+                                    id="name"
+                                    type="text"
+                                    placeholder="Class Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                />
+                            </label>
+                            <InstructorField
+                                setInstructors={setInstructors}
+                                instructors={instructors}
+                            />
 
-            <h1 className="text-2xl font-semibold mt-10 mb-3">Class Information :</h1>
-            <label className="relative block p-3 border-2 border-black rounded mb-4 w-11/12" htmlFor="name">
-                <span className="text-md font-semibold text-zinc-900" htmlFor="name">
-                Name of Class
-                </span>
-                <input className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none" id="name" 
-                type="text" placeholder="Class Name" value={name} onChange={(e)=> setName(e.target.value)}/>
-            </label>
-            <h1 className="text-2xl font-semibold mt-10 mb-3">Instructors: 
-                <span>
-                    <AddButton originalValue={instructors} insertValue="" setValue={setInstructors}/>
-                </span>
-            </h1>
-            {
-                instructors?
-                instructors.map((instructor, index) => (
-                    <div className=" flex flex-row align-middle justify-between" key={index}>
-                        <InstructorField instructor={instructor} index={index} 
-                        setInstructors={setInstructors} instructors={instructors}/>
-                        <MinusButton index={index} originalValue={instructors} setValue={setInstructors}/>
-                    </div>
-                )):""
-            }
-            
-            <h1 className="text-2xl font-semibold mt-10 mb-3">Locations: 
-                <span>
-                    <AddButton originalValue={locations} insertValue="" setValue={setLocations}/>
-                </span>
-            </h1>
-            {
-                locations?
-                locations.map((location, index) => (
-                    <div className=" flex flex-row align-middle justify-between" key={index}>
-                        <LocationsField location={location} key={index} index={index}
-                        setLocations={setLocations} locations={locations}/>
-                        <MinusButton index={index} originalValue={locations} setValue={setLocations}/>
-                    </div>
-                )):""
-            }
-            <h1 className="text-2xl font-semibold mt-10">Class Times :</h1>
-            <TimePicker label={"Start-Time"} time={classStart} setTime={setClassStart}/>
-            <TimePicker label={"End-Time"} time={classEnd} setTime={setClassEnd} />
-            <DaysOfWeekField daysOfWeek={daysOfWeek} setDaysOfWeek={setDaysOfWeek}/>
-            
-            <h1 className="text-2xl font-semibold mt-3">Office Hours:
-                <span>
-                    <AddButton /> 
-                </span>
-            </h1>
+                            <ClassTimeField
+                                setClassTimes={setClassTimes}
+                                classTimes={classTimes}
+                            />
 
-            {
-                officeHours?
-                officeHours.map((officeHour, index) => (
-                    <officeHoursField officeHours={officeHour} key={index} />
-                )):""
-            }
+                            {/* <h1 className="text-2xl font-semibold mt-10 mb-3">
+                                Class Schedule:
+                                <span>
+                                    <AddButton
+                                        originalValue={classTimes}
+                                        insertValue=""
+                                        setValue={setClassTimes}
+                                    />
+                                </span>
+                            </h1>
+                            {classTimes
+                                ? classTimes.map((classTime, index) => (
+                                      <div
+                                          className=" flex flex-row align-middle justify-between"
+                                          key={index}
+                                      >
+                                          <ClassTimeField
+                                              classTime={classTime}
+                                              key={index}
+                                              index={index}
+                                              setClassTimes={setClassTimes}
+                                              classTimes={classTimes}
+                                          />
+                                          <MinusButton
+                                              index={index}
+                                              originalValue={classTimes}
+                                              setValue={setClassTimes}
+                                          />
+                                      </div>
+                                  ))
+                                : ""} */}
 
-            <h1 className="text-2xl font-semibold mt-10">Miscellaneous: 
-                <span>
-                    <AddButton /> 
-                </span>
-            </h1>
-            <label className="relative block p-3 border-2 mt-5 border-black rounded w-11/12" htmlFor="name">
-                <span className="text-md font-semibold text-zinc-900" htmlFor="name">
-                Textbook
-                </span>
-                <input className="w-full   p-0 text-sm border-none bg-transparent text-gray-500 focus:outline-none" 
-                type="text" placeholder="Enter Textbook name" onChange={(e) => setTextBook(e.target.value)} vaue={textbook}/>
-            </label>
-           
-            <h1 className="text-2xl font-semibold mt-10">Category :</h1>
-            <p className="text-black text-sm font-normal flex gap gap-2 pt-2">
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Business</button>
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Creative</button>
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Education</button>
-            </p>
-            <p className="text-black text-sm font-normal flex gap gap-2 pt-2">
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Tech</button>
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Entertainment</button>
-                <button className="border-2 border-black rounded-md border-b-4 border-l-4 font-black px-2">Other</button>
-            </p>
-            <button className="mt-5 border-2 px-5 py-2 rounded-lg border-black 
+                            {/* <h1 className="text-2xl font-semibold mt-10 mb-3">
+                                Locations:
+                                <span>
+                                    <AddButton
+                                        originalValue={locations}
+                                        insertValue=""
+                                        setValue={setLocations}
+                                    />
+                                </span>
+                            </h1>
+                            {locations
+                                ? locations.map((location, index) => (
+                                      <div
+                                          className=" flex flex-row align-middle justify-between"
+                                          key={index}
+                                      >
+                                          <LocationsField
+                                              location={location}
+                                              key={index}
+                                              index={index}
+                                              setLocations={setLocations}
+                                              locations={locations}
+                                          />
+                                          <MinusButton
+                                              index={index}
+                                              originalValue={locations}
+                                              setValue={setLocations}
+                                          />
+                                      </div>
+                                  ))
+                                : ""}
+                            <h1 className="text-2xl font-semibold mt-10">
+                                Class Times :
+                            </h1>
+                            <TimePicker
+                                label={"Start-Time"}
+                                time={classStart}
+                                setTime={setClassStart}
+                            />
+                            <TimePicker
+                                label={"End-Time"}
+                                time={classEnd}
+                                setTime={setClassEnd}
+                            />
+                            <DaysOfWeekField
+                                daysOfWeek={daysOfWeek}
+                                setDaysOfWeek={setDaysOfWeek}
+                            /> */}
+
+                            {/* <h1 className="text-2xl font-semibold mt-3">
+                                Office Hours:
+                                <span>
+                                    <AddButton />
+                                </span>
+                            </h1>
+
+                            {officeHours
+                                ? officeHours.map((officeHour, index) => (
+                                      <officeHoursField
+                                          officeHours={officeHour}
+                                          key={index}
+                                      />
+                                  ))
+                                : ""} */}
+
+                            <h1 className="text-2xl font-semibold mt-10">
+                                Miscellaneous:
+                                <span>
+                                    <AddButton />
+                                </span>
+                            </h1>
+                            <label
+                                className="relative block p-3 border-2 mt-5 border-black rounded w-11/12"
+                                htmlFor="name"
+                            >
+                                <span
+                                    className="text-md font-semibold text-zinc-900"
+                                    htmlFor="name"
+                                >
+                                    Textbook
+                                </span>
+                                <input
+                                    className="w-full   p-0 text-sm border-none bg-transparent text-gray-500 focus:outline-none"
+                                    type="text"
+                                    placeholder="Enter Textbook name"
+                                    onChange={(e) =>
+                                        setTextBook(e.target.value)
+                                    }
+                                    vaue={textbook}
+                                />
+                            </label>
+
+                            {/* Not Functional yet */}
+                            <CategoryField />
+
+                            <button
+                                className="mt-5 border-2 px-5 py-2 rounded-lg border-black 
             'border-b-4 font-black translate-y-2 border-l-4"
-                onClick={handlePDFParseSubmission}
-            >
-                Submit
-            </button>
-            </form>
+                                onClick={handlePDFParseSubmission}
+                            >
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
-        </div>
-    </div>
-    </div>
     );
-}
+};
 
-export default PdfEdit
+export default PdfEdit;

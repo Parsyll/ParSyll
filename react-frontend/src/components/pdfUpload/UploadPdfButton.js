@@ -103,7 +103,7 @@ export default function BasicModal({
       >
         {parsesuccess ? (
           <Box>
-            <PdfEdit course={parseContent} fileInfo={fileInfo} />
+            <PdfEdit course={parseContent} />
           </Box>
         ) : (
           <Box sx={style}>
