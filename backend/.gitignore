@@ -5,6 +5,10 @@ service_account.json
 __pycache__/
 test.py
 
+# ignoring generated files
+filename.pdf
+my.ics
+
 
 # packages built by setup.py
 *.egg-info

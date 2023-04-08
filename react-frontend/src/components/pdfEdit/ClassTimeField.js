@@ -6,19 +6,20 @@ import MinusButton from "./MinusButton";
 import { useEffect, useState } from "react";
 
 const ClassTimeField = ({ classTimes, setClassTimes }) => {
-    const [locations, setLocations] = useState(classTimes.map(classTime => classTime.location));
+    const [locations, setLocations] = useState(
+        classTimes.map((classTime) => classTime.location)
+    );
 
     const classTimeObj = {
-        location: '',
-        start: '',
-        end: '',
-        days_of_week: '',
-        attribute: 'lec',
-    }
+        location: "",
+        start: "",
+        end: "",
+        days_of_week: "",
+        attribute: "lec",
+    };
 
     useEffect(() => {
-        setLocations(classTimes.map(classTime => classTime.location));
-
+        setLocations(classTimes.map((classTime) => classTime.location));
     }, []);
 
     useEffect(() => {
@@ -27,9 +28,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         });
 
         setClassTimes(classTimes);
-
     }, [locations]);
-
 
     return (
         <>
@@ -50,14 +49,38 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                           className=" flex flex-row align-middle justify-between"
                           key={index}
                       >
-                          <FieldInput
-                              title="Location"
-                              item={locations[index] ? locations[index] : ''}
-                              index={index}
-                              setItems={setLocations}
-                              items={locations}
-                          />
+                          <div>
+                              <FieldInput
+                                  title="Location"
+                                  item={
+                                      locations[index] ? locations[index] : ""
+                                  }
+                                  index={index}
+                                  setItems={setLocations}
+                                  items={locations}
+                              />
 
+                              <h1 className="text-2xl font-semibold mt-10">
+                                  Class Times :
+                              </h1>
+                              <TimePicker
+                                  label={"Start-Time"}
+                                  time={"4:00am"}
+                                //   time={classStart}
+                                //   setTime={setClassStart}
+                              />
+                              <TimePicker
+                                  label={"End-Time"}
+                                  time={"9:00am"}
+                                //   time={classEnd}
+                                //   setTime={setClassEnd}
+                              />
+                              <DaysOfWeekField
+                                daysOfWeek={0}
+                                //   daysOfWeek={daysOfWeek}
+                                //   setDaysOfWeek={setDaysOfWeek}
+                              />
+                          </div>
 
                           <MinusButton
                               index={index}

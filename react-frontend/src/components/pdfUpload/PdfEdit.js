@@ -121,86 +121,9 @@ export const PdfEdit = ({ course }) => {
                                 classTimes={classTimes}
                             />
 
-                            {/* <h1 className="text-2xl font-semibold mt-10 mb-3">
-                                Class Schedule:
-                                <span>
-                                    <AddButton
-                                        originalValue={classTimes}
-                                        insertValue=""
-                                        setValue={setClassTimes}
-                                    />
-                                </span>
-                            </h1>
-                            {classTimes
-                                ? classTimes.map((classTime, index) => (
-                                      <div
-                                          className=" flex flex-row align-middle justify-between"
-                                          key={index}
-                                      >
-                                          <ClassTimeField
-                                              classTime={classTime}
-                                              key={index}
-                                              index={index}
-                                              setClassTimes={setClassTimes}
-                                              classTimes={classTimes}
-                                          />
-                                          <MinusButton
-                                              index={index}
-                                              originalValue={classTimes}
-                                              setValue={setClassTimes}
-                                          />
-                                      </div>
-                                  ))
-                                : ""} */}
 
-                            {/* <h1 className="text-2xl font-semibold mt-10 mb-3">
-                                Locations:
-                                <span>
-                                    <AddButton
-                                        originalValue={locations}
-                                        insertValue=""
-                                        setValue={setLocations}
-                                    />
-                                </span>
-                            </h1>
-                            {locations
-                                ? locations.map((location, index) => (
-                                      <div
-                                          className=" flex flex-row align-middle justify-between"
-                                          key={index}
-                                      >
-                                          <LocationsField
-                                              location={location}
-                                              key={index}
-                                              index={index}
-                                              setLocations={setLocations}
-                                              locations={locations}
-                                          />
-                                          <MinusButton
-                                              index={index}
-                                              originalValue={locations}
-                                              setValue={setLocations}
-                                          />
-                                      </div>
-                                  ))
-                                : ""}
-                            <h1 className="text-2xl font-semibold mt-10">
-                                Class Times :
-                            </h1>
-                            <TimePicker
-                                label={"Start-Time"}
-                                time={classStart}
-                                setTime={setClassStart}
-                            />
-                            <TimePicker
-                                label={"End-Time"}
-                                time={classEnd}
-                                setTime={setClassEnd}
-                            />
-                            <DaysOfWeekField
-                                daysOfWeek={daysOfWeek}
-                                setDaysOfWeek={setDaysOfWeek}
-                            /> */}
+                          
+                           
 
                             {/* <h1 className="text-2xl font-semibold mt-3">
                                 Office Hours:
