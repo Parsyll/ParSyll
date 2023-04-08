@@ -11,7 +11,6 @@ const FieldInput = ({title, item, index, setItems, items}) => {
         <div className="">
             <label className="" htmlFor={title}>
                     <span className="text-md font-semibold text-zinc-900" htmlFor={title}>
-                    {/* {title} # {index + 1} */}
                     {title}
                     </span>
                     <input className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none" id={title} 

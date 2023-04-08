@@ -27,9 +27,9 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         attribute: "lec",
     };
 
-    useEffect(() => {
-        setLocations(classTimes.map((classTime) => classTime.location));
-    }, []);
+    // useEffect(() => {
+    //     setLocations(classTimes.map((classTime) => classTime.location));
+    // }, []);
 
     useEffect(() => {
         classTimes.forEach((classTime, index) => {

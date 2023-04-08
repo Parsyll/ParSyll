@@ -1,13 +1,31 @@
 import FieldInput from "./FieldInput";
 import AddButton from "./AddButton";
 import MinusButton from "./MinusButton";
+import { useEffect, useState } from "react";
 
 export const InstructorField = ({ setInstructors, instructors }) => {
+
+    const [names, setNames] = useState(instructors.map(instructor => instructor.name));
+    const [emails, setEmails] = useState(instructors.map(instructor => instructor.email));
+    const [isProfs, setIsProfs] = useState(instructors.map(instructor => instructor.isProf));
+
     const instructorBody = {
         name: "",
         email: "",
         isProf: false,
     };
+
+    useEffect(() => {
+        instructors.forEach((instructor, index) => {
+            instructor.name = names[index];
+            instructor.email = emails[index];
+            instructor.isProf = isProfs[index];
+        })
+
+        setInstructors(instructors);
+
+    }, [names, emails, isProfs])
+
 
     return (
         <>
@@ -34,18 +52,18 @@ export const InstructorField = ({ setInstructors, instructors }) => {
 
                               <FieldInput
                                   title="Name"
-                                  item={instructor.name}
+                                  item={names[index] ? names[index]: ""}
                                   index={index}
-                                  setItems={setInstructors}
-                                  items={instructors}
+                                  setItems={setNames}
+                                  items={names}
                               />
 
                               <FieldInput
                                   title="Email"
-                                  item={instructor.email}
+                                  item={emails[index] ? emails[index] : ""}
                                   index={index}
-                                  setItems={setInstructors}
-                                  items={instructors}
+                                  setItems={setEmails}
+                                  items={emails}
                               />
 
                           </div>
