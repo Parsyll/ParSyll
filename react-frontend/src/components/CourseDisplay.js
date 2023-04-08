@@ -177,8 +177,8 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     </div>
 
                     {editPdf ? (
-                        <div className="border-4 flex flex-row pb-10 mb-10">
 
+                        <div className="border-4 flex flex-row pb-10 mb-10">
                             <Modal
                                 style={{ overflow: "scroll" }}
                                 disableEnforceFocus
@@ -196,9 +196,8 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                 </Box>
                                 )}
                             </Modal>
-
-
                         </div>
+
                     ) : (
                         
                         <div></div>

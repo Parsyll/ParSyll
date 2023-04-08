@@ -41,9 +41,6 @@ export const PdfEdit = ({ course }) => {
         setId(course.id);
     }
 
-    //Run initial setFields because useEffect only run after the components are already rendered
-    // setFields();
-
     useEffect(() => {
         setFields();
 
@@ -69,8 +66,10 @@ export const PdfEdit = ({ course }) => {
             id: id,
         };
 
+        console.log(userBody);
+
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
-            console.log("Updating course with: ")
+            console.log("Updated course with: ")
             console.log(res);
             navigate("/dashboard/courses");
             // navigate("/");
@@ -120,10 +119,6 @@ export const PdfEdit = ({ course }) => {
                                 setClassTimes={setClassTimes}
                                 classTimes={classTimes}
                             />
-
-
-                          
-                           
 
                             {/* <h1 className="text-2xl font-semibold mt-3">
                                 Office Hours:
