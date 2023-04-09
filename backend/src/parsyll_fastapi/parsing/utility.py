@@ -18,7 +18,7 @@ def add_ics_event(c, today_day, dt, timing, course_name):
     1. c - the updated calendar object
     '''
     # get start date of event
-    start_date = get_start_date(timing.days_of_week, today_day, dt)
+    start_date = get_start_date(timing.day_of_week, today_day, dt)
 
     # add start time to current start_date
     start_time, end_time = process_time(timing.start), process_time(timing.end)

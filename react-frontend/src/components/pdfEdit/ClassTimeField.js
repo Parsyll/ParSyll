@@ -16,14 +16,14 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         classTimes.map((classTime) => classTime.end)
     );
     const [daysOfWeek, setDaysOfWeek] = useState(
-        classTimes.map((classTime) => classTime.days_of_week)
+        classTimes.map((classTime) => classTime.day_of_week)
     );
 
     const classTimeObj = {
         location: "",
         start: "",
         end: "",
-        days_of_week: "",
+        day_of_week: "",
         attribute: "lec",
     };
 
@@ -36,7 +36,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
             classTime.location = locations[index];
             classTime.start = startTimes[index];
             classTime.end = endTimes[index];
-            classTime.days_of_week = daysOfWeek[index];
+            classTime.day_of_week = daysOfWeek[index];
         });
 
         setClassTimes(classTimes);
@@ -62,45 +62,47 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                           key={index}
                       >
                           <div className="relative block p-3 border-2 border-black rounded w-11/12 mt-5">
-
                               <h1 className="text-lg font-semibold text-zinc-900">
-                                {"Class Schedule"} # {index + 1}
+                                  {"Class Schedule"} # {index + 1}
                               </h1>
 
-                              {/* <span className="text-md font-semibold text-zinc-900">
-                                  Class Times:
-                              </span> */}
-                              <TimePicker
-                                  label={"Start-Time"}
-                                  index={index}
-                                  time={startTimes[index]}
-                                  times={startTimes}
-                                  setTimes={setStartTimes}
-                              />
-                              <TimePicker
-                                  label={"End-Time"}
-                                  index={index}
-                                  time={endTimes[index]}
-                                  times={endTimes}
-                                  setTimes={setEndTimes}
-                              />
+                              <div className="mb-2">
+                                  <TimePicker
+                                      label={"Start-Time"}
+                                      index={index}
+                                      time={startTimes[index]}
+                                      times={startTimes}
+                                      setTimes={setStartTimes}
+                                  />
+                                  <TimePicker
+                                      label={"End-Time"}
+                                      index={index}
+                                      time={endTimes[index]}
+                                      times={endTimes}
+                                      setTimes={setEndTimes}
+                                  />
+                              </div>
 
-                            <div className="mb-2"></div>
+                              <div className="mb-2">
+                                  <FieldInput
+                                      title="Location"
+                                      item={
+                                          locations[index]
+                                              ? locations[index]
+                                              : ""
+                                      }
+                                      index={index}
+                                      setItems={setLocations}
+                                      items={locations}
+                                  />
+                              </div>
 
-                              <FieldInput
-                                  title="Location"
-                                  item={
-                                      locations[index] ? locations[index] : ""
-                                  }
-                                  index={index}
-                                  setItems={setLocations}
-                                  items={locations}
-                              />
-
-                              <DaysOfWeekField
-                                  daysOfWeek={daysOfWeek}
-                                  setDaysOfWeek={setDaysOfWeek}
-                              />
+                              <div className="mb-2">
+                                  <DaysOfWeekField
+                                      daysOfWeek={daysOfWeek}
+                                      setDaysOfWeek={setDaysOfWeek}
+                                  />
+                              </div>
                           </div>
                           <MinusButton
                               index={index}

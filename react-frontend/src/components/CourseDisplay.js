@@ -94,12 +94,12 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
         Sunday: 6,
     };
 
-    if (course && course.days_of_week) {
-        course.days_of_week.sort((a, b) => dayDic[a] - dayDic[b]);
+    if (course && course.day_of_week) {
+        course.day_of_week.sort((a, b) => dayDic[a] - dayDic[b]);
     }
 
     return (
-        <div className=" flex align-middle justify-center mt-6 pl-3 w-11/12">
+        <div className=" flex align-middle justify-center m-6 pl-3 w-11/12">
             {course ? (
                 <div className="align-middle w-10/12">
                     <h1 className=" text-5xl text-center font-bold">
@@ -136,7 +136,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     >
                         {course.class_times.map((timing, index) => (
                             <ClassHourCard
-                                weekday={timing.days_of_week}
+                                weekday={timing.day_of_week}
                                 startTime={timing.start}
                                 endTime={timing.end}
                                 location={timing.location}

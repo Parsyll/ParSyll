@@ -11,7 +11,7 @@ class Timing(BaseModel):
     location: str = ''
     start: str = ''
     end: str = ''
-    days_of_week: str = ''
+    day_of_week: str = ''
     attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
 
 

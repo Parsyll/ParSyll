@@ -1,15 +1,12 @@
 import InstructorField from "../pdfEdit/InstructorField";
-import { useContext, useEffect, useState } from "react";
-import DaysOfWeekField from "../pdfEdit/DaysOfWeekField";
-import LocationsField from "../pdfEdit/LocationsField";
-import TimePicker from "../pdfEdit/TimePicker";
+import { useEffect, useState } from "react";
 import AddButton from "../pdfEdit/AddButton";
 import parseApp from "../../api/Axios";
 import { useNavigate } from "react-router-dom";
-import MinusButton from "../pdfEdit/MinusButton";
 import { useUser } from "../../hooks/useUser";
 import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
+// import MinusButton from "../pdfEdit/MinusButton";
 
 export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
@@ -73,7 +70,6 @@ export const PdfEdit = ({ course, handleClose }) => {
             console.log(res);
             handleClose(e);
             navigate("/dashboard/courses");
-            // navigate("/");
         });
     };
 

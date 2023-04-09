@@ -153,7 +153,7 @@ class Parser():
         for office_hour in self.response['office_hours']:
             person = Person(name=office_hour[0], isProf=office_hour[0] in self.response['prof_names'])
             office_hour_timing = OfficeHourTiming(location=office_hour[4], start=office_hour[1], 
-                                                  end=office_hour[2], days_of_week=office_hour[3], 
+                                                  end=office_hour[2], day_of_week=office_hour[3], 
                                                   attribute='office hours', instructor=person)
             self.course.office_hrs.append(office_hour_timing)
 
@@ -197,14 +197,14 @@ class Parser():
 
         self.course.name = response[0] if 0 < response_len else "ECE 20001"
 
-        self.response['days_of_week'] = response[3].split(',') if 3 < response_len else ["Monday"]
-        self.response['days_of_week'] = process_days(self.response['days_of_week'])
+        self.response['day_of_week'] = response[3].split(',') if 3 < response_len else ["Monday"]
+        self.response['day_of_week'] = process_days(self.response['day_of_week'])
 
         location = response[4] if 4 < response_len else "Purdue"
         self.course.class_times = [Timing(location=location  , start=response[1], 
-                                            end=response[2], days_of_week=day, 
+                                            end=response[2], day_of_week=day, 
                                             attribute='lec') for day in 
-                                            self.response['days_of_week']]
+                                            self.response['day_of_week']]
 
         # print(self.course)
 
