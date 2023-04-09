@@ -62,7 +62,7 @@ export default function DaysOfWeekField({daysOfWeek, setDaysOfWeek}) {
           onChange={handleChange}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
+                { selected.map((value) => (
                 <Chip key={value} label={value} />
                 ))}
             </Box>

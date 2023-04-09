@@ -80,6 +80,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
     const handleCloseModal = (e) => {
         e.preventDefault();
         setEditPdf(false);
+        setHasBeenEdited(!hasBeenEdited);
     };
 
     // Sort days of week

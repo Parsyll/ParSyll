@@ -97,11 +97,10 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                   items={locations}
                               />
 
-                              {/* <DaysOfWeekField
-                                daysOfWeek={0}
-                                //   daysOfWeek={daysOfWeek}
-                                //   setDaysOfWeek={setDaysOfWeek}
-                              /> */}
+                              <DaysOfWeekField
+                                  daysOfWeek={daysOfWeek}
+                                  setDaysOfWeek={setDaysOfWeek}
+                              />
                           </div>
                           <MinusButton
                               index={index}
