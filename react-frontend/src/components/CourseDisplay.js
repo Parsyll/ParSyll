@@ -189,7 +189,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             >
                                 {editPdf ? (
                                 <Box>
-                                    <PdfEdit course={course} />
+                                    <PdfEdit course={course} handleClose={handleCloseModal} />
                                 </Box>
                                 ) : (
                                 <Box sx={style}>

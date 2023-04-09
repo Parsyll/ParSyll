@@ -11,7 +11,7 @@ import { useUser } from "../../hooks/useUser";
 import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
 
-export const PdfEdit = ({ course }) => {
+export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
     const [name, setName] = useState(course.name ? course.name : "");
     const [instructors, setInstructors] = useState(course.instructors ? course.instructors : []);
@@ -71,6 +71,7 @@ export const PdfEdit = ({ course }) => {
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
             console.log("Updated course with: ")
             console.log(res);
+            handleClose(e);
             navigate("/dashboard/courses");
             // navigate("/");
         });

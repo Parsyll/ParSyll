@@ -99,7 +99,7 @@ export default function BasicModal({
       >
         {parsesuccess ? (
           <Box>
-            <PdfEdit course={parseContent} />
+            <PdfEdit course={parseContent} handleClose={handleCloseModal} />
           </Box>
         ) : (
           <Box sx={style}>
