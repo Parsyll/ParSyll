@@ -29,40 +29,46 @@ function getStyles(name, personName, theme) {
     };
 }
 
-export default function DaysOfWeekField({ dayOfWeek, index, daysOfWeek, setDaysOfWeek }) {
+export default function DaysOfWeekField({
+    dayOfWeek,
+    index,
+    daysOfWeek,
+    setDaysOfWeek,
+}) {
     const theme = useTheme();
 
     const handleChange = (event) => {
-      let copied_daysOfWeek = [...daysOfWeek];
-      copied_daysOfWeek[index] = event.target.value;
-      setDaysOfWeek(copied_daysOfWeek);
-      dayOfWeek = daysOfWeek[index];
+        let copied_daysOfWeek = [...daysOfWeek];
+        copied_daysOfWeek[index] = event.target.value;
+        setDaysOfWeek(copied_daysOfWeek);
+        dayOfWeek = daysOfWeek[index];
     };
 
     return (
         <div>
-            <h1 className="text-md font-semibold text-zinc-900">Day of week</h1>
-            <FormControl sx={{ mt: 1, width: 300 }} fullWidth >
-                <InputLabel id="demo-simple-select-label" >
-                  Day of week
-                </InputLabel>
-                <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={dayOfWeek}
-                    onChange={handleChange}
-                >
-                    {days.map((day) => (
-                        <MenuItem
-                            key={day}
-                            value={day}
-                            style={getStyles(day, daysOfWeek, theme)}
-                        >
-                            {day}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Box>
+                <FormControl variant="filled" sx={{ width: 300 }} fullWidth>
+                    <InputLabel id="demo-simple-select-label">
+                        Day of week
+                    </InputLabel>
+                    <Select
+                        labelId="demo-simple-select-label"
+                        id="demo-simple-select"
+                        value={dayOfWeek}
+                        onChange={handleChange}
+                    >
+                        {days.map((day) => (
+                            <MenuItem
+                                key={day}
+                                value={day}
+                                style={getStyles(day, daysOfWeek, theme)}
+                            >
+                                {day}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+            </Box>
         </div>
     );
 }
