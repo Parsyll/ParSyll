@@ -6,8 +6,6 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
-// import {useState} from 'react'
-// import OutlinedInput from '@mui/material/OutlinedInput';
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -31,40 +29,28 @@ function getStyles(name, personName, theme) {
     };
 }
 
-export default function DaysOfWeekField({ daysOfWeek, setDaysOfWeek }) {
+export default function DaysOfWeekField({ dayOfWeek, index, daysOfWeek, setDaysOfWeek }) {
     const theme = useTheme();
 
     const handleChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-
-        setDaysOfWeek(typeof value === "string" ? value.split(",") : value);
+      let copied_daysOfWeek = [...daysOfWeek];
+      copied_daysOfWeek[index] = event.target.value;
+      setDaysOfWeek(copied_daysOfWeek);
+      dayOfWeek = daysOfWeek[index];
     };
 
     return (
         <div>
             <h1 className="text-md font-semibold text-zinc-900">Day of week</h1>
-            <FormControl sx={{ mt: 1, width: 300 }}>
-                <InputLabel shrink={false}>
-                    {daysOfWeek.length <= 0 && "Days of classes"}
+            <FormControl sx={{ mt: 1, width: 300 }} fullWidth >
+                <InputLabel id="demo-simple-select-label" >
+                  Day of week
                 </InputLabel>
                 <Select
-                    labelId="demo-multiple-chip-label"
-                    id="demo-multiple-chip"
-                    multiple
-                    value={daysOfWeek}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={dayOfWeek}
                     onChange={handleChange}
-                    renderValue={(selected) => (
-                        <Box
-                            sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}
-                        >
-                            {selected.map((value) => (
-                                <Chip key={value} label={value} />
-                            ))}
-                        </Box>
-                    )}
-                    MenuProps={MenuProps}
                 >
                     {days.map((day) => (
                         <MenuItem

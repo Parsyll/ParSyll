@@ -27,10 +27,6 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         attribute: "lec",
     };
 
-    // useEffect(() => {
-    //     setLocations(classTimes.map((classTime) => classTime.location));
-    // }, []);
-
     useEffect(() => {
         classTimes.forEach((classTime, index) => {
             classTime.location = locations[index];
@@ -99,6 +95,8 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
 
                               <div className="mb-2">
                                   <DaysOfWeekField
+                                      dayOfWeek={daysOfWeek[index] ? daysOfWeek[index] : ""}
+                                      index={index}
                                       daysOfWeek={daysOfWeek}
                                       setDaysOfWeek={setDaysOfWeek}
                                   />
