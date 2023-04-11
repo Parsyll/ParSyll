@@ -30,7 +30,6 @@ export const InstructorField = ({ setInstructors, instructors }) => {
         });
 
         setInstructors(instructors);
-        console.log(isProfs);
     }, [names, emails, isProfs]);
 
     const handleSetIsProf = (index, isChecked) => {
