@@ -18,7 +18,6 @@ from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add
 
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
 
-
 load_dotenv()  # take environment variables from .env.
 
 # try:
@@ -26,7 +25,16 @@ load_dotenv()  # take environment variables from .env.
 # except AttributeError:
 #     pass
 # else:
-#     ssl._create_default_https_context = _create_unverified_https_context
+#     ssl._create_deCMDfault_https_context = _create_unverified_https_context
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('tokenizers/stopwords')
+except LookupError:
+    nltk.download('stopwords')
 # nltk.download('punkt')
 # nltk.download('stopwords')
 

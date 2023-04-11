@@ -107,7 +107,6 @@ async def generate_token(request: Request):
 # This should actually be called user creation
 @router.get("/token/verify", dependencies=[Depends(JWTBearer())], response_model=UserResponse)
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
-    print(uid)
     try:
         user = user_dao.get(uid)
         print('Successfully fetched user data: {0}'.format(user.uid))

@@ -5,6 +5,7 @@ __pycache__/
 /backend.egg-info
 /build
 /dist
+.env
 
 
 # cache dirs
