@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
@@ -41,10 +42,14 @@ export default function BasicModal({
   const [loading, setLoading] = useState(false);
   const [parsesuccess, setParseSuccess] = useState(false);
   const [parseContent, setParseContent] = useState(null);
+
+  const navigate = useNavigate();
+
   const handleCloseModal = (e) => {
     e.preventDefault();
     setPdfFile(null);
     setOpenPdf(false);
+    navigate("/dashboard/courses")
   };
 
   const handleSendPdf = async (e) => {

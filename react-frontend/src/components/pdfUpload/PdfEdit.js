@@ -6,20 +6,36 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
-// import MinusButton from "../pdfEdit/MinusButton";
+import { Button } from "@mui/material";
 
 export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
     const [name, setName] = useState(course.name ? course.name : "");
-    const [instructors, setInstructors] = useState(course.instructors ? course.instructors : []);
-    const [syllabus, setSyllabus] = useState(course.syllabus ? course.syllabus : "");
-    const [officeHours, setOfficeHours] = useState(course.office_hrs ? course.office_hrs : []);
-    const [icsFile, setIcsFile] = useState(course.ics_file ? course.ics_file : []);
-    const [textbook, setTextBook] = useState(course.textbook ? course.textbook : "");
-    const [classTimes, setClassTimes] = useState(course.class_times ? course.class_times : []);
+    const [instructors, setInstructors] = useState(
+        course.instructors ? course.instructors : []
+    );
+    const [syllabus, setSyllabus] = useState(
+        course.syllabus ? course.syllabus : ""
+    );
+    const [officeHours, setOfficeHours] = useState(
+        course.office_hrs ? course.office_hrs : []
+    );
+    const [icsFile, setIcsFile] = useState(
+        course.ics_file ? course.ics_file : []
+    );
+    const [textbook, setTextBook] = useState(
+        course.textbook ? course.textbook : ""
+    );
+    const [classTimes, setClassTimes] = useState(
+        course.class_times ? course.class_times : []
+    );
     const [school, setSchool] = useState(course.school ? course.school : "");
-    const [creditHrs, setCreditHrs] = useState(course.credit_hrs ? course.credit_hrs : 3);
-    const [gradingScheme, setGradingScheme] = useState(course.grading_scheme ? course.grading_scheme : null);
+    const [creditHrs, setCreditHrs] = useState(
+        course.credit_hrs ? course.credit_hrs : 3
+    );
+    const [gradingScheme, setGradingScheme] = useState(
+        course.grading_scheme ? course.grading_scheme : null
+    );
     const [id, setId] = useState(course.id ? course.id : "");
 
     const navigate = useNavigate();
@@ -36,11 +52,10 @@ export const PdfEdit = ({ course, handleClose }) => {
         setCreditHrs(course.credit_hrs);
         setGradingScheme(course.grading_scheme);
         setId(course.id);
-    }
+    };
 
     useEffect(() => {
         setFields();
-
     }, [course]);
 
     let { user } = useUser();
@@ -66,7 +81,7 @@ export const PdfEdit = ({ course, handleClose }) => {
         console.log(userBody);
 
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
-            console.log("Updated course with: ")
+            console.log("Updated course with: ");
             console.log(res);
             handleClose(e);
             navigate("/dashboard/courses");
@@ -81,9 +96,19 @@ export const PdfEdit = ({ course, handleClose }) => {
             <div className="flex justify-between container mx-auto">
                 <div className="w-full">
                     <div className="mt-4 px-4">
+                        <div className="flex justify-end">
+                            <Button
+                                onClick={handleClose}
+                                variant="text"
+                            >
+                                Close
+                            </Button>
+                        </div>
+
                         <h1 className="font-thinner flex text-4xl pt-10 px-5">
                             Just a few more steps...
                         </h1>
+
                         <form className="mx-5 my-5">
                             <h1 className="text-2xl font-semibold mt-10 mb-3">
                                 Class Information :
@@ -132,7 +157,7 @@ export const PdfEdit = ({ course, handleClose }) => {
                                       />
                                   ))
                                 : ""} */}
-{/* 
+                            {/* 
                             <h1 className="text-2xl font-semibold mt-10">
                                 Miscellaneous:
                                 <span>
