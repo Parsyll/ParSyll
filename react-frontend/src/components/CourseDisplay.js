@@ -105,7 +105,6 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     <h1 className=" text-5xl text-center font-bold">
                         {course.name}
                     </h1>
-                    <ProfessorCard professor={course.instructors} />
 
                     <h1 className=" pl-3 pt-4 text-3xl font-bold">
                         Instructors:
@@ -116,13 +115,20 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             3
                         )} p-4 mt-6"`}
                     >
-                        {course.instructors.map((instructor, index) => (
-                            <TaCard
-                                key={index}
-                                instructor={instructor}
-                                index={index}
-                            />
-                        ))}
+                        {course.instructors.map((instructor, index) =>
+                            instructor.isProf ? (
+                                <ProfessorCard
+                                    key={`prof-${index}`}
+                                    professor={instructor}
+                                />
+                            ) : (
+                                <TaCard
+                                    key={`TA-${index}`}
+                                    instructor={instructor}
+                                    index={index}
+                                />
+                            )
+                        )}
                     </div>
 
                     <h1 className=" pl-3 pt-4 text-3xl font-bold">
@@ -179,7 +185,6 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     </div>
 
                     {editPdf ? (
-
                         <div className="border-4 flex flex-row pb-10 mb-10">
                             <Modal
                                 style={{ overflow: "scroll" }}
@@ -190,18 +195,18 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                 aria-describedby="modal-modal-description"
                             >
                                 {editPdf ? (
-                                <Box>
-                                    <PdfEdit course={course} handleClose={handleCloseModal} />
-                                </Box>
+                                    <Box>
+                                        <PdfEdit
+                                            course={course}
+                                            handleClose={handleCloseModal}
+                                        />
+                                    </Box>
                                 ) : (
-                                <Box sx={style}>
-                                </Box>
+                                    <Box sx={style}></Box>
                                 )}
                             </Modal>
                         </div>
-
                     ) : (
-                        
                         <div></div>
                     )}
                 </div>
