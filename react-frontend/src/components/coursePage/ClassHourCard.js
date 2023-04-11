@@ -1,12 +1,14 @@
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 import LocationCard from "./LocationCard";
+import ClassTypeCard from "./ClassTypeCard";
 
 export const ClassHourCard = ({
     weekday,
     startTime,
     endTime,
     location,
+    attribute,
     index,
 }) => {
     return (
@@ -26,6 +28,7 @@ export const ClassHourCard = ({
                     {startTime} - {endTime}
                 </Typography>
                 <LocationCard key={index} location={location} index={index} />
+                <ClassTypeCard key={index} classType={attribute} />
             </Card>
         </div>
     );

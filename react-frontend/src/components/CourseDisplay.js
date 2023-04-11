@@ -140,6 +140,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                 startTime={timing.start}
                                 endTime={timing.end}
                                 location={timing.location}
+                                attribute={timing.attribute}
                                 key={index}
                                 index={index}
                             />
