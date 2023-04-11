@@ -1,5 +1,6 @@
 import TimePicker from "./TimePicker";
 import DaysOfWeekField from "./DaysOfWeekField";
+import ClassAttributeField from "./ClassAttributeField";
 import FieldInput from "./FieldInput";
 import AddButton from "./AddButton";
 import MinusButton from "./MinusButton";
@@ -18,6 +19,9 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
     const [daysOfWeek, setDaysOfWeek] = useState(
         classTimes.map((classTime) => classTime.day_of_week)
     );
+    const [attributes, setAttributes] = useState(
+        classTimes.map((classTime) => classTime.attribute)
+    );
 
     const classTimeObj = {
         location: "",
@@ -33,10 +37,11 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
             classTime.start = startTimes[index];
             classTime.end = endTimes[index];
             classTime.day_of_week = daysOfWeek[index];
+            classTime.attribute = attributes[index];
         });
 
         setClassTimes(classTimes);
-    }, [locations, startTimes, endTimes, daysOfWeek]);
+    }, [locations, startTimes, endTimes, daysOfWeek, attributes]);
 
     return (
         <>
@@ -80,6 +85,24 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                               </div>
 
                               <div className="mb-2">
+                                  <DaysOfWeekField
+                                      dayOfWeek={daysOfWeek[index] ? daysOfWeek[index] : ""}
+                                      index={index}
+                                      daysOfWeek={daysOfWeek}
+                                      setDaysOfWeek={setDaysOfWeek}
+                                  />
+                              </div>
+
+                              <div className="mb-2">
+                                <ClassAttributeField
+                                    attribute={attributes[index] ? attributes[index] : ""}
+                                    index={index}
+                                    attributes={attributes}
+                                    setAttributes={setAttributes}
+                                />
+                              </div>
+
+                              <div className="mb-2">
                                   <FieldInput
                                       title="Location"
                                       item={
@@ -93,14 +116,6 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                   />
                               </div>
 
-                              <div className="mb-2">
-                                  <DaysOfWeekField
-                                      dayOfWeek={daysOfWeek[index] ? daysOfWeek[index] : ""}
-                                      index={index}
-                                      daysOfWeek={daysOfWeek}
-                                      setDaysOfWeek={setDaysOfWeek}
-                                  />
-                              </div>
                           </div>
                           <MinusButton
                               index={index}
