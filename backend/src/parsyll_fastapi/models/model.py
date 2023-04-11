@@ -1,17 +1,41 @@
-from pydantic import BaseModel, EmailStr
-from typing import Union, List, Any, Dict
+from pydantic import BaseModel, EmailStr, conlist
+from typing import Union, List, Literal
+
+class Person(BaseModel):
+    name: str = ''
+    email: str = ''
+    isProf: bool = False
+
+
+class Timing(BaseModel):
+    location: str = ''
+    start: str = ''
+    end: str = ''
+    day_of_week: str = ''
+    attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
+
+
+class OfficeHourTiming(Timing):
+    instructor: Union[Person, None]    
+
+class GradingScheme(BaseModel):
+    A: conlist(int, min_items=1, max_items=2)
+    B: conlist(int, min_items=1, max_items=2)
+    C: conlist(int, min_items=1, max_items=2)
+    D: conlist(int, min_items=1, max_items=2)
+    F: conlist(int, min_items=1, max_items=2)
 
 class CourseBase(BaseModel):
     name: str = ''
-    instructors: List[str] = []
-    locations: List[str] = []
+    instructors: List[Person] = []
     syllabus: str = ''
-    class_start: str = ''
-    class_end: str = ''
-    days_of_week: List[str] = []
-    office_hrs: List[Any] = []
+    office_hrs: List[OfficeHourTiming] = []
     ics_file: List[str] = []
-    textbook: str = ''
+    textbook: List[str] = []
+    class_times: List[Timing] = []
+    school: str = ''
+    credit_hrs: int = 3
+    grading_scheme: Union[GradingScheme, None]
 
 class Course(CourseBase):
     id: str
@@ -20,7 +44,7 @@ class User(BaseModel):
     uid: str
     username: str
     email: Union[EmailStr, None] = None
-    schools: List[str] = [] 
+    schools: List[str] = []
 
 class UserResponse(User):
     courses: List[Course]

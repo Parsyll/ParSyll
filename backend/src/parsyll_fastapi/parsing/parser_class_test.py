@@ -7,41 +7,30 @@ import openai
 import tiktoken
 
 load_dotenv()
+from configparser import ConfigParser
 
-def text_to_chunks(text, chunk_size=2000, overlap=100):
+# get configs
+filename = os.getcwd() + "config.ini"
 
-    encoding = tiktoken.get_encoding("gpt2")
 
-    tokens = encoding.encode(text)
-    num_tokens = len(tokens)
-    print("Number of tokens: ", num_tokens)
 
-    chunks = []
-    for i in range(0, num_tokens, chunk_size - overlap):
-        chunk = tokens[i:i + chunk_size]
-        chunks.append(chunk)
-    
-    print(len(chunks))
-    # print(encoding.decode(chunks[0]))
+configs = ConfigParser()
+configs.read(filename)
 
-    return chunks
 
 
 parser = Parser(openai_key=os.getenv("OPENAI_API_KEY"),
-    pdf_file = 'backend/src/parsyll_fastapi/parsing/etc/s3.pdf', 
-    prompt_file = 'backend/src/parsyll_fastapi/parsing/prompts/class_timings2.txt', 
-    temperature = 0.1, 
-    max_tokens_completion =  1250,
-    max_tokens_context = 4000,
-    gpt_model = "text-davinci-003",
-    DOW_promptfile= 'backend/src/parsyll_fastapi/parsing/prompts/DOW_prompt.txt',
-    OH_prompt='backend/src/parsyll_fastapi/parsing/prompts/office_hours.txt')
+    pdf_file = os.getcwd() + "/" + configs["parsing"]["PDF_FILE"], 
+    class_timings_prompt = os.getcwd() + "/parsing/prompts/" + configs["parsing"]["PROMPT_FILE"], 
+    temperature = float(configs["parsing"]["TEMPERATURE"]), 
+    max_tokens_completion =  int(configs["parsing"]["MAX_TOKENS_COMPLETION"]),
+    max_tokens_context=int(configs["parsing"]["MAX_TOKENS_CONTEXT"]),
+    gpt_model = configs["parsing"]["GPT_MODEL"],
+    OH_prompt=os.getcwd() + "/parsing/prompts/" + configs["parsing"]["OH_PROMPT"])
 
-parser.preprocess()
-# print(parser.pdf_text)
-parser.gpt_parse_office_hours()
 
+parser.gpt_parse()
 # parser.write_ics()
 
-# chunks = text_to_chunks(parser.pdf_text, chunk_size=4000-1250)
+
 

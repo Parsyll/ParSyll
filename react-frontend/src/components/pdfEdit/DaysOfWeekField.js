@@ -1,85 +1,69 @@
-import * as React from 'react';
-import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import Chip from '@mui/material/Chip';
-import {useState} from 'react'
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-      width: 250,
-    },
-  },
-};
+import * as React from "react";
+import { useTheme } from "@mui/material/styles";
+import Box from "@mui/material/Box";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import Chip from "@mui/material/Chip";
 
 const days = [
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday',
-  'Friday'
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
 ];
 
 function getStyles(name, personName, theme) {
-  return {
-    fontWeight:
-      personName.indexOf(name) === -1
-        ? theme.typography.fontWeightRegular
-        : theme.typography.fontWeightMedium,
-  };
+    return {
+        fontWeight:
+            personName.indexOf(name) === -1
+                ? theme.typography.fontWeightRegular
+                : theme.typography.fontWeightMedium,
+    };
 }
 
-export default function DaysOfWeekField({daysOfWeek, setDaysOfWeek}) {
-  const theme = useTheme();
+export default function DaysOfWeekField({
+    dayOfWeek,
+    index,
+    daysOfWeek,
+    setDaysOfWeek,
+}) {
+    const theme = useTheme();
 
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
+    const handleChange = (event) => {
+        let copied_daysOfWeek = [...daysOfWeek];
+        copied_daysOfWeek[index] = event.target.value;
+        setDaysOfWeek(copied_daysOfWeek);
+        dayOfWeek = daysOfWeek[index];
+    };
 
-    setDaysOfWeek(
-        typeof value === 'string' ? value.split(',') : value,
-    )
-  };
-
-  return (
-    <div>
-      <FormControl sx={{ mt: 1, width: 300 }}>
-        <InputLabel shrink={false}>{daysOfWeek.length <= 0 && "Days of classes"}</InputLabel>
-        <Select
-          labelId="demo-multiple-chip-label"
-          id="demo-multiple-chip"
-          multiple
-          value={daysOfWeek}
-          onChange={handleChange}
-          renderValue={(selected) => (
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {selected.map((value) => (
-                <Chip key={value} label={value} />
-                ))}
-            </Box>
-          )}
-          MenuProps={MenuProps}
-        >
-          {days.map((day) => (
-            <MenuItem
-              key={day}
-              value={day}
-              style={getStyles(day, daysOfWeek, theme)}
-            >
-              {day}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </div>
-  );
+    return (
+        <Box>
+            <FormControl variant="standard" sx={{ width: 300 }} fullWidth>
+                <InputLabel id="demo-simple-select-standard-label">
+                    Day of week
+                </InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={dayOfWeek}
+                    onChange={handleChange}
+                >
+                    {days.map((day) => (
+                        <MenuItem
+                            key={day}
+                            value={day}
+                            style={getStyles(day, daysOfWeek, theme)}
+                        >
+                            {day}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </Box>
+    );
 }

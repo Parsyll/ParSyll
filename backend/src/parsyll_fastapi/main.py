@@ -6,8 +6,6 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from parsyll_fastapi.routers import users, pdfs, courses
 
-from starlette.responses import JSONResponse, Response
-
 
 app = FastAPI()
 app.include_router(users.router)

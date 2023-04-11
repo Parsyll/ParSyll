@@ -21,7 +21,7 @@ const CoursePage = () => {
         .get("http://localhost:8000/users/get_current_user")
         .then(res => {
             let userData = res.data
-            console.log(userData.courses)
+            // console.log(userData.courses)
             setCourses(userData.courses)
             setCourse(userData.courses.length - 1)
         })

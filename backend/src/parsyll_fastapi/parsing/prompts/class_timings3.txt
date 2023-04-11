@@ -1,0 +1,5 @@
+The previous text was from a college course syllabus. You need to extraxt the information as shown below
+
+Course name (e.g. IE 235);Start time of in-person classes (specifying am/pm);End time of in-person classes (specifying am/pm);Days of the week of the lecture (3 letter abbreviation and if there are multiple then seperate with comma);Location of the lecture;Professor names (comma separated if multiple)
+
+Return only the value found and not the name of the field. If a field was not found then return 0 for that field
