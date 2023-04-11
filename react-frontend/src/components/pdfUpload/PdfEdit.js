@@ -132,7 +132,7 @@ export const PdfEdit = ({ course, handleClose }) => {
                                       />
                                   ))
                                 : ""} */}
-
+{/* 
                             <h1 className="text-2xl font-semibold mt-10">
                                 Miscellaneous:
                                 <span>
@@ -158,10 +158,10 @@ export const PdfEdit = ({ course, handleClose }) => {
                                     }
                                     vaue={textbook}
                                 />
-                            </label>
+                            </label> */}
 
                             {/* Not Functional yet */}
-                            <CategoryField />
+                            {/* <CategoryField /> */}
 
                             <button
                                 className="mt-5 border-2 px-5 py-2 rounded-lg border-black 

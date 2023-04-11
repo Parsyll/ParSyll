@@ -27,8 +27,9 @@ export const ClassHourCard = ({
                 >
                     {startTime} - {endTime}
                 </Typography>
-                <LocationCard key={index} location={location} index={index} />
-                <ClassTypeCard key={index} classType={attribute} />
+                <LocationCard key={`location-${index}`} location={location} index={index} />
+                <ClassTypeCard key={`class-type-${index}`} classType={attribute} />
+
             </Card>
         </div>
     );
