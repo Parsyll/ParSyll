@@ -19,7 +19,9 @@ course_dao = CourseDAO()
 user_dao = UserDAO()
 
 # FOR TESTING PURPOSES ONLY
-@router.post("/create_user_manually")
+@router.post("/create_user_manually",
+             description= "Create user with request body consisting user email, password and username"
+             )
 async def create_user_manually(request : Request):
     request = await request.json()
     res = ""
@@ -53,7 +55,9 @@ async def create_user_manually(request : Request):
 
 
 # FOR TESTING PURPOSES ONLY
-@router.post("/create_admin_user")
+@router.post("/create_admin_user",
+            description= "create admin user with non-expiring JWT token. Depricate soon."
+             )
 async def create_user_manually(request : Request):
     request = await request.json()
     res = ""
@@ -85,7 +89,8 @@ async def create_user_manually(request : Request):
 
     return returnObj
 
-@router.post("/admin/token/create")
+@router.post("/admin/token/create",
+             description= "Return admin token which never expires.")
 async def generate_token(request: Request):
     try:
         request = await request.json()
@@ -96,8 +101,11 @@ async def generate_token(request: Request):
         print(f"Error: {e}")
         raise HTTPException(500, detail="Something went wrong")
 
-@router.post("/token/create")
-async def generate_token(request: Request):
+@router.post("/token/create",
+            description="Generate user JWT token after successful login."
+             )
+async def generate_token(request: Request,
+                         ):
     request = await request.json()
     uid = request['uid']
     print(f"Generated JWT Token for User with UID: {uid} \n")
@@ -105,7 +113,11 @@ async def generate_token(request: Request):
     return signJWT(uid) 
 
 # This should actually be called user creation
-@router.get("/token/verify", dependencies=[Depends(JWTBearer())], response_model=UserResponse)
+@router.get("/token/verify", 
+            dependencies=[Depends(JWTBearer())], 
+            response_model=UserResponse,
+            description="Validate JWT token in header in Bearer schema"
+            )
 async def generate_token(request: Request, uid = Depends(getUIDFromAuthorizationHeader)):
     try:
         user = user_dao.get(uid)
@@ -119,7 +131,9 @@ async def generate_token(request: Request, uid = Depends(getUIDFromAuthorization
 
 
 # FOR TESTING PURPOSES ONLY
-@router.post("/add_dummy_users")
+@router.post("/add_dummy_users",
+             description= "For testing purposes: Populates firebase database with dummy users"
+             )
 async def add_dummy_users():
     num_dummy_users = 10
     uid = ""
@@ -144,13 +158,20 @@ async def add_dummy_users():
 
 
 # Retrieve users endpoints
-@router.get("/", response_model=List[UserResponse])
+@router.get("/", 
+            response_model=List[UserResponse],
+            description="Get all users from firebase database"
+            )
 async def get_all_users():
     users = user_dao.get_all()
 
     return users
 
-@router.get("/get_current_user", response_model=UserResponse, dependencies=[Depends(JWTBearer)])
+@router.get("/get_current_user", 
+            response_model=UserResponse, 
+            dependencies=[Depends(JWTBearer)],
+            description="Get current logged in user by getting user uid from authorization header" 
+            )
 async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
     user = user_dao.get(uid)
     if not user:
@@ -158,7 +179,10 @@ async def get_current_user(uid = Depends(getUIDFromAuthorizationHeader)):
 
     return user
 
-@router.get("/{uid}", response_model=UserResponse)
+@router.get("/{uid}", 
+            response_model=UserResponse,
+            description="Get a specific user by uid in url" 
+            )
 async def get_user(uid: str):
     user = user_dao.get(uid)
     if not user:
@@ -167,7 +191,10 @@ async def get_user(uid: str):
     return user
 
 ## Update users endpoint
-@router.put("/{uid}", response_model=User)
+@router.put("/{uid}", 
+            response_model=User,
+            description="Update a user by their uid in the url" 
+            )
 async def update_user(uid: str, user: User = Body(...)):
     updated_user = user_dao.update(uid, user)
     if not updated_user:
@@ -181,7 +208,11 @@ Create users assumes user has signed up through auth
 '''
 
 # Maybe add a user already exists check here to prevent duplicate adds
-@router.post("/create/{uid}")
+@router.post("/create/{uid}",
+            description="Create a user by their uid. This endpoint is used for creating users\
+                that were created through google OAuth." 
+             )
+
 async def create_user_from_auth(uid: str, userBody: User = Body(...)):
     try:
         user = auth.get_user(uid)
@@ -195,7 +226,9 @@ async def create_user_from_auth(uid: str, userBody: User = Body(...)):
     return signJWT(uid)
 
 # Delete endpoints
-@router.delete('/delete/{uid}')
+@router.delete('/delete/{uid}',
+                description="Delete user by uid in url" 
+               )
 async def delete_user(uid: str):
     auth.delete_user(uid)
 
@@ -209,7 +242,9 @@ async def delete_user(uid: str):
 '''
 BECAREFUL WITH THIS ENDPOINT
 '''
-@router.delete('/delete_all')
+@router.delete('/delete_all',
+                description="WARNING: Delete all users in firebase database." 
+               )
 async def delete_all_users():
     uids = [user.uid for user in auth.list_users().iterate_all()]
     result = auth.delete_users(uids)

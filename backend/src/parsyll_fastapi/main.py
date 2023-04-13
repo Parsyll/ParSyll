@@ -6,8 +6,17 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from parsyll_fastapi.routers import users, pdfs, courses
 
+from parsyll_fastapi.doc.documentation import doc_description, doc_contact, doc_license_info, doc_version, doc_tags_metadata
 
-app = FastAPI()
+
+app = FastAPI(
+    title="Parsyll",
+    version= doc_version,
+    description=doc_description,
+    contact=doc_contact,
+    license_info= doc_license_info,
+    openapi_tags=doc_tags_metadata
+)
 app.include_router(users.router)
 app.include_router(pdfs.router)
 app.include_router(courses.router)

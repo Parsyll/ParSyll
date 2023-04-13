@@ -26,7 +26,9 @@ course_dao = CourseDAO()
 ## Download File endpoints
 
 # This endpoint can be used to download any file
-@router.get("/admin/{file_id}")
+@router.get("/admin/{file_id}",
+            description="Depricate soon: Download any file from firebase bucket." 
+            )
 async def get_file(file_id: str):
     blob = bucket.get_blob(file_id)
     contents = blob.download_as_bytes()
@@ -47,7 +49,9 @@ async def get_file(file_id: str):
 # This endpoint can only download file user:uid owns
 # user download file (should only allow download for files associated with user)
 # @router.get("/{uid}/{file_id}", dependencies=[Depends(JWTBearer())])
-@router.get("/{uid}/{file_id}")
+@router.get("/{uid}/{file_id}",
+            description="Get file by file_id that is associated with a specific user by their user_id" 
+            )
 async def user_get_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -80,7 +84,11 @@ async def user_get_file(uid: str, file_id: str):
 
 
 
-@router.post("/parse/{course_id}/{syllabus_id}", dependencies=[Depends(JWTBearer())])
+@router.post("/parse/{course_id}/{syllabus_id}", 
+             dependencies=[Depends(JWTBearer())],
+            description="Parse syllabus uploaded by user. This is called after calling the upload syllabus api endpoint\
+                for the course collection to access the syllabus by the syllabus " 
+             )
 async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     # get configs
@@ -143,7 +151,10 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     # TODO: delete temp pdf file and temp ICS file
 
 # user upload file
-@router.post("/submit", dependencies=[Depends(JWTBearer())])
+@router.post("/submit", 
+             dependencies=[Depends(JWTBearer())],
+             description="API endpoint for users to submit their pdf. The pdf is then stored in the firebase bucket and a new course collection is created." 
+             )
 async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizationHeader)):
 
     try: 
@@ -177,7 +188,10 @@ async def user_upload_file( file: UploadFile, uid = Depends(getUIDFromAuthorizat
 ## DELETE file endpoints
 
 # Delete file: fileid 
-@router.delete("/file/{file_id}", dependencies=[Depends(JWTBearer())])
+@router.delete("/file/{file_id}", 
+               dependencies=[Depends(JWTBearer())],
+               description="API endpoint for deleting a file by the file_id" 
+               )
 async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
     blob = bucket.get_blob(file_id)
     
@@ -198,7 +212,9 @@ async def delete_file(file_id: str, uid=Depends(getUIDFromAuthorizationHeader)):
     return {"file_id" : file_id}
 
 # Delete all file of user:uid
-@router.delete("/user/{uid}")
+@router.delete("/user/{uid}",
+                description="API endpoint for deleting all files that belong to a user." 
+               )
 async def delete_user_files(uid: str): 
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -225,7 +241,9 @@ async def delete_user_files(uid: str):
     return f"Deleted all files associated with User {uid}"
 
 # Delete file:file_id of user:uid
-@router.delete("/user/{uid}/{file_id}")
+@router.delete("/user/{uid}/{file_id}",
+                description="API endpoint for deleting a file that is associated with a user." 
+               )
 async def delete_user_file(uid: str, file_id: str):
     user_doc_ref = db.collection(u'users').document(uid)
     user_doc = user_doc_ref.get()
@@ -251,7 +269,9 @@ async def delete_user_file(uid: str, file_id: str):
 
 # CAREFUL WITH THIS ENDPOINT: Delete all files in storage bucket and associated users' db entries
 # Remove this endpoint for prod
-@router.delete("/delete_all")
+@router.delete("/delete_all",
+                description="Delete all files that are in storage bucket and associated users' db entries that are in the bucket" 
+               )
 async def delete_all_file_in_firebase():
     # print(bucket.list_blobs)
     for blob in bucket.list_blobs():

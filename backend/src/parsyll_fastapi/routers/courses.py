@@ -11,13 +11,18 @@ from parsyll_fastapi.parsing.parser_class import Parser
 router = APIRouter(prefix="/courses", tags=["courses"])
 course_dao = CourseDAO()
 
-@router.post("/{uid}")
+@router.post("/{uid}",
+             description= "API endpoint to create course."
+             )
 def create_course(uid: str, course: CourseBase = Body(...)):
     course_id = course_dao.create(uid, course)
     return course_id
 
 
-@router.get("/{uid}/{course_id}", response_model=Course)
+@router.get("/{uid}/{course_id}",
+            response_model=Course,
+            description="Get course by user_id and course_id." 
+            )
 def get_course(uid: str, course_id: str):
     course = course_dao.get(uid, course_id)
     if not course:
@@ -25,7 +30,10 @@ def get_course(uid: str, course_id: str):
     return course
 
 
-@router.get("/{uid}", response_model=List[Course])
+@router.get("/{uid}", 
+            response_model=List[Course],
+            description="Get all courses that a specific user has by their uid." 
+            )
 def list_courses(uid: str):
     course_list = course_dao.get_all(uid)
     if course_list is None:
@@ -33,7 +41,11 @@ def list_courses(uid: str):
     return course_list
 
 
-@router.put("/{uid}/{course_id}", response_model=Course, dependencies=[Depends(JWTBearer)])
+@router.put("/{uid}/{course_id}", 
+            response_model=Course, dependencies=[Depends(JWTBearer)],
+            description="Update a specific users course by specifying the user by their uid and their \
+                associated course by their course_id" 
+            )
 def update_course(uid: str, course_id: str, course: Course = Body(...)):
     parser = Parser()
     # parser.write_ics(course)
@@ -45,7 +57,9 @@ def update_course(uid: str, course_id: str, course: Course = Body(...)):
     return course
 
 
-@router.delete("/{uid}/{course_id}")
+@router.delete("/{uid}/{course_id}",
+                description="Delete a specific users course by specifying their uid and their respective course_id" 
+               )
 def delete_course(uid: str, course_id: str):
     course_dao.delete(uid, course_id)
 
