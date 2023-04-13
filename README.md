@@ -20,3 +20,14 @@ Our main functionalities:
     *  **Frontend**: `cd` into */react-frontend*, run `npm install` and then `npm start`.
     *  **Backend**: `cd` into *backend/src/parsyll_fastapi/*, run `pip install -r requirements.txt` and then `python3 main.py`.
 
+## Homepage
+This is where the user is greeted and prompted to login.
+![alt text](misc/parsyll_homepage.png)
+
+## Course Dashboard
+This is a preview of the Dashboard that the user will have once they have populated the dashboard.
+![alt text](misc/parsyll_dashboard.png)
+
+## PDF drop zone
+This is a preview of where the user can drop their pdf for parsing.
+![alt text](misc/parsyll_parse_pdf.png)
