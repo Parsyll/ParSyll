@@ -29,8 +29,14 @@ export const InstructorField = ({ setInstructors, instructors }) => {
             instructor.isProf = isProfs[index];
         });
 
+        sortInstructors(instructors);        
+
         setInstructors(instructors);
     }, [names, emails, isProfs]);
+
+    const sortInstructors = (instructors) => {
+        instructors.sort((a, b) => (b.isProf - a.isProf))
+    }
 
     const handleSetIsProf = (index, isChecked) => {
         const isProfs_copy = [...isProfs];
