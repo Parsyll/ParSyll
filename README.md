@@ -30,3 +30,6 @@ This is a preview of the Dashboard that the user will have once they have popula
 ## PDF drop zone
 This is a preview of where the user can drop their pdf for parsing.
 ![alt text](misc/parsyll_parse_pdf.png)
+
+## Licensing
+We chose MIT license as our project is geared towards Purdue University. We would like our project to be open-sourced and widely adapted by other universities, hence we would want our project to be easily distributed to other students who would like to adpot this project to their university. MIT is a more permissive license while limiting the liability that we have, and since this was our senior design project, this is a hastily completed projects by undergraduate students, it is possible that this project consists of breaking-bugs or security issues that are overlooked.
