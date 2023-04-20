@@ -9,8 +9,8 @@ class Person(BaseModel):
 
 class Timing(BaseModel):
     location: str = ''
-    start: str = ''
-    end: str = ''
+    start: str = '12:00 AM'
+    end: str = '12:00 AM'
     day_of_week: str = ''
     attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
 

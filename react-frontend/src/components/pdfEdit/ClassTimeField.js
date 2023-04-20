@@ -1,4 +1,4 @@
-import TimePicker from "./TimePicker";
+import TimePickerWrapper from "./TimePickerWrapper";
 import DaysOfWeekField from "./DaysOfWeekField";
 import ClassAttributeField from "./ClassAttributeField";
 import FieldInput from "./FieldInput";
@@ -68,14 +68,14 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                               </h1>
 
                               <div className="mb-2">
-                                  <TimePicker
+                                  <TimePickerWrapper
                                       label={"Start-Time"}
                                       index={index}
                                       time={startTimes[index]}
                                       times={startTimes}
                                       setTimes={setStartTimes}
                                   />
-                                  <TimePicker
+                                  <TimePickerWrapper
                                       label={"End-Time"}
                                       index={index}
                                       time={endTimes[index]}
@@ -86,7 +86,11 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
 
                               <div className="mb-2">
                                   <DaysOfWeekField
-                                      dayOfWeek={daysOfWeek[index] ? daysOfWeek[index] : ""}
+                                      dayOfWeek={
+                                          daysOfWeek[index]
+                                              ? daysOfWeek[index]
+                                              : ""
+                                      }
                                       index={index}
                                       daysOfWeek={daysOfWeek}
                                       setDaysOfWeek={setDaysOfWeek}
@@ -94,12 +98,16 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                               </div>
 
                               <div className="mb-2">
-                                <ClassAttributeField
-                                    attribute={attributes[index] ? attributes[index] : ""}
-                                    index={index}
-                                    attributes={attributes}
-                                    setAttributes={setAttributes}
-                                />
+                                  <ClassAttributeField
+                                      attribute={
+                                          attributes[index]
+                                              ? attributes[index]
+                                              : ""
+                                      }
+                                      index={index}
+                                      attributes={attributes}
+                                      setAttributes={setAttributes}
+                                  />
                               </div>
 
                               <div className="mb-2">
@@ -115,7 +123,6 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                       items={locations}
                                   />
                               </div>
-
                           </div>
                           <MinusButton
                               index={index}
