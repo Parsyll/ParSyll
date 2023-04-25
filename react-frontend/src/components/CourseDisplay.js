@@ -70,11 +70,16 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
 
     const handleGetSyllabus = (e) => {
         e.preventDefault();
-        parseApp.get(`/pdfs/${uid}/${course.syllabus}`).then((res) => {
-            console.log(res.data);
-            setViewPdf(true);
-            setPdfFile(res.data);
-        });
+        parseApp
+            .get(`/pdfs/${uid}/${course.syllabus}`, {
+                headers: { "Content-Type": "application/pdf" },
+                responseType: "blob",
+            })
+            .then((res) => {
+                const url = URL.createObjectURL(res.data);
+                window.open(url);
+                URL.revokeObjectURL(url);
+            });
     };
 
     const handleCloseModal = (e) => {
@@ -103,7 +108,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
             {course ? (
                 <div className="align-middle w-10/12">
                     <h1 className=" text-5xl text-center font-bold">
-                        {course.name}
+                        {course.name ? course.name : "Course Name"}
                     </h1>
 
                     <h1 className=" pl-3 pt-4 text-3xl font-bold">
@@ -164,13 +169,8 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                         >
                             Download ICS
                         </Button>
-                        <Button variant="outlined">
-                            <a
-                                href={`http://localhost:8000/pdfs/${uid}/${course.syllabus}`}
-                                download="myFile"
-                            >
-                                Download File
-                            </a>
+                        <Button variant="outlined" onClick={handleGetSyllabus}>
+                            View Syllabus
                         </Button>
                         <Button variant="outlined" onClick={handleEditCourse}>
                             Edit Course
