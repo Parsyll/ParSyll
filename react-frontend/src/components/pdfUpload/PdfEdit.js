@@ -8,6 +8,8 @@ import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
 import { Button } from "@mui/material";
 import MiscellaneousField from "../pdfEdit/MiscellaneousField";
+import SingleFieldInput from "../pdfEdit/SingleFieldInput";
+import GradingSchemeField from "../pdfEdit/GradingSchemeField";
 
 export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
@@ -35,11 +37,13 @@ export const PdfEdit = ({ course, handleClose }) => {
         course.credit_hrs ? course.credit_hrs : 3
     );
     const [gradingScheme, setGradingScheme] = useState(
-        course.grading_scheme ? course.grading_scheme : null
+        course.grading_scheme ? course.grading_scheme : []
     );
     const [id, setId] = useState(course.id ? course.id : "");
 
-    const [miscs, setMiscs] = useState([]) // hardcoded for now
+    const [miscs, setMiscs] = useState(course.miscs ? course.miscs : []) // hardcoded for now
+
+    const [creditHours, setCreditHours] = useState(course.CreditHours ? course.CreditHours : 0)
 
     const navigate = useNavigate();
 
@@ -53,7 +57,12 @@ export const PdfEdit = ({ course, handleClose }) => {
         setClassTimes(course.class_times);
         setSchool(course.school);
         setCreditHrs(course.credit_hrs);
-        setGradingScheme(course.grading_scheme);
+
+        if (course.grading_scheme) {
+            setGradingScheme(course.grading_scheme);
+        } else {
+            setGradingScheme([]);
+        }
         setId(course.id);
     };
 
@@ -97,7 +106,7 @@ export const PdfEdit = ({ course, handleClose }) => {
             <div className="flex justify-between container mx-auto">
                 <div className="w-full">
                     <div className="mt-4 px-4">
-                        <div className="flex justify-end">
+                        <div className="fixed right-96 shadow-md bg-gray-300 bg-opacity-50 rounded-xl p-1">
                             <Button
                                 onClick={handleClose}
                                 variant="text"
@@ -111,28 +120,30 @@ export const PdfEdit = ({ course, handleClose }) => {
                         </h1>
 
                         <form className="mx-5 my-5">
-                            <h1 className="text-2xl font-semibold mt-10 mb-3">
-                                Class Information :
-                            </h1>
-                            <label
-                                className="relative block p-3 border-2 border-black rounded mb-4 w-11/12"
-                                htmlFor="name"
-                            >
-                                <span
-                                    className="text-md font-semibold text-zinc-900"
-                                    htmlFor="name"
-                                >
-                                    Name of Class
-                                </span>
-                                <input
-                                    className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none"
-                                    id="name"
-                                    type="text"
-                                    placeholder="Class Name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </label>
+                            <SingleFieldInput 
+                                header={"Class Information"}
+                                label={"Course name"}
+                                value={name} 
+                                setValue={setName}
+                                placeholder={"Input name of class"}
+                            />
+
+                            <SingleFieldInput 
+                                // header={"Credit Hours"}
+                                label={"Credit hours"}
+                                value={creditHours} 
+                                setValue={setCreditHours}
+                                placeholder={"Input credit hours"}
+                            />
+
+                            <SingleFieldInput 
+                                // header={"Credit Hours"}
+                                label={"School"}
+                                value={school} 
+                                setValue={setSchool}
+                                placeholder={"Input school name"}
+                            />
+
                             <InstructorField
                                 setInstructors={setInstructors}
                                 instructors={instructors}
@@ -147,6 +158,13 @@ export const PdfEdit = ({ course, handleClose }) => {
                                 setMiscs={setMiscs}
                                 miscs={miscs}
                             />
+
+                            <GradingSchemeField 
+                                gradingScheme={gradingScheme}
+                                setGradingScheme={setGradingScheme}
+                            />
+
+
 
 
                             {/* <h1 className="text-2xl font-semibold mt-3">

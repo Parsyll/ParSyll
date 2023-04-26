@@ -1,8 +1,10 @@
 import AddButton from "./AddButton";
 import {useState, useEffect} from 'react'
 import FieldInput from "./FieldInput";
-import MiscAttributeField from "./miscAttributeField";
+import ClassAttributeField from "./ClassAttributeField";
 import MinusButton from "./MinusButton";
+
+const attribute_list = ["URL", "Email", "Textbook", "Other"];
 
 const MiscellaneousField = ({miscs, setMiscs}) => {
     const [values, setValues] = useState(
@@ -38,7 +40,6 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                     />
                 </span>
             </h1>
-            {console.log(miscs)}
             { miscs ?
                 miscs.map((misc, index) => (
                     <div
@@ -61,14 +62,16 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                                     setItems={setValues}
                                     items={values}
                                 />
-                                <MiscAttributeField 
+                                <div className="mb-4"> </div>
+                                <ClassAttributeField 
                                     attribute={
                                         tags[index]
-                                        ? tags[index] : "url"
+                                        ? tags[index] : "URL"
                                     }
                                     index={index}
                                     attributes={tags}
                                     setAttributes={setTags}
+                                    attribute_list={attribute_list}
                                 />
                             </div>
                         </div>
