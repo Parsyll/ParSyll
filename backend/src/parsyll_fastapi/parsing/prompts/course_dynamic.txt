@@ -1,0 +1,6 @@
+The previous text was taken from a page of a college course syllabus.
+Could you please parse the syllabus for the following information:
+dict_keys(['name', 'instructors', 'syllabus', 'ics_file', 'class_times', 'school', 'credit_hrs', 'miscs'])
+
+In a format like this example:
+{'name': 'ECE 469', 'instructors': [{'name': 'Santiago', 'email': 'santiago@purdue.edu', 'isProf': True}], 'syllabus': 'ccd07e87-9bca-4e34-85c9-0be7d55a5102', 'ics_file': [], 'class_times': [{'location': 'EE 117', 'start': '4:30 PM', 'end': '5:20 PM', 'day_of_week': 'Monday', 'attribute': 'lec'}, {'location': 'EE 206', 'start': '9:30 AM', 'end': '11:20 AM', 'day_of_week': 'Thursday', 'attribute': 'lec'}], 'school': 'Purdue University', 'credit_hrs': 4, 'miscs': [{'value': 'how to code 101', 'tag': 'textbook'}]}Give only this information, no other wording or explanation please.

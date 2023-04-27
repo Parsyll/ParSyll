@@ -12,7 +12,8 @@ class Timing(BaseModel):
     start: str = '12:00 AM'
     end: str = '12:00 AM'
     day_of_week: str = ''
-    attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
+    # attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
+    attribute: str = 'lec'
 
 class GradingScheme(BaseModel):
     A: conlist(int, min_items=1, max_items=2)
@@ -33,7 +34,7 @@ class CourseBase(BaseModel):
     class_times: List[Timing] = []
     school: str = ''
     credit_hrs: int = 3
-    grading_scheme: Union[GradingScheme, None]
+    # grading_scheme: Union[GradingScheme, None]
     miscs: List[Misc] = []
 
 class Course(CourseBase):
