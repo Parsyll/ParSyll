@@ -106,6 +106,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                       index={index}
                                       attributes={attributes}
                                       setAttributes={setAttributes}
+                                      attribute_list={["lec", "rec", "lab"]}
                                   />
                               </div>
 

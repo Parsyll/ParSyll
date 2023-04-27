@@ -6,13 +6,14 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 // const attribute_list = ["lec", "rec", "lab", "office hours", "exam"];
-const attribute_list = ["lec", "rec", "lab"];
+// const attribute_list = ["lec", "rec", "lab"];
 
 const ClassAttributeField = ({
     attribute,
     index,
     attributes,
     setAttributes,
+    attribute_list
 }) => {
     const handleChange = (event) => {
         let copied_attributes = [...attributes];

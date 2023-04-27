@@ -14,6 +14,8 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
+from .parser_regex import Regex
+
 from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
 
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
@@ -84,7 +86,20 @@ class Parser():
             page_text = page.extract_text()
             self.pdf_text += page_text
         
+        self.regex_parse(self.pdf_text)
+        
         pdf_file.close()
+    
+    def regex_parse(self, text):
+        regex = Regex()
+        course_name = regex.get_course_name(text)
+        print(regex.fix_course_names(course_name))
+        print(regex.get_emails(text))
+        print(regex.get_grades(text))
+        print(regex.get_credit_hours(text))
+        print(regex.get_urls(text))
+        print(regex.get_instructor(text))
+        
 
     def remove_stopwords(self):
         if self.pdf_text:
