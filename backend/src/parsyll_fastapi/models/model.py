@@ -12,7 +12,7 @@ class Timing(BaseModel):
     start: str = '12:00 AM'
     end: str = '12:00 AM'
     day_of_week: str = ''
-    attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
+    attribute: str = 'LEC'
 
 class GradingScheme(BaseModel):
     A: conlist(int, min_items=1, max_items=2)

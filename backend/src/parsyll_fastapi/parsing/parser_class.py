@@ -18,7 +18,7 @@ from .parser_regex import Regex
 
 from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
 
-from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
+from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person
 
 load_dotenv()  # take environment variables from .env.
 
@@ -86,7 +86,7 @@ class Parser():
             page_text = page.extract_text()
             self.pdf_text += page_text
         
-        self.regex_parse(self.pdf_text)
+        # self.regex_parse(self.pdf_text)
         
         pdf_file.close()
     
@@ -169,16 +169,18 @@ class Parser():
             for office_hour in response:
                 self.response['office_hours'].extend(process_office_hours(office_hour))
 
-        self.course.office_hrs = []
-
         # office_hour format: Instructor Name, Start Time, End Time, Day, Location
-        # print(self.response)
         for office_hour in self.response['office_hours']:
             person = Person(name=office_hour[0], isProf=office_hour[0] in self.response['prof_names'])
-            office_hour_timing = OfficeHourTiming(location=office_hour[4], start=office_hour[1], 
-                                                  end=office_hour[2], day_of_week=office_hour[3], 
-                                                  attribute='office hours', instructor=person)
-            self.course.office_hrs.append(office_hour_timing)
+
+            start_time = process_time(office_hour[1])
+            end_time = process_time(office_hour[2])
+            day_of_week = process_days([office_hour[3]])[0]
+            
+            office_hour_timing = Timing(location=office_hour[4], start=start_time, 
+                                                  end= end_time, day_of_week=day_of_week, 
+                                                  attribute='OH')
+            self.course.class_times.append(office_hour_timing)
 
         print(self.course)
     def gpt_parse_class_timings(self):
@@ -208,13 +210,10 @@ class Parser():
         response_len = len(response)
 
 
-        start_time = process_time(response[1]) if 1 < response_len else "10:00 am"
-        end_time = process_time(response[2]) if 2 < response_len else "11:00 am"
+        start_time = process_time(response[1]) if 1 < response_len else "12:00 AM"
+        end_time = process_time(response[2]) if 2 < response_len else "12:00 AM"
 
-        if start_time and end_time:
-            print(start_time.group(), end_time.group())
-        else:
-            print(start_time, end_time)
+        print(start_time, end_time)
 
         self.response['prof_names'] = response[5].split(',') if 5 < response_len else ["Joe Mama"]
 
@@ -224,9 +223,9 @@ class Parser():
         self.response['day_of_week'] = process_days(self.response['day_of_week'])
 
         location = response[4] if 4 < response_len else "Purdue"
-        self.course.class_times = [Timing(location=location  , start=response[1], 
-                                            end=response[2], day_of_week=day, 
-                                            attribute='lec') for day in 
+        self.course.class_times = [Timing(location=location  , start=start_time, 
+                                            end=end_time, day_of_week=day, 
+                                            attribute='LEC') for day in 
                                             self.response['day_of_week']]
 
         # print(self.course)
@@ -251,9 +250,9 @@ class Parser():
                                   course_name=self.course.name)
 
             # add events for office hours
-            for timing in self.course.office_hrs:
-                c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
-                                  course_name=self.course.name)
+            # for timing in self.course.class_times:
+            #     c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
+            #                       course_name=self.course.name)
             
 
             with open('my.ics', 'w') as my_file:

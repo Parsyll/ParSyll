@@ -6,6 +6,8 @@ import AddButton from "./AddButton";
 import MinusButton from "./MinusButton";
 import { useEffect, useState } from "react";
 
+const attribute_list = ["LEC", "REC", "LAB", "OH"]
+
 const ClassTimeField = ({ classTimes, setClassTimes }) => {
     console.log(classTimes)
     const [locations, setLocations] = useState(
@@ -28,7 +30,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         start: "12:00 AM",
         end: "12:00 AM",
         day_of_week: "Monday",
-        attribute: "lec",
+        attribute: "LEC",
     };
 
     useEffect(() => {
@@ -107,7 +109,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                       index={index}
                                       attributes={attributes}
                                       setAttributes={setAttributes}
-                                      attribute_list={["lec", "rec", "lab"]}
+                                      attribute_list={attribute_list}
                                   />
                               </div>
 

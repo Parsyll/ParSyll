@@ -21,10 +21,10 @@ def add_ics_event(c, today_day, dt, timing, course_name):
     start_date = get_start_date(timing.day_of_week, today_day, dt)
 
     # add start time to current start_date
-    start_time, end_time = process_time(timing.start), process_time(timing.end)
+    start_time, end_time = process_time(timing.start, split=True), process_time(timing.end, split=True)
 
-    start_time = start_time.groups() if start_time else ("10:00", "am")
-    end_time = end_time.groups() if end_time else ("11:00", "am")
+    # start_time = start_time.groups() if start_time else ("10:00", "am")
+    # end_time = end_time.groups() if end_time else ("11:00", "am")
 
     start_time = add_time_to_date(date=start_date, time=start_time[0], meridiem=start_time[1], adjustment=5)
     end_time = add_time_to_date(date=start_date, time=end_time[0], meridiem=end_time[1], adjustment=5)
@@ -33,7 +33,7 @@ def add_ics_event(c, today_day, dt, timing, course_name):
         event_name = f'{course_name} Lecture'
 
     elif timing.attribute == 'office hours':
-        event_name = f'{course_name} Office Hours {timing.instructor.name}'
+        event_name = f'{course_name} Office Hours'
     
     else:
         event_name = f'{course_name}'
@@ -111,9 +111,34 @@ def get_start_date(day_of_week, today_day, dt):
 
     return start_date
 
-def process_time(time):
-    time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
-    return time
+def process_time(time, split=False):
+    # time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
+    print(time)
+    if not time:
+        time = "12:00 AM"
+
+    time = re.search(r"([0-9]{,2})\s*:\s*([0-9]{,2})\s*(pm|am)", time)
+    
+    if time:
+        time = time.groups()
+    else:
+        time = ("12", "00", "AM")
+
+    hours = time[0] if time[0] else "12"
+
+    if len(hours) < 2:
+        hours = "0" + hours #In the case where we get a single digit
+        
+    label = time[2].upper() if time[2] else "AM"
+    minutes = time[1] if time[1] else "00"
+    time = hours + ":" + minutes + " " + label
+
+    print(time)
+    
+    if split:
+        return (hours+":"+minutes, label)
+    else:
+        return time
 
 def process_days(days):
     # process a list of days of the week 
@@ -146,7 +171,7 @@ def process_days(days):
             "SUNDAY": "Sunday"
         }
 
-        days = [DOW_repr[day] if DOW_repr.get(day, 0) else "0" for day in days]
+        days = [DOW_repr[day] if DOW_repr.get(day, 0) else "Monday" for day in days]
         return days
 
 def process_office_hours(office_hour):
