@@ -214,10 +214,12 @@ class Parser():
         end_time = process_time(response[2]) if 2 < response_len else "12:00 AM"
 
         print(start_time, end_time)
+        regex_parser = Regex()
 
         self.response['prof_names'] = response[5].split(',') if 5 < response_len else ["Joe Mama"]
 
-        self.course.name = response[0] if 0 < response_len else "ECE 20001"
+        self.course.name = response[0].upper() if 0 < response_len else "ECE 20001"
+        self.course.name = regex_parser.get_course_name(response[0])
 
         self.response['day_of_week'] = response[3].split(',') if 3 < response_len else ["Monday"]
         self.response['day_of_week'] = process_days(self.response['day_of_week'])

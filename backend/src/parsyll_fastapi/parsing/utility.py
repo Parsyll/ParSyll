@@ -113,7 +113,6 @@ def get_start_date(day_of_week, today_day, dt):
 
 def process_time(time, split=False):
     # time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
-    print(time)
     if not time:
         time = "12:00 AM"
 
@@ -133,8 +132,6 @@ def process_time(time, split=False):
     minutes = time[1] if time[1] else "00"
     time = hours + ":" + minutes + " " + label
 
-    print(time)
-    
     if split:
         return (hours+":"+minutes, label)
     else:

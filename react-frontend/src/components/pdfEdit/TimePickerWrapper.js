@@ -24,7 +24,6 @@ export const TimePickerWrapper = ({ label, index, time, times, setTimes }) => {
 
         const [hours, minutesWithMeridian] = timeString.split(':');
         const meridian = timeString.slice(-2);
-        console.log(minutesWithMeridian)
         const minutes = minutesWithMeridian.slice(0, 2);
         const timestamp = Date.parse(`01/01/1970 ${hours}:${minutes} ${meridian}`);
 
