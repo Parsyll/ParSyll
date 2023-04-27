@@ -22,12 +22,11 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
     const [attributes, setAttributes] = useState(
         classTimes.map((classTime) => classTime.attribute)
     );
-
     const classTimeObj = {
         location: "",
-        start: "",
-        end: "",
-        day_of_week: "",
+        start: "12:00 AM",
+        end: "12:00 AM",
+        day_of_week: "Monday",
         attribute: "lec",
     };
 
@@ -89,7 +88,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                       dayOfWeek={
                                           daysOfWeek[index]
                                               ? daysOfWeek[index]
-                                              : ""
+                                              : "Monday"
                                       }
                                       index={index}
                                       daysOfWeek={daysOfWeek}
@@ -102,7 +101,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                       attribute={
                                           attributes[index]
                                               ? attributes[index]
-                                              : ""
+                                              : "rec"
                                       }
                                       index={index}
                                       attributes={attributes}

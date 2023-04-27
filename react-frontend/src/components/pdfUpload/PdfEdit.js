@@ -7,6 +7,7 @@ import { useUser } from "../../hooks/useUser";
 import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
 import { Button } from "@mui/material";
+import MiscellaneousField from "../pdfEdit/MiscellaneousField";
 
 export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
@@ -37,6 +38,8 @@ export const PdfEdit = ({ course, handleClose }) => {
         course.grading_scheme ? course.grading_scheme : null
     );
     const [id, setId] = useState(course.id ? course.id : "");
+
+    const [miscs, setMiscs] = useState([]) // hardcoded for now
 
     const navigate = useNavigate();
 
@@ -77,8 +80,6 @@ export const PdfEdit = ({ course, handleClose }) => {
             grading_scheme: gradingScheme,
             id: id,
         };
-
-        console.log(userBody);
 
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
             console.log("Updated course with: ");
@@ -141,6 +142,12 @@ export const PdfEdit = ({ course, handleClose }) => {
                                 setClassTimes={setClassTimes}
                                 classTimes={classTimes}
                             />
+
+                            <MiscellaneousField
+                                setMiscs={setMiscs}
+                                miscs={miscs}
+                            />
+
 
                             {/* <h1 className="text-2xl font-semibold mt-3">
                                 Office Hours:
