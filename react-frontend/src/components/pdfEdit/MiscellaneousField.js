@@ -16,7 +16,7 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
 
     const classTimeObj = {
         value:"",
-        tag: "url",
+        tag: "URL",
     };
 
     useEffect(() => {
@@ -27,6 +27,15 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
 
         setMiscs(miscs);
     }, [values, tags]);
+
+    const handleRemoveItem = (index, updatedObj) => {
+        let newValues = values.splice(index, 1)
+        console.log(index)
+        let newTags = tags.splice(index, 1)
+        setValues(newValues)
+        setTags(newTags)
+        setMiscs(updatedObj)
+    }
     
     return (
         <>
@@ -40,7 +49,8 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                     />
                 </span>
             </h1>
-            { miscs ?
+            {console.log(miscs, values, tags)}
+            { (miscs && miscs.length > 0) ?
                 miscs.map((misc, index) => (
                     <div
                     className=" flex flex-row align-middle justify-between"
@@ -78,7 +88,7 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                         <MinusButton
                               index={index}
                               originalValue={miscs}
-                              setValue={setMiscs}
+                              setValue={handleRemoveItem}
                           />
                     </div>
                 ))

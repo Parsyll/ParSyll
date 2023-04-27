@@ -5,7 +5,6 @@ export const AddButton = ({setValue, originalValue, insertValue}) => {
 
     const handleOnClick = () => {
         let copiedOriginal = JSON.parse(JSON.stringify(originalValue));
-        console.log(insertValue)
         copiedOriginal.push(insertValue);
         setValue(copiedOriginal)
     }

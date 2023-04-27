@@ -7,6 +7,7 @@ import MinusButton from "./MinusButton";
 import { useEffect, useState } from "react";
 
 const ClassTimeField = ({ classTimes, setClassTimes }) => {
+    console.log(classTimes)
     const [locations, setLocations] = useState(
         classTimes.map((classTime) => classTime.location)
     );
@@ -55,7 +56,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                 </span>
             </h1>
 
-            {classTimes
+            {(classTimes && classTimes.length > 0)
                 ? classTimes.map((classTime, index) => (
                       <div
                           className=" flex flex-row align-middle justify-between"
