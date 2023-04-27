@@ -20,14 +20,8 @@ export const PdfEdit = ({ course, handleClose }) => {
     const [syllabus, setSyllabus] = useState(
         course.syllabus ? course.syllabus : ""
     );
-    const [officeHours, setOfficeHours] = useState(
-        course.office_hrs ? course.office_hrs : []
-    );
     const [icsFile, setIcsFile] = useState(
         course.ics_file ? course.ics_file : []
-    );
-    const [textbook, setTextBook] = useState(
-        course.textbook ? course.textbook : ""
     );
     const [classTimes, setClassTimes] = useState(
         course.class_times ? course.class_times : []
@@ -51,9 +45,7 @@ export const PdfEdit = ({ course, handleClose }) => {
         setName(course.name);
         setInstructors(course.instructors);
         setSyllabus(course.syllabus);
-        setOfficeHours(course.office_hrs);
         setIcsFile(course.ics_file);
-        setTextBook(course.textbook);
         setClassTimes(course.class_times);
         setSchool(course.school);
         setCreditHrs(course.credit_hrs);
@@ -77,9 +69,7 @@ export const PdfEdit = ({ course, handleClose }) => {
             name: name,
             instructors: instructors,
             syllabus: syllabus,
-            office_hrs: officeHours,
             ics_file: icsFile,
-            textbook: textbook,
             class_times: classTimes,
             school: school,
             credit_hrs: creditHrs,

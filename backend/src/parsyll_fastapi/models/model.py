@@ -14,10 +14,6 @@ class Timing(BaseModel):
     day_of_week: str = ''
     attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
 
-
-class OfficeHourTiming(Timing):
-    instructor: Union[Person, None]    
-
 class GradingScheme(BaseModel):
     A: conlist(int, min_items=1, max_items=2)
     B: conlist(int, min_items=1, max_items=2)
@@ -33,7 +29,6 @@ class CourseBase(BaseModel):
     name: str = ''
     instructors: List[Person] = []
     syllabus: str = ''
-    office_hrs: List[OfficeHourTiming] = []
     ics_file: List[str] = []
     class_times: List[Timing] = []
     school: str = ''
