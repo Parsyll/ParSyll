@@ -129,10 +129,11 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     course = Course(name=parser.course.name, 
                     instructors=parser.course.instructors,
                     syllabus=syllabus_id,
-                    office_hrs=parser.course.office_hrs,
+                    # office_hrs=parser.course.office_hrs,
                     ics_file = parser.course.ics_file,
                     class_times = parser.course.class_times,
                     id=course_id,
+                    miscs = [],
                     )
 
     # user_doc_ref.collection(u'courses').add(course.__dict__)
