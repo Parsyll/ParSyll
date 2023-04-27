@@ -25,17 +25,21 @@ class GradingScheme(BaseModel):
     D: conlist(int, min_items=1, max_items=2)
     F: conlist(int, min_items=1, max_items=2)
 
+class Misc(BaseModel):
+    value: str
+    tag: str
+
 class CourseBase(BaseModel):
     name: str = ''
     instructors: List[Person] = []
     syllabus: str = ''
     office_hrs: List[OfficeHourTiming] = []
     ics_file: List[str] = []
-    textbook: List[str] = []
     class_times: List[Timing] = []
     school: str = ''
     credit_hrs: int = 3
     grading_scheme: Union[GradingScheme, None]
+    miscs: List[Misc] = []
 
 class Course(CourseBase):
     id: str

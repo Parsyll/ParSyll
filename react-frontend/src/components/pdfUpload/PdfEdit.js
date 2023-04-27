@@ -57,12 +57,9 @@ export const PdfEdit = ({ course, handleClose }) => {
         setClassTimes(course.class_times);
         setSchool(course.school);
         setCreditHrs(course.credit_hrs);
+        setGradingScheme(course.grading_scheme);
+        setMiscs(course.miscs);
 
-        if (course.grading_scheme) {
-            setGradingScheme(course.grading_scheme);
-        } else {
-            setGradingScheme([]);
-        }
         setId(course.id);
     };
 
@@ -88,7 +85,9 @@ export const PdfEdit = ({ course, handleClose }) => {
             credit_hrs: creditHrs,
             grading_scheme: gradingScheme,
             id: id,
+            miscs: miscs,
         };
+        console.log(miscs)
 
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
             console.log("Updated course with: ");
@@ -159,14 +158,10 @@ export const PdfEdit = ({ course, handleClose }) => {
                                 miscs={miscs}
                             />
 
-                            <GradingSchemeField 
+                            {/* <GradingSchemeField 
                                 gradingScheme={gradingScheme}
                                 setGradingScheme={setGradingScheme}
-                            />
-
-
-
-
+                            /> */}
                             {/* <h1 className="text-2xl font-semibold mt-3">
                                 Office Hours:
                                 <span>
