@@ -76,9 +76,10 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                 responseType: "blob",
             })
             .then((res) => {
-                const url = URL.createObjectURL(res.data);
+                const blob = new Blob([res.data], {type: res.headers['content-type']});
+                blob.name = res.headers['content-disposition'];
+                const url = URL.createObjectURL(blob);
                 window.open(url);
-                URL.revokeObjectURL(url);
             });
     };
 
@@ -115,7 +116,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                         Instructors:
                     </h1>
                     <div
-                        className={`grid grid-cols-${Math.min(
+                        className={`rid grid-cols-${Math.min(
                             course.instructors.length,
                             3
                         )} p-4 mt-6"`}
@@ -124,6 +125,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             instructor.isProf ? (
                                 <ProfessorCard
                                     key={`prof-${index}`}
+                                    index={index}
                                     professor={instructor}
                                 />
                             ) : (
