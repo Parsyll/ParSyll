@@ -88,6 +88,7 @@ class Parser():
             self.pdf_text += page_text
         
         # self.regex_parse(self.pdf_text)
+        # self.regex_parse(self.pdf_text)
         
         pdf_file.close()
     

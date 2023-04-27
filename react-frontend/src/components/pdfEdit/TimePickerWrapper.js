@@ -17,7 +17,7 @@ export const TimePickerWrapper = ({ label, index, time, times, setTimes }) => {
     }
 
     const getTimeStamp = (timeString) => {
-        if (!timeString) {
+        if (!timeString || timeString == "0") {
             //Same default value as backend
             timeString = "12:00 AM";
         }

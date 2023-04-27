@@ -25,10 +25,10 @@ class Regex:
             i += 1
 
         return new_content
-
+    
     def get_course_name(self, text):
-        courseName = re.search(r"([A-Z]{2,4}\s?[0-9]{2,5})[:\-]?\s?(.{0,40})?\b", text)
-        return None if not courseName else courseName.groups()
+        courseName = re.search(r"([A-Za-z]{2,10}\s?[0-9]{2,5})[:\-]?\s?(.{0,40})?\b", text)
+        return None if not courseName else courseName.groups()[0]
 
 
     def get_emails(self, text):
