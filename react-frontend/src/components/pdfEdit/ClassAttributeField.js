@@ -5,21 +5,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-// const attribute_list = ["lec", "rec", "lab", "office hours", "exam"];
-// const attribute_list = ["lec", "rec", "lab"];
-
 const ClassAttributeField = ({
     attribute,
     index,
-    attributes,
     setAttributes,
     attribute_list
 }) => {
     const handleChange = (event) => {
-        let copied_attributes = [...attributes];
-        copied_attributes[index] = event.target.value;
-        setAttributes(copied_attributes);
-        attribute = attributes[index];
+        setAttributes("attribute", event.target.value, index);
     };
 
     return (

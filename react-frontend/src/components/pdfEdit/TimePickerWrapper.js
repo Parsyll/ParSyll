@@ -4,7 +4,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-export const TimePickerWrapper = ({ label, index, time, times, setTimes }) => {
+export const TimePickerWrapper = ({ label, index, time, setTimes, field }) => {
     
     const handleParseTime = (datetimeString) => {
         const datetime = new Date(datetimeString);
@@ -17,7 +17,7 @@ export const TimePickerWrapper = ({ label, index, time, times, setTimes }) => {
     }
 
     const getTimeStamp = (timeString) => {
-        if (!timeString || timeString == "0") {
+        if (!timeString || timeString === "0") {
             //Same default value as backend
             timeString = "12:00 AM";
         }
@@ -32,10 +32,7 @@ export const TimePickerWrapper = ({ label, index, time, times, setTimes }) => {
 
     const handleChangeTimeinArray = (time) => {
         time = handleParseTime(time.toString());
-        let copied_times = [...times];
-        copied_times[index] = time;
-        setTimes(copied_times);
-        time = times[index];
+        setTimes(field, time, index);
     };
 
 

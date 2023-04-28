@@ -1,10 +1,8 @@
-const FieldInput = ({title, item, index, setItems, items}) => {
+const FieldInput = ({title, item, index, setItems, field}) => {
 
     const handleOnChange = (e) => {
         e.preventDefault();
-        let copied_items = JSON.parse(JSON.stringify(items));
-        copied_items[index] = e.target.value
-        setItems(copied_items)
+        setItems(field, e.target.value, index)
     }
 
     return ( 

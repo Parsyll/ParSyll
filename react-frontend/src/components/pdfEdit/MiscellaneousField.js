@@ -7,36 +7,21 @@ import MinusButton from "./MinusButton";
 const attribute_list = ["URL", "Email", "Textbook", "Other"];
 
 const MiscellaneousField = ({miscs, setMiscs}) => {
-    const [values, setValues] = useState(
-        miscs.map((misc) => misc.value)
-    )
-    const [tags, setTags] = useState(
-        miscs.map((misc) => misc.tag)
-    )
-
     const classTimeObj = {
         value:"",
         tag: "URL",
     };
-
-    useEffect(() => {
-        miscs.forEach((misc, index) => {
-            misc.value = values[index];
-            misc.tag = tags[index];
-        });
-
-        setMiscs(miscs);
-    }, [values, tags]);
-
-    const handleRemoveItem = (index, updatedObj) => {
-        let newValues = values.splice(index, 1)
-        console.log(index)
-        let newTags = tags.splice(index, 1)
-        setValues(newValues)
-        setTags(newTags)
-        setMiscs(updatedObj)
-    }
     
+    const handleFieldChanges = (field, value, index) => {
+        let newTimeCopy = miscs.map((k, v) => (JSON.parse(JSON.stringify(k))))
+        if (field === "value") {
+            newTimeCopy[index].value = value
+        } else if (field === "tag") {
+            newTimeCopy[index].tag = value
+        }
+        setMiscs(newTimeCopy)
+    }
+
     return (
         <>
             <h1 className="text-2xl font-semibold mt-10 mb-3">
@@ -49,7 +34,6 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                     />
                 </span>
             </h1>
-            {console.log(miscs, values, tags)}
             { (miscs && miscs.length > 0) ?
                 miscs.map((misc, index) => (
                     <div
@@ -63,24 +47,16 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                             <div className="mb-2">
                                 <FieldInput
                                     title="value"
-                                    item={
-                                        values[index]
-                                            ? values[index]
-                                            : ""
-                                    }
+                                    field = "value"
+                                    item={misc.value}
                                     index={index}
-                                    setItems={setValues}
-                                    items={values}
+                                    setItems={handleFieldChanges}
                                 />
                                 <div className="mb-4"> </div>
                                 <ClassAttributeField 
-                                    attribute={
-                                        tags[index]
-                                        ? tags[index] : "URL"
-                                    }
+                                    attribute={misc.tag}
                                     index={index}
-                                    attributes={tags}
-                                    setAttributes={setTags}
+                                    setAttributes={handleFieldChanges}
                                     attribute_list={attribute_list}
                                 />
                             </div>
@@ -88,7 +64,7 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                         <MinusButton
                               index={index}
                               originalValue={miscs}
-                              setValue={handleRemoveItem}
+                              setValue={setMiscs}
                           />
                     </div>
                 ))

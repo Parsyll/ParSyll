@@ -5,7 +5,6 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import Chip from "@mui/material/Chip";
 
 const days = [
     "Monday",
@@ -29,16 +28,12 @@ function getStyles(name, personName, theme) {
 export default function DaysOfWeekField({
     dayOfWeek,
     index,
-    daysOfWeek,
     setDaysOfWeek,
 }) {
     const theme = useTheme();
 
     const handleChange = (event) => {
-        let copied_daysOfWeek = [...daysOfWeek];
-        copied_daysOfWeek[index] = event.target.value;
-        setDaysOfWeek(copied_daysOfWeek);
-        dayOfWeek = daysOfWeek[index];
+        setDaysOfWeek("day_of_week", event.target.value, index);
     };
 
     return (
@@ -57,7 +52,7 @@ export default function DaysOfWeekField({
                         <MenuItem
                             key={day}
                             value={day}
-                            style={getStyles(day, daysOfWeek, theme)}
+                            style={getStyles(day, [], theme)}
                         >
                             {day}
                         </MenuItem>

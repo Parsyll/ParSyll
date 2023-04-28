@@ -9,22 +9,6 @@ import { useEffect, useState } from "react";
 const attribute_list = ["LEC", "REC", "LAB", "OH"]
 
 const ClassTimeField = ({ classTimes, setClassTimes }) => {
-    console.log(classTimes)
-    const [locations, setLocations] = useState(
-        classTimes.map((classTime) => classTime.location)
-    );
-    const [startTimes, setStartTimes] = useState(
-        classTimes.map((classTime) => classTime.start)
-    );
-    const [endTimes, setEndTimes] = useState(
-        classTimes.map((classTime) => classTime.end)
-    );
-    const [daysOfWeek, setDaysOfWeek] = useState(
-        classTimes.map((classTime) => classTime.day_of_week)
-    );
-    const [attributes, setAttributes] = useState(
-        classTimes.map((classTime) => classTime.attribute)
-    );
     const classTimeObj = {
         location: "",
         start: "12:00 AM",
@@ -33,17 +17,21 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         attribute: "LEC",
     };
 
-    useEffect(() => {
-        classTimes.forEach((classTime, index) => {
-            classTime.location = locations[index];
-            classTime.start = startTimes[index];
-            classTime.end = endTimes[index];
-            classTime.day_of_week = daysOfWeek[index];
-            classTime.attribute = attributes[index];
-        });
-
-        setClassTimes(classTimes);
-    }, [locations, startTimes, endTimes, daysOfWeek, attributes]);
+    const handleFieldChanges = (field, value, index) => {
+        let newTimeCopy = classTimes.map((k, v) => (JSON.parse(JSON.stringify(k))))
+        if (field === "location") {
+            newTimeCopy[index].location = value
+        } else if (field === "start") {
+            newTimeCopy[index].start = value
+        } else if (field === "end") {
+            newTimeCopy[index].end = value
+        } else if (field === "day_of_week") {
+            newTimeCopy[index].day_of_week = value
+        } else if (field === "attribute") {
+            newTimeCopy[index].attribute = value
+        }
+        setClassTimes(newTimeCopy)
+    }
 
     return (
         <>
@@ -73,42 +61,32 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                                   <TimePickerWrapper
                                       label={"Start-Time"}
                                       index={index}
-                                      time={startTimes[index]}
-                                      times={startTimes}
-                                      setTimes={setStartTimes}
+                                      time={classTime.start}
+                                      setTimes={handleFieldChanges}
+                                      field = {"start"}
                                   />
                                   <TimePickerWrapper
                                       label={"End-Time"}
                                       index={index}
-                                      time={endTimes[index]}
-                                      times={endTimes}
-                                      setTimes={setEndTimes}
+                                      time={classTime.end}
+                                      setTimes={handleFieldChanges}
+                                      field={"end"}
                                   />
                               </div>
 
                               <div className="mb-2">
                                   <DaysOfWeekField
-                                      dayOfWeek={
-                                          daysOfWeek[index]
-                                              ? daysOfWeek[index]
-                                              : "Monday"
-                                      }
+                                      dayOfWeek={classTime.day_of_week}
                                       index={index}
-                                      daysOfWeek={daysOfWeek}
-                                      setDaysOfWeek={setDaysOfWeek}
+                                      setDaysOfWeek={handleFieldChanges}
                                   />
                               </div>
 
                               <div className="mb-2">
                                   <ClassAttributeField
-                                      attribute={
-                                          attributes[index]
-                                              ? attributes[index]
-                                              : "rec"
-                                      }
+                                      attribute={classTime.attribute}
                                       index={index}
-                                      attributes={attributes}
-                                      setAttributes={setAttributes}
+                                      setAttributes={handleFieldChanges}
                                       attribute_list={attribute_list}
                                   />
                               </div>
@@ -116,14 +94,10 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                               <div className="mb-2">
                                   <FieldInput
                                       title="Location"
-                                      item={
-                                          locations[index]
-                                              ? locations[index]
-                                              : ""
-                                      }
+                                      field="location"
+                                      item={classTime.location}
                                       index={index}
-                                      setItems={setLocations}
-                                      items={locations}
+                                      setItems={handleFieldChanges}
                                   />
                               </div>
                           </div>

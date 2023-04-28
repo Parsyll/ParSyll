@@ -51,6 +51,7 @@ export const PdfEdit = ({ course, handleClose }) => {
         setCreditHrs(course.credit_hrs);
         setGradingScheme(course.grading_scheme);
         setMiscs(course.miscs);
+        setCreditHours(course.credit_hrs)
 
         setId(course.id);
     };
@@ -72,12 +73,11 @@ export const PdfEdit = ({ course, handleClose }) => {
             ics_file: icsFile,
             class_times: classTimes,
             school: school,
-            credit_hrs: creditHrs,
+            credit_hrs: creditHours,
             grading_scheme: gradingScheme,
             id: id,
             miscs: miscs,
         };
-        console.log(miscs)
 
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
             console.log("Updated course with: ");
