@@ -6,7 +6,7 @@ export const MinusButton = ({setValue, originalValue, index}) => {
     const handleOnClick = () => {
         let copiedOriginal = JSON.parse(JSON.stringify(originalValue));
         copiedOriginal.splice(index, 1);
-        setValue(index, copiedOriginal)
+        setValue(copiedOriginal)
     }
     return (
         <IconButton aria-label="delete" 

@@ -218,8 +218,9 @@ class Parser():
 
         print(response)
 
-        try: 
+        try:
             self.course = CourseBase(**response)
+            print(self.course.class_times)
         except:
             print("There was an error trying to unpack response course dictionary")
             self.course = course_example
