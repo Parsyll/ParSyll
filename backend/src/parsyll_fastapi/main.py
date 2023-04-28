@@ -38,6 +38,7 @@ async def handle_exceptions(request: Request, call_next):
 
     except Exception as e:
         print(f"Error: {e}")
+        print(f"from request {request}")
         # raise HTTPException(500, detail="Something went wrong")
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
