@@ -17,6 +17,7 @@ export const ClassHourCard = ({
                 variant="outlined"
                 sx={{ alignItems: "", mt: 1 }}
                 style={{ width: "95%" }}
+                className="drop-shadow-md"
             >
                 <h1 className="text-2xl text-center mt-5 font-bold">
                     {weekday}

@@ -42,6 +42,9 @@ prompt_text = (
 
         In a format like this example:
         {course_example.dict()}
+
+        If multiple days of week are detected, please append a new entry to the 'class_times' key
+
         Give only this information, no other wording or explanation please. 
     '''
 )

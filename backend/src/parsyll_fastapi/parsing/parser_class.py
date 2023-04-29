@@ -16,7 +16,7 @@ from datetime import timedelta
 
 from .parser_regex import Regex
 
-from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
+from parsyll_fastapi.parsing.utility import process_class_timings, add_ics_event
 from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person 
 from parsyll_fastapi.parsing.prompts.course_dynamic import prompt_text, course_example
 
@@ -220,7 +220,6 @@ class Parser():
 
         try:
             self.course = CourseBase(**response)
-            print(self.course.class_times)
         except:
             print("There was an error trying to unpack response course dictionary")
             self.course = course_example
@@ -270,8 +269,17 @@ class Parser():
         else:
             self.course.ics_file = []
             return
+    
+    def postprocess(self):
+        # Error handle and validate class timings
+        # i.e. process start_time, end_time, day_of_week
+        self.course.class_times = process_class_timings(self.course.class_times)
+        print("final course object")
+        print(self.course.dict())
+
 
     def gpt_parse(self):
         self.preprocess()
         self.gpt_parse_course()
         # self.gpt_parse_office_hours()
+        self.postprocess()
