@@ -110,6 +110,10 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                         {course.school}
                     </h1>
 
+                    <h1 className="pl-3 my-3 text-3xl font-bold">
+                        {course.credit_hrs ? `Credit hours: ${course.credit_hrs}` : ""}
+                    </h1>
+
                     <h1 className=" pl-3 pt-4 mb-3 text-3xl font-bold">
                         Instructors:
                     </h1>
@@ -124,6 +128,7 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                 <ProfessorCard
                                     key={`prof-${index}`}
                                     professor={instructor}
+                                    index={index}
                                 />
                             ) : (
                                 <TaCard
