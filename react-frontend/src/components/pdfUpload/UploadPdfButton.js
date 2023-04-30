@@ -32,7 +32,7 @@ const styles = createTheme({
   },
 });
 
-export default function BasicModal({
+export default function UploadPdfButton({
   openPdf,
   setOpenPdf,
   pdfFile,
@@ -49,7 +49,7 @@ export default function BasicModal({
     e.preventDefault();
     setPdfFile(null);
     setOpenPdf(false);
-    navigate("/dashboard/courses")
+    navigate(`/dashboard/courses/${parseContent.id}`)
   };
 
   const handleSendPdf = async (e) => {

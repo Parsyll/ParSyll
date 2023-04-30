@@ -31,6 +31,12 @@ def add_ics_event(c, today_day, dt, timing, course_name):
     start_time = add_time_to_date(date=start_date, time=start_time, adjustment=4)
     end_time = add_time_to_date(date=start_date, time=end_time, adjustment=4)
     
+    if start_time > end_time:
+        print("changing start_time")
+        start_time = end_time - timedelta(hours=1)
+    
+    print(start_time, end_time)
+    
     timing.attribute = timing.attribute.lower() if timing.attribute else "lec"
     
     if timing.attribute.lower() == 'lec':
@@ -85,9 +91,7 @@ def add_time_to_date(date, time, adjustment):
     format = '%Y-%m-%d %I:%M %p'
 
     date = date.strftime('%Y-%m-%d') + ' ' + time
-    print(f"Before date: {date}")
     date = datetime.strptime(date, format) + timedelta(hours=adjustment) 
-    print(f"After date: {date}")
 
     return date
 
@@ -130,9 +134,6 @@ def get_start_date(day_of_week, today_day, dt):
     day_diff = timedelta(get_offset_to_next_calendar_day(today_day, dow_enum))
 
     start_date = dt + day_diff
-
-    print(f"today_day: {today_day}, day_of_week: {day_of_week} dt: {dt}")
-    print(f"day_diff: {day_diff} start_date: {start_date}")
 
     return start_date
 

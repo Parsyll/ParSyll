@@ -19,12 +19,13 @@ export const ClassHourCard = ({
                 style={{ width: "95%" }}
                 className="drop-shadow-md"
             >
-                <h1 className="text-2xl text-center mt-5 font-bold">
+                <h1 className="text-2xl text-center mt-5 font-bold text-blue-600">
                     {weekday}
                 </h1>
                 <Typography
                     sx={{ mb: 1.5, textAlign: "center" }}
-                    color="text.secondary"
+                    // color="text.secondary"
+                    className="text-blue-900"
                 >
                     {startTime} - {endTime}
                 </Typography>

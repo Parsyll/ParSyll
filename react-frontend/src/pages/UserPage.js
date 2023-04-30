@@ -19,7 +19,7 @@ const UserPage = () => {
     const [username, setUsername] = useState("")
 
     useEffect( () => {
-        // setCourses(courseList)
+        setCourses(courseList)
         getUserInformation()
     }, [])
 

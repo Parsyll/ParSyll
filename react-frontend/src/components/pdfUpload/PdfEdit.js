@@ -83,7 +83,7 @@ export const PdfEdit = ({ course, handleClose }) => {
             console.log("Updated course with: ");
             console.log(res);
             handleClose(e);
-            navigate("/dashboard/courses");
+            navigate(`/dashboard/courses/${course.id}`);
         });
     };
 

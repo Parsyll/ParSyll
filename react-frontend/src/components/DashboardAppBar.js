@@ -30,7 +30,7 @@ export default function DashboardAppBar({profilePic}) {
               color="inherit"
               aria-label="menu"
               sx={{ mr: 2 }}
-              component={Link} to="/dashboard/courses"
+              component={Link} to="/dashboard/courses/0"
             >
               <MenuIcon />
             </IconButton> : ""

@@ -3,9 +3,9 @@ import { useUser } from "../hooks/useUser";
 
 export const ProtectedLayout = () => {
   const { authed, user } = useUser();
-  console.log(user)
 
   if (!authed) {
+    console.log(user)
     return <Navigate to="/" />;
   }
 

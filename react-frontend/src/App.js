@@ -32,7 +32,7 @@ export const App = () => {
             <DashboardAppBar profilePic={profilePic}/>
             <Routes>
               <Route path='/' element={ 
-                authed ? <Navigate to="/dashboard/courses" /> : <HomePage /> 
+                authed ? <Navigate to="/dashboard/courses/0" /> : <HomePage /> 
               } />
               <Route path='/login' element={ 
                 <LoginPage setLoggedIn={setLoggedIn} 
@@ -43,10 +43,11 @@ export const App = () => {
                 setProfilePic={setProfilePic} setUserName={setUserName}/>
               } />
               <Route path="/dashboard" element={<ProtectedLayout />}>
-                <Route path='courses' element={ <CoursePage /> } />
                 <Route path='profile' element={ <UserPage />} />
                 <Route path='upload_pdf' element={ <PdfUploader/> } />
+                <Route path='courses/:course_id' element={ <CoursePage /> } />
               </Route>
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </AuthProvider>
         </BrowserRouter>

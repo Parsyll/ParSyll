@@ -29,7 +29,6 @@ export const UserProvider = ({children}) => {
     
     const userLogin = (user) => {
         setAuthed(true);
-        console.log(user)
         setUser(user);
     }
 
@@ -38,12 +37,10 @@ export const UserProvider = ({children}) => {
         setUser("");
         removeJWTToken();
     }
-
-
-
-
+    
     const value = useMemo(
-        () => ({
+        () =>
+          ({
           authed,
           user,
           persistUser,

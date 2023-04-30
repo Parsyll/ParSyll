@@ -30,10 +30,13 @@ const style = {
     p: 4,
 };
 
+const headerColour = "text-stone-700"
+
 const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
     const [viewPdf, setViewPdf] = useState(false);
     const [editPdf, setEditPdf] = useState(false);
     const [pdfFile, setPdfFile] = useState("");
+    const [loading, setLoading] = useState(true);
     let { user } = useUser();
     let uid = user.uid;
     let navigate = useNavigate();
@@ -84,6 +87,35 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
         setHasBeenEdited(!hasBeenEdited);
     };
 
+    const loadingLogic = () => {
+        if(!course) {
+            return (
+                <div className=" flex flex-col align-middle p-5">
+                    <h1 className=" text-5xl text-center font-bold mb-10">
+                        Wow, such empty
+                    </h1>
+                    <img
+                        src={loadingRunner}
+                        alt="loading..."
+                        className="mb-10"
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={() => navigate("/dashboard/upload_pdf")}
+                    >
+                        Parse PDF
+                    </Button>
+                </div>
+            )
+        } else {
+            return (
+                <div> Nothing yet</div>
+            )
+        }
+    }
+
     // Sort days of week
     let dayDic = {
         Monday: 0,
@@ -100,29 +132,27 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
     }
 
     return (
-        <div className=" flex align-middle justify-center m-6 pl-3 w-11/12">
+        <div className=" flex align-middle justify-center m-6 pl-3 w-10/12">
             {course ? (
-                <div className="align-middle w-10/12">
-                    <h1 className=" text-5xl text-center font-bold">
+                <div className="align-middle w-10/12 bg-white p-2">
+                    <h1 className={`${headerColour} text-5xl text-center font-bold text-stone-700`}>
                         {course.name}
                     </h1>
-                    <h1 className=" text-xl text-center font-bold">
+                    <h1 className={` text-gray-600 text-xl text-center font-bold mt-3`}>
                         {course.school}
                     </h1>
 
-                    <h1 className="pl-3 my-3 text-3xl font-bold">
-                        {course.credit_hrs ? `Credit hours: ${course.credit_hrs}` : ""}
+                    <h1 className={`${headerColour} pl-3 my-3 text-3xl font-bold`}>
+                        Credit hours:
+                        <span className="">
+                            {course.credit_hrs ? ` ${course.credit_hrs}` : ""}
+                        </span>
                     </h1>
 
-                    <h1 className=" pl-3 pt-4 mb-3 text-3xl font-bold">
+                    <h1 className={`${headerColour} pl-3 pt-4 mb-3 text-3xl font-bold`}>
                         Instructors:
                     </h1>
-                    <div
-                        className={`grid grid-cols-${Math.min(
-                            course.instructors.length,
-                            3
-                        )} p-4 mt-6"`}
-                    >
+                    <div className="p-4">
                         {course.instructors.map((instructor, index) =>
                             instructor.isProf ? (
                                 <ProfessorCard
@@ -130,23 +160,33 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                                     professor={instructor}
                                     index={index}
                                 />
-                            ) : (
-                                <TaCard
-                                    key={`TA-${index}`}
-                                    instructor={instructor}
-                                    index={index}
-                                />
-                            )
+                            ) : ""
                         )}
                     </div>
+                        <div
+                            className={`grid grid-cols-${Math.min(
+                                course.instructors.filter((i)=> i.isProf === false).length,
+                                3
+                            )} p-4 mt-0"`}
+                        >
+                            {course.instructors.filter((i) => i.isProf === false).map((instructor, index) =>
+                                <div className={`col-start-${(index + 1) % 4} col-span-1`} key={index}>
+                                    <TaCard
+                                        key={`TA-${index}`}
+                                        instructor={instructor}
+                                        index={index}
+                                    />
+                                </div>
+                            )}
+                    </div>
                     
-                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lec")} header={"Lecture Timing :"} />
-                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "rec")} header={"Recitation Timing :"}/>
-                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lab")} header={"Lab Timing :"}/>
-                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "oh")} header={"Office Hour Timing :"}/>
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lec")} header={"Lecture Timing :"} headerColour={headerColour} />
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "rec")} header={"Recitation Timing :"} headerColour={headerColour}/>
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lab")} header={"Lab Timing :"} headerColour={headerColour}/>
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "oh")} header={"Office Hour Timing :"} headerColour={headerColour}/>
 
 
-                    <MiscCard miscs={course.miscs}/>
+                    <MiscCard miscs={course.miscs} headerColour={headerColour}/>
 
                     <div className="flex flex-row justify-around align-middle mt-10">
                         <Button
