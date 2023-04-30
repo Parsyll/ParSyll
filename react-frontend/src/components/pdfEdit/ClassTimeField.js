@@ -32,7 +32,6 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
         }
         setClassTimes(newTimeCopy)
     }
-
     return (
         <>
             <h1 className="text-2xl font-semibold mt-10 mb-3">
@@ -84,8 +83,9 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
 
                               <div className="mb-2">
                                   <ClassAttributeField
-                                      attribute={classTime.attribute}
+                                      field={"attribute"}
                                       index={index}
+                                      attribute={classTime.attribute}
                                       setAttributes={handleFieldChanges}
                                       attribute_list={attribute_list}
                                   />

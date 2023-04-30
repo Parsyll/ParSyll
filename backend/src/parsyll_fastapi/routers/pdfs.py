@@ -112,7 +112,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     parser.gpt_parse()
 
     # generate temp ICS file, converted to string 
-    parser.write_ics()
+    parser.write_ics(parser.course)
 
     # store parsed info along with string ICS file in Firestore
     try: 

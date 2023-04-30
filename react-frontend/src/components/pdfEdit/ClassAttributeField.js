@@ -6,13 +6,14 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 const ClassAttributeField = ({
+    field,
     attribute,
     index,
     setAttributes,
     attribute_list
 }) => {
     const handleChange = (event) => {
-        setAttributes("attribute", event.target.value, index);
+        setAttributes(field, event.target.value, index);
     };
 
     return (
@@ -24,7 +25,7 @@ const ClassAttributeField = ({
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={attribute}
+                    value={attribute.toUpperCase()}
                     onChange={handleChange}
                 >
                     {attribute_list.map((attribute_option) => (

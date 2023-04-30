@@ -4,7 +4,7 @@ import FieldInput from "./FieldInput";
 import ClassAttributeField from "./ClassAttributeField";
 import MinusButton from "./MinusButton";
 
-const attribute_list = ["URL", "Email", "Textbook", "Other"];
+const attribute_list = ["URL", "EMAIL", "TEXTBOOK", "OTHER"];
 
 const MiscellaneousField = ({miscs, setMiscs}) => {
     const classTimeObj = {
@@ -54,8 +54,9 @@ const MiscellaneousField = ({miscs, setMiscs}) => {
                                 />
                                 <div className="mb-4"> </div>
                                 <ClassAttributeField 
-                                    attribute={misc.tag}
+                                    field={"tag"}
                                     index={index}
+                                    attribute={misc.tag}
                                     setAttributes={handleFieldChanges}
                                     attribute_list={attribute_list}
                                 />

@@ -28,18 +28,22 @@ def add_ics_event(c, today_day, dt, timing, course_name):
     # start_time = start_time.groups() if start_time else ("10:00", "am")
     # end_time = end_time.groups() if end_time else ("11:00", "am")
 
-    start_time = add_time_to_date(date=start_date, time=start_time, adjustment=5)
-    end_time = add_time_to_date(date=start_date, time=end_time, adjustment=5)
-
+    start_time = add_time_to_date(date=start_date, time=start_time, adjustment=4)
+    end_time = add_time_to_date(date=start_date, time=end_time, adjustment=4)
     
-    if timing.attribute == 'lec':
+    timing.attribute = timing.attribute.lower() if timing.attribute else "lec"
+    
+    if timing.attribute.lower() == 'lec':
         event_name = f'{course_name} Lecture'
 
-    elif timing.attribute == 'office hours':
+    elif timing.attribute.lower() == 'oh':
         event_name = f'{course_name} Office Hours'
     
-    else:
-        event_name = f'{course_name}'
+    elif timing.attribute.lower() == 'rec':
+        event_name = f'{course_name} Recitation'
+        
+    elif timing.attribute.lower() == 'lab':
+        event_name = f'{course_name} Lab'
         
     e = create_ics_event(event_name, start_time, end_time, timing.location)
     c.events.add(e)
@@ -81,9 +85,20 @@ def add_time_to_date(date, time, adjustment):
     format = '%Y-%m-%d %I:%M %p'
 
     date = date.strftime('%Y-%m-%d') + ' ' + time
+    print(f"Before date: {date}")
     date = datetime.strptime(date, format) + timedelta(hours=adjustment) 
+    print(f"After date: {date}")
 
     return date
+
+def get_offset_to_next_calendar_day(curr_day, target_day):
+    offset = 0
+    while curr_day != target_day:
+        curr_day = (curr_day + 1) % 7
+        offset += 1
+    
+    return offset
+    
 
 def get_start_date(day_of_week, today_day, dt):
     '''
@@ -105,17 +120,19 @@ def get_start_date(day_of_week, today_day, dt):
 
     day_diff = timedelta(days=0)
     
-    # additional error handling in case day_of_week failed to prase and process correctly
-    if day_of_week.upper() not in DAYS_OF_WEEK:
-        day_of_week = "MONDAY"
+    dow_enum = DAYS_OF_WEEK.get(day_of_week.upper(), 0)
 
-    curr_day = DAYS_OF_WEEK[day_of_week.upper()]
-    if today_day > curr_day:
-        day_diff = timedelta(days=today_day - curr_day)
-    elif today_day < curr_day:
-        day_diff = timedelta(days=today_day - curr_day + 7)
+    # if today_day > dow_enum:
+    #     day_diff = timedelta(days=today_day - dow_enum)
+    # elif today_day < dow_enum:
+    #     day_diff = timedelta(days=today_day - dow_enum + 7)
+
+    day_diff = timedelta(get_offset_to_next_calendar_day(today_day, dow_enum))
 
     start_date = dt + day_diff
+
+    print(f"today_day: {today_day}, day_of_week: {day_of_week} dt: {dt}")
+    print(f"day_diff: {day_diff} start_date: {start_date}")
 
     return start_date
 

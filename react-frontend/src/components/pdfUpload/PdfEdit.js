@@ -99,6 +99,7 @@ export const PdfEdit = ({ course, handleClose }) => {
                             <Button
                                 onClick={handleClose}
                                 variant="text"
+                                disableRipple
                             >
                                 Close
                             </Button>

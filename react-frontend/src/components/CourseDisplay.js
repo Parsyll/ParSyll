@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import ProfessorCard from "./coursePage/ProfessorCard";
 import TaCard from "./coursePage/TaCard";
 import ClassHourCard from "./coursePage/ClassHourCard";
-import LocationCard from "./coursePage/LocationCard";
+import MiscCard from "./coursePage/MiscCard";
 import parseApp from "../api/Axios";
 import { AuthContext } from "../hooks/useAuth";
 import loadingRunner from "../assets/slither_1.gif";
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 
 import PdfEdit from "./pdfUpload/PdfEdit";
+import TimingDisplay from "./coursePage/TimingDisplay";
 
 const style = {
     position: "absolute",
@@ -105,8 +106,11 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                     <h1 className=" text-5xl text-center font-bold">
                         {course.name}
                     </h1>
+                    <h1 className=" text-xl text-center font-bold">
+                        {course.school}
+                    </h1>
 
-                    <h1 className=" pl-3 pt-4 text-3xl font-bold">
+                    <h1 className=" pl-3 pt-4 mb-3 text-3xl font-bold">
                         Instructors:
                     </h1>
                     <div
@@ -130,33 +134,16 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                             )
                         )}
                     </div>
+                    
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lec")} header={"Lecture Timing :"} />
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "rec")} header={"Recitation Timing :"}/>
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "lab")} header={"Lab Timing :"}/>
+                    <TimingDisplay timings={course.class_times.filter((t) => t.attribute.toLowerCase() === "oh")} header={"Office Hour Timing :"}/>
 
-                    <h1 className=" pl-3 pt-4 text-3xl font-bold">
-                        Class Timings:{" "}
-                    </h1>
-                    <div
-                        className={`grid grid-cols-${Math.min(
-                            course.class_times.length,
-                            3
-                        )} p-4`}
-                    >
-                        {course.class_times.map((timing, index) => (
-                            <ClassHourCard
-                                weekday={timing.day_of_week}
-                                startTime={timing.start}
-                                endTime={timing.end}
-                                location={timing.location}
-                                attribute={timing.attribute}
-                                key={index}
-                                index={index}
-                            />
-                        ))}
-                    </div>
 
-                    <h1 className=" pl-3 pt-4 text-3xl font-bold mb-10">
-                        Textbook: {course.textbook}
-                    </h1>
-                    <div className="flex flex-row justify-around align-middle">
+                    <MiscCard miscs={course.miscs}/>
+
+                    <div className="flex flex-row justify-around align-middle mt-10">
                         <Button
                             variant="outlined"
                             color="secondary"

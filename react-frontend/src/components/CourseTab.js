@@ -35,7 +35,7 @@ export default function CourseTab({ courses, setCourse, course }) {
             >
                 {courses.map((course, index) => (
                     <Tab
-                        key={index}
+                        key={course.id}
                         label={course.name ? course.name : `course ${index + 1}`}
                         {...a11yProps(index)}
                         onClick={() => {

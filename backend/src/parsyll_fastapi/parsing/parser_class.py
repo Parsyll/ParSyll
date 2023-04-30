@@ -225,14 +225,12 @@ class Parser():
             self.course = course_example
     
 
-    def write_ics(self):
+    def write_ics(self, course):
         '''
         Writes the ics file for class timings and office hours
         '''
-        if self.course:
-
+        if course:
             c = Calendar() # Calendar object
-
             # get current datetime
             dt = datetime.today()
 
@@ -240,31 +238,24 @@ class Parser():
             today_day = datetime.now().weekday()
 
             # add events for class lectures
-            for timing in self.course.class_times:
+            for timing in course.class_times:
                 c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
-                                  course_name=self.course.name)
-
-            # add events for office hours
-            # for timing in self.course.office_hrs:
-            #     c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
-            #                       course_name=self.course.name)
-            
+                                  course_name=course.name)
 
             with open('my.ics', 'w') as my_file:
                 my_file.writelines(c.serialize_iter())
-                self.course.ics_file = c.serialize_iter()
+                course.ics_file = c.serialize_iter()
 
             current_month = (datetime.today() + timedelta(weeks=16)).strftime('%Y%m%d')
             repeat_weekly = f"RRULE:FREQ=WEEKLY;UNTIL={current_month}T000000Z\r\n"
 
             ics_with_repeat = []
-            for i, s in enumerate(self.course.ics_file):
+            for i, s in enumerate(course.ics_file):
                 ics_with_repeat.append(s)
                 if "DTSTART" in s:
                     ics_with_repeat.append(repeat_weekly)
             
             self.course.ics_file = ics_with_repeat
-
             
         else:
             self.course.ics_file = []
