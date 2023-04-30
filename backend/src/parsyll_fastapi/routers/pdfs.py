@@ -76,7 +76,8 @@ async def user_get_file(uid: str, file_id: str):
 
     # TODO error handling for bucket.get_blob with no valid file_id
      
-    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+    # return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"inline;filename={filename}"})
 
 
 

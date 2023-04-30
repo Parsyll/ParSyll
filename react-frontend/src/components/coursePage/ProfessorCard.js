@@ -1,8 +1,7 @@
 import Card from "@mui/material/Card";
 import Typography from "@mui/material/Typography";
 
-export const ProfessorCard = ({professor, index}) => {
-
+export const ProfessorCard = ({ professor, index }) => {
     return (
         <Card
             variant="outlined"
@@ -10,7 +9,10 @@ export const ProfessorCard = ({professor, index}) => {
             style={{ width: "95%" }}
             className="drop-shadow-md"
         >
-            <h1 key={index} className="text-center mt-5  font-bold text-xl text-blue-600">
+            <h1
+                key={index}
+                className="text-center mt-5  font-bold text-xl text-blue-600"
+            >
                 Professor: {professor.name}
             </h1>
             <Typography
@@ -21,7 +23,7 @@ export const ProfessorCard = ({professor, index}) => {
                 email: {professor.email}
             </Typography>
         </Card>
-    )
-}
+    );
+};
 
 export default ProfessorCard;
