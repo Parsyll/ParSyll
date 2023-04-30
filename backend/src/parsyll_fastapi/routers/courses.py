@@ -48,9 +48,11 @@ def list_courses(uid: str):
             )
 def update_course(uid: str, course_id: str, course: Course = Body(...)):
     parser = Parser()
-    # parser.write_ics(course)
-    # course.ics_file = parser.response['ics']
-    # print(course.ics_file)
+    parser.write_ics(course)
+    # print(parser.course)
+    course.ics_file = parser.course.ics_file
+    print(course.ics_file)
+
     course = course_dao.update(uid, course_id, course)
     if not course:
         raise HTTPException(status_code=404, detail="Invalid user id or course id")

@@ -7,21 +7,16 @@ export const TaCard = ({ instructor, index }) => {
             variant="outlined"
             sx={{ alignItems: "center", mt: 2 }}
             style={{ width: "95%" }}
+            className="drop-shadow-md"
         >
-            <h1 key={index} className="text-center mt-5  font-bold">
+            <h1 key={index} className="text-center mt-5  font-bold text-red-700">
                 TA: {instructor.name}
             </h1>
             <Typography
                 sx={{ mb: 1.5, textAlign: "center" }}
-                color="text.secondary"
+                // className="text-red-700"
             >
                 email: {instructor.email}
-            </Typography>
-            <Typography
-                sx={{ mb: 1.5, textAlign: "center" }}
-                color="text.secondary"
-            >
-                This instructor is cool
             </Typography>
         </Card>
     );

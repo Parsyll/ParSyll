@@ -14,7 +14,7 @@ export const AuthProvider = ({children}) => {
 
     const login = (user) => {
         userLogin(user)
-        navigate("/dashboard/courses")
+        navigate("/dashboard/courses/0")
     }
 
     const logout = () => {
@@ -23,10 +23,11 @@ export const AuthProvider = ({children}) => {
     }
 
     const value = useMemo(
-        () => ({
+        () => {
+          return ({
           login,
           logout
-        }),
+        })},
         [authed]
       );
 

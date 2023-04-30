@@ -1,9 +1,11 @@
 import re
+import string
 
-from datetime import date
+# from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from ics import Calendar, Event
+from parsyll_fastapi.models.model import Timing
 
 def add_ics_event(c, today_day, dt, timing, course_name):
     '''
@@ -21,22 +23,33 @@ def add_ics_event(c, today_day, dt, timing, course_name):
     start_date = get_start_date(timing.day_of_week, today_day, dt)
 
     # add start time to current start_date
-    start_time, end_time = process_time(timing.start), process_time(timing.end)
+    start_time, end_time = process_time(timing.start, split=True), process_time(timing.end, split=True)
 
-    start_time = start_time.groups() if start_time else ("10:00", "am")
-    end_time = end_time.groups() if end_time else ("11:00", "am")
+    # start_time = start_time.groups() if start_time else ("10:00", "am")
+    # end_time = end_time.groups() if end_time else ("11:00", "am")
 
-    start_time = add_time_to_date(date=start_date, time=start_time[0], meridiem=start_time[1], adjustment=5)
-    end_time = add_time_to_date(date=start_date, time=end_time[0], meridiem=end_time[1], adjustment=5)
+    start_time = add_time_to_date(date=start_date, time=start_time, adjustment=4)
+    end_time = add_time_to_date(date=start_date, time=end_time, adjustment=4)
     
-    if timing.attribute == 'lec':
+    if start_time > end_time:
+        print("changing start_time")
+        start_time = end_time - timedelta(hours=1)
+    
+    print(start_time, end_time)
+    
+    timing.attribute = timing.attribute.lower() if timing.attribute else "lec"
+    
+    if timing.attribute.lower() == 'lec':
         event_name = f'{course_name} Lecture'
 
-    elif timing.attribute == 'office hours':
-        event_name = f'{course_name} Office Hours {timing.instructor.name}'
+    elif timing.attribute.lower() == 'oh':
+        event_name = f'{course_name} Office Hours'
     
-    else:
-        event_name = f'{course_name}'
+    elif timing.attribute.lower() == 'rec':
+        event_name = f'{course_name} Recitation'
+        
+    elif timing.attribute.lower() == 'lab':
+        event_name = f'{course_name} Lab'
         
     e = create_ics_event(event_name, start_time, end_time, timing.location)
     c.events.add(e)
@@ -62,7 +75,7 @@ def create_ics_event(event_name, start_time, end_time, location):
 
     return e
 
-def add_time_to_date(date, time, meridiem, adjustment):
+def add_time_to_date(date, time, adjustment):
     '''
     Inputs: 
     1. date - date in '%Y-%m-%d' format (datetime object)
@@ -77,10 +90,19 @@ def add_time_to_date(date, time, meridiem, adjustment):
     '''
     format = '%Y-%m-%d %I:%M %p'
 
-    date = date.strftime('%Y-%m-%d') + ' ' + time + ' ' + meridiem
+    date = date.strftime('%Y-%m-%d') + ' ' + time
     date = datetime.strptime(date, format) + timedelta(hours=adjustment) 
 
     return date
+
+def get_offset_to_next_calendar_day(curr_day, target_day):
+    offset = 0
+    while curr_day != target_day:
+        curr_day = (curr_day + 1) % 7
+        offset += 1
+    
+    return offset
+    
 
 def get_start_date(day_of_week, today_day, dt):
     '''
@@ -101,79 +123,151 @@ def get_start_date(day_of_week, today_day, dt):
     "THURSDAY": 3, "FRIDAY": 4, "SATURDAY": 5, "SUNDAY": 6}
 
     day_diff = timedelta(days=0)
-    curr_day = DAYS_OF_WEEK[day_of_week.upper()]
-    if today_day > curr_day:
-        day_diff = timedelta(days=today_day - curr_day)
-    elif today_day < curr_day:
-        day_diff = timedelta(days=today_day - curr_day + 7)
+    
+    dow_enum = DAYS_OF_WEEK.get(day_of_week.upper(), 0)
+
+    # if today_day > dow_enum:
+    #     day_diff = timedelta(days=today_day - dow_enum)
+    # elif today_day < dow_enum:
+    #     day_diff = timedelta(days=today_day - dow_enum + 7)
+
+    day_diff = timedelta(get_offset_to_next_calendar_day(today_day, dow_enum))
 
     start_date = dt + day_diff
 
     return start_date
 
-def process_time(time):
-    time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
+def is_valid_time_string(time_string):
+    try:
+        # AM/PM format
+        datetime.strptime(str(time_string), '%I:%M %p')
+        return True
+    except ValueError:
+        return False
+
+def process_time(time, split=False):
+    # time = re.search(r"([0-9]{,2}\s*:\s*[0-9]{,2})\s*(pm|am)", time)
+    if is_valid_time_string(time):
+        return time
+
+    if not time:
+        time = "12:00 AM"
+
+    time = re.search(r"([0-9]{,2})\s*:\s*([0-9]{,2})\s*(pm|am)", time)
+    
+    if time:
+        time = time.groups()
+    else:
+        time = ("12", "00", "AM")
+
+    hours = time[0] if time[0] else "12"
+
+    if len(hours) < 2:
+        hours = "0" + hours #In the case where we get a single digit
+        
+    label = time[2].upper() if time[2] else "AM"
+    minutes = time[1] if time[1] else "00"
+    time = hours + ":" + minutes + " " + label
+
+    if split:
+        return (hours+":"+minutes, label)
+
+    # if time not valid set to default time
+    if not is_valid_time_string(time):
+        time = "12:00 AM"
+
     return time
 
-def process_days(days):
-    # process a list of days of the week 
-    # input: days = ["Tue", "Wed", "TuTh"]
-    # output: ["Tuesday", "Wednesday", "0"]
-    if days:
-        days = [day.upper() for day in days]
-        DOW_repr = {
-            "M": "Monday",
-            "MON": "Monday",
-            "MONDAY": "Monday",
-            "TU": "Tuesday",
-            "TUE": "Tuesday",
-            "TUES": "Tuesday",
-            "TUESDAY": "Tuesday",
-            "W": "Wednesday",
-            "WED": "Wednesday",
-            "WEDNESDAY": "Wednesday",
-            "TH": "Thursday",
-            "THU": "Thursday",
-            "THUR": "Thursday",
-            "THURS": "Thursday",
-            "THURSDAY": "Thursday",
-            "F": "Friday",
-            "FRI": "Friday",
-            "FRIDAY": "Friday",
-            "SAT": "Saturday",
-            "SATURDAY": "Saturday",
-            "SUN": "Sunday",
-            "SUNDAY": "Sunday"
-        }
+def strip_punctuation_and_whitespace(s):
+    """Remove all punctuation and whitespace characters from a string."""
+    # Create a translation table that maps all punctuation and whitespace
+    # characters to None
+    translation_table = str.maketrans('', '', string.punctuation + string.whitespace)
+    # Use the translation table to remove all punctuation and whitespace
+    return s.translate(translation_table)
 
-        days = [DOW_repr[day] if DOW_repr.get(day, 0) else "0" for day in days]
-        return days
+def process_day_of_week(day):
 
-def process_office_hours(office_hour):
-    # processes one office hour timing for one instructor
-    # input: office_hour = 'Name, Start Time, End Time, Day1 Day2, Location'
-    # return: [
-    #           ['Name', 'Start Time', 'End Time', 'Day1', 'Location'], 
-    #           ['Name', 'Start Time', 'End Time', 'Day2', 'Location']
-    #           ]
+    DOW_repr = {
+        "M": "Monday",
+        "MON": "Monday",
+        "MONDAY": "Monday",
+        "TU": "Tuesday",
+        "TUE": "Tuesday",
+        "TUES": "Tuesday",
+        "TUESDAY": "Tuesday",
+        "W": "Wednesday",
+        "WED": "Wednesday",
+        "WEDNESDAY": "Wednesday",
+        "TH": "Thursday",
+        "THU": "Thursday",
+        "THUR": "Thursday",
+        "THURS": "Thursday",
+        "THURSDAY": "Thursday",
+        "F": "Friday",
+        "FRI": "Friday",
+        "FRIDAY": "Friday",
+        "SAT": "Saturday",
+        "SATURDAY": "Saturday",
+        "SUN": "Sunday",
+        "SUNDAY": "Sunday"
+    }
 
-    office_hour = office_hour.split(",")
+    # default to monday if invalid/empty string
+    if not day:
+        return "Monday"
 
-    length = len(office_hour)
-    if length > 5: # clip to first 5 values
-        office_hour = office_hour[:5]
-    elif length < 5:
-        for i in range(5 - length):
-            office_hour.append('0')
-
-    office_hour[3] = office_hour[3].split(" ")
-    office_hour[3] = process_days(office_hour[3])
-
-    res = []
-    for day in office_hour[3]:
-        res.append([office_hour[0], office_hour[1], office_hour[2], day, office_hour[4]])
+    day = strip_punctuation_and_whitespace(day)
     
-    return res
+    if day.upper() not in DOW_repr:
+        print(f"day={day.upper()} not in DOW_repr")
+        return "Monday"
+
+    day = DOW_repr[day.upper()]
+
+    return day
+
+
+def process_class_timings(class_times):
+    new_class_times = []
+    for class_time in class_times:
+        new_class_time = Timing()
+        new_class_time.location = class_time.location
+        new_class_time.start = process_time(class_time.start)
+        new_class_time.end = process_time(class_time.end)
+        new_class_time.day_of_week = process_day_of_week(class_time.day_of_week)
+        new_class_time.attribute = class_time.attribute
+        
+        new_class_times.append(new_class_time)
+
+    return new_class_times        
+
+
+# def process_office_hours(office_hour):
+#     # processes one office hour timing for one instructor
+#     # input: office_hour = 'Name, Start Time, End Time, Day1 Day2, Location'
+#     # return: [
+#     #           ['Name', 'Start Time', 'End Time', 'Day1', 'Location'], 
+#     #           ['Name', 'Start Time', 'End Time', 'Day2', 'Location']
+#     #           ]
+
+#     office_hour = office_hour.split(",")
+
+#     length = len(office_hour)
+#     if length > 5: # clip to first 5 values
+#         office_hour = office_hour[:5]
+#     elif length < 5:
+#         for i in range(5 - length):
+#             office_hour.append('0')
+
+#     office_hour[3] = office_hour[3].split(" ")
+#     office_hour[3] = process_days(office_hour[3])
+
+#     res = []
+#     for day in office_hour[3]:
+#         res.append([office_hour[0], office_hour[1], office_hour[2], day, office_hour[4]])
+    
+#     return res
 
 
 

@@ -80,7 +80,8 @@ async def user_get_file(uid: str, file_id: str):
 
     # TODO error handling for bucket.get_blob with no valid file_id
      
-    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+    # return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"attachment;filename={filename}"})
+    return Response(content=contents, media_type=blob.content_type, headers={"Content-Disposition": f"inline;filename={filename}"})
 
 
 
@@ -120,7 +121,7 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     parser.gpt_parse()
 
     # generate temp ICS file, converted to string 
-    parser.write_ics()
+    parser.write_ics(parser.course)
 
     # store parsed info along with string ICS file in Firestore
     try: 
@@ -137,10 +138,11 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     course = Course(name=parser.course.name, 
                     instructors=parser.course.instructors,
                     syllabus=syllabus_id,
-                    office_hrs=parser.course.office_hrs,
+                    # office_hrs=parser.course.office_hrs,
                     ics_file = parser.course.ics_file,
                     class_times = parser.course.class_times,
                     id=course_id,
+                    miscs = parser.course.miscs,
                     )
 
     # user_doc_ref.collection(u'courses').add(course.__dict__)

@@ -28,11 +28,12 @@ origins = [
 
 allow_all = ['*']
 app.add_middleware(
-   CORSMiddleware,
-   allow_origins=allow_all,
-   allow_credentials=True,
-   allow_methods=allow_all,
-   allow_headers=allow_all,
+    CORSMiddleware,
+    allow_origins=allow_all,
+    allow_credentials=True,
+    allow_methods=allow_all,
+    allow_headers=allow_all,
+    expose_headers=['Content-Disposition']
 )
 
 
@@ -46,7 +47,11 @@ async def handle_exceptions(request: Request, call_next):
         return JSONResponse(status_code=e.status_code, content={"detail": str(e.detail)})
 
     except Exception as e:
+        import traceback
         print(f"Error: {e}")
+        print(f"Error Type: {type(e)}")
+        print(f"from path {request.url.path}")
+        # print(f"Stack trace: {traceback.format_exception(etype=type(e), value=e, tb=e.__traceback__)}")
         # raise HTTPException(500, detail="Something went wrong")
         return JSONResponse(status_code=500, content={"detail": str(e)})
 
@@ -56,6 +61,7 @@ async def add_process_time_header(request: Request, call_next):
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
+    print(f"This request took {process_time} seconds")
     return response
 
 app.middleware("http")(handle_exceptions)

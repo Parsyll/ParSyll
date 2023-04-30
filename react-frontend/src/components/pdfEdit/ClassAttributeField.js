@@ -5,20 +5,15 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-// const attribute_list = ["lec", "rec", "lab", "office hours", "exam"];
-const attribute_list = ["lec", "rec", "lab"];
-
 const ClassAttributeField = ({
+    field,
     attribute,
     index,
-    attributes,
     setAttributes,
+    attribute_list
 }) => {
     const handleChange = (event) => {
-        let copied_attributes = [...attributes];
-        copied_attributes[index] = event.target.value;
-        setAttributes(copied_attributes);
-        attribute = attributes[index];
+        setAttributes(field, event.target.value, index);
     };
 
     return (
@@ -30,7 +25,7 @@ const ClassAttributeField = ({
                 <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={attribute}
+                    value={attribute.toUpperCase()}
                     onChange={handleChange}
                 >
                     {attribute_list.map((attribute_option) => (

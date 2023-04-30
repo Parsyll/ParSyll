@@ -9,14 +9,11 @@ class Person(BaseModel):
 
 class Timing(BaseModel):
     location: str = ''
-    start: str = ''
-    end: str = ''
+    start: str = '12:00 AM'
+    end: str = '12:00 AM'
     day_of_week: str = ''
-    attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
-
-
-class OfficeHourTiming(Timing):
-    instructor: Union[Person, None]    
+    # attribute: Literal['lec', 'rec', 'lab', 'office hours', 'exam']
+    attribute: str = 'lec'
 
 class GradingScheme(BaseModel):
     A: conlist(int, min_items=1, max_items=2)
@@ -25,17 +22,20 @@ class GradingScheme(BaseModel):
     D: conlist(int, min_items=1, max_items=2)
     F: conlist(int, min_items=1, max_items=2)
 
+class Misc(BaseModel):
+    value: str
+    tag: str
+
 class CourseBase(BaseModel):
     name: str = ''
     instructors: List[Person] = []
     syllabus: str = ''
-    office_hrs: List[OfficeHourTiming] = []
     ics_file: List[str] = []
-    textbook: List[str] = []
     class_times: List[Timing] = []
     school: str = ''
     credit_hrs: int = 3
-    grading_scheme: Union[GradingScheme, None]
+    # grading_scheme: Union[GradingScheme, None]
+    miscs: List[Misc] = []
 
 class Course(CourseBase):
     id: str

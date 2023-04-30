@@ -14,9 +14,12 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 
-from parsyll_fastapi.parsing.utility import add_ics_event, create_ics_event, add_time_to_date, process_days, process_office_hours, process_time, get_start_date
+from .parser_regex import Regex
 
-from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person, OfficeHourTiming
+from parsyll_fastapi.parsing.utility import process_class_timings, add_ics_event
+from parsyll_fastapi.models.model import Course, Timing, CourseBase, Person 
+from parsyll_fastapi.parsing.prompts.course_dynamic import prompt_text, course_example
+
 
 load_dotenv()  # take environment variables from .env.
 
@@ -84,7 +87,21 @@ class Parser():
             page_text = page.extract_text()
             self.pdf_text += page_text
         
+        # self.regex_parse(self.pdf_text)
+        # self.regex_parse(self.pdf_text)
+        
         pdf_file.close()
+    
+    def regex_parse(self, text):
+        regex = Regex()
+        course_name = regex.get_course_name(text)
+        print(regex.fix_course_names(course_name))
+        print(regex.get_emails(text))
+        print(regex.get_grades(text))
+        print(regex.get_credit_hours(text))
+        print(regex.get_urls(text))
+        print(regex.get_instructor(text))
+        
 
     def remove_stopwords(self):
         if self.pdf_text:
@@ -104,14 +121,19 @@ class Parser():
         tokens = encoding.encode(text)
         return len(tokens), tokens, encoding
 
-    def text_to_chunks(self, prompt_file, chunk_size=2000, overlap=100):
+    def text_to_chunks(self, prompt_file=None, prompt_text=None, chunk_size=2000, overlap=100):
         
         '''
         Coverts the PDF text to chunks where chunks are the max possible subdivisions of the 
         pdf text such that the max tokens limit is not exceeded for the model
         '''
-        # max tokens context >= prompt tokens + chunk tokens + completion tokens
-        chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(file=prompt_file))[0]
+        if prompt_file:
+            # max tokens context >= prompt tokens + chunk tokens + completion tokens
+            chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(file=prompt_file))[0]
+
+        elif prompt_text:
+            chunk_size = self.max_tokens_context - self.max_tokens_completion - (self.get_num_tokens(text=prompt_text))[0]
+
         # print(chunk_size)
         num_pdf_tokens, tokens, encoding = self.get_num_tokens(text=self.pdf_text)
 
@@ -128,50 +150,50 @@ class Parser():
         self.extract_text()
         self.remove_stopwords()
 
-    def gpt_parse_office_hours(self):
-        chunks = self.text_to_chunks(prompt_file=self.OH_prompt)
+    # def gpt_parse_office_hours(self):
+    #     chunks = self.text_to_chunks(prompt_file=self.OH_prompt)
 
-        openai.api_key = self.openai_key
+    #     openai.api_key = self.openai_key
 
-        with open(self.OH_prompt, 'r') as file:
-            prompt_text = file.read().replace('\n', '')
+    #     with open(self.OH_prompt, 'r') as file:
+    #         prompt_text = file.read().replace('\n', '')
         
-        self.response['office_hours'] = []
+    #     self.response['office_hours'] = []{'name': 'ECE 469', 'instructors': [{'name': 'Santiago', 'email': 'santiago@purdue.edu', 'isProf': True}], 'syllabus': 'fd9fc608-d903-45c9-9b71-0d8bd57fe9f5', 'ics_file': [], 'class_times': [{'location': 'EE 117', 'start': '4:30 PM', 'end': '5:20 PM', 'day_of_week': 'Monday', 'attribute': 'lec'}, {'location': 'EE 206', 'start': '9:30 AM', 'end': '11:20 AM', 'day_of_week': 'Thursday', 'attribute': 'lec'}], 'school': 'Purdue University', 'credit_hrs': 4, 'grading_scheme': None, 'miscs': [{'value': 'how to code 101', 'tag': 'textbook'}]} 
 
-        for pdf_text in chunks:
-            # loop api calls so we go through all characters in self.pdf_text
-            gpt_prompt = pdf_text + prompt_text
-            response = openai.Completion.create(
-                    model=self.gpt_model,
-                    prompt=f'{gpt_prompt}', 
-                    max_tokens=self.max_tokens_completion,
-                    temperature=self.temperature,
-                    # stream=True
-                )
-            response = (response.choices[0].text.split(";"))
-            # print(response)
-            # print()
-            for office_hour in response:
-                self.response['office_hours'].extend(process_office_hours(office_hour))
+    #     for pdf_text in chunks:
+    #         # loop api calls so we go through all characters in self.pdf_text
+    #         gpt_prompt = pdf_text + prompt_text
+    #         response = openai.Completion.create(
+    #                 model=self.gpt_model,
+    #                 prompt=f'{gpt_prompt}', 
+    #                 max_tokens=self.max_tokens_completion,
+    #                 temperature=self.temperature,
+    #                 # stream=True
+    #             )
+    #         response = (response.choices[0].text.split(";"))
+    #         # print(response)
+    #         # print()
+    #         for office_hour in response:
+    #             self.response['office_hours'].extend(process_office_hours(office_hour))
 
-        self.course.office_hrs = []
+    #     self.course.office_hrs = []
 
-        # office_hour format: Instructor Name, Start Time, End Time, Day, Location
-        # print(self.response)
-        for office_hour in self.response['office_hours']:
-            person = Person(name=office_hour[0], isProf=office_hour[0] in self.response['prof_names'])
-            office_hour_timing = OfficeHourTiming(location=office_hour[4], start=office_hour[1], 
-                                                  end=office_hour[2], day_of_week=office_hour[3], 
-                                                  attribute='office hours', instructor=person)
-            self.course.office_hrs.append(office_hour_timing)
+    #     # office_hour format: Instructor Name, Start Time, End Time, Day, Location
+    #     # print(self.response)
+    #     for office_hour in self.response['office_hours']:
+    #         person = Person(name=office_hour[0], isProf=office_hour[0] in self.response['prof_names'])
+    #         office_hour_timing = OfficeHourTiming(location=office_hour[4], start=office_hour[1], 
+    #                                               end=office_hour[2], day_of_week=office_hour[3], 
+    #                                               attribute='office hours', instructor=person)
+    #         self.course.office_hrs.append(office_hour_timing)
 
-        print(self.course)
-    def gpt_parse_class_timings(self):
-        chunks = self.text_to_chunks(prompt_file=self.class_timings_prompt)
+    #     print(self.course)
+
+
+    def gpt_parse_course(self):
+        print(prompt_text)
+        chunks = self.text_to_chunks(prompt_text=prompt_text)
         openai.api_key = self.openai_key
-
-        with open(self.class_timings_prompt, 'r') as file:
-            prompt_text = file.read().replace('\n', '')
 
         # optimization: parsing class timings only from the first chunk 
         # hence the break statement is present
@@ -186,44 +208,29 @@ class Parser():
                     # stream=True
                 )
             break
+
+        try:
+            print("GPT response")
+            response = (eval(response.choices[0].text))
+        except:
+            print("GPT response failed, using default course example")
+            response = course_example.dict()
+
+        print(response)
+
+        try:
+            self.course = CourseBase(**response)
+        except:
+            print("There was an error trying to unpack response course dictionary")
+            self.course = course_example
     
-        response = (response.choices[0].text).split(";")
-        # print(response)
-        # response format: [Course name, start time, end time, DOW, Location, Prof Names]
-        response_len = len(response)
 
-
-        start_time = process_time(response[1]) if 1 < response_len else "10:00 am"
-        end_time = process_time(response[2]) if 2 < response_len else "11:00 am"
-
-        if start_time and end_time:
-            print(start_time.group(), end_time.group())
-        else:
-            print(start_time, end_time)
-
-        self.response['prof_names'] = response[5].split(',') if 5 < response_len else ["Joe Mama"]
-
-        self.course.name = response[0] if 0 < response_len else "ECE 20001"
-
-        self.response['day_of_week'] = response[3].split(',') if 3 < response_len else ["Monday"]
-        self.response['day_of_week'] = process_days(self.response['day_of_week'])
-
-        location = response[4] if 4 < response_len else "Purdue"
-        self.course.class_times = [Timing(location=location  , start=response[1], 
-                                            end=response[2], day_of_week=day, 
-                                            attribute='lec') for day in 
-                                            self.response['day_of_week']]
-
-        # print(self.course)
-
-    def write_ics(self):
+    def write_ics(self, course):
         '''
         Writes the ics file for class timings and office hours
         '''
-        if self.course:
-
+        if course:
             c = Calendar() # Calendar object
-
             # get current datetime
             dt = datetime.today()
 
@@ -231,37 +238,39 @@ class Parser():
             today_day = datetime.now().weekday()
 
             # add events for class lectures
-            for timing in self.course.class_times:
+            for timing in course.class_times:
                 c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
-                                  course_name=self.course.name)
-
-            # add events for office hours
-            for timing in self.course.office_hrs:
-                c = add_ics_event(c=c, today_day=today_day, dt=dt, timing=timing, 
-                                  course_name=self.course.name)
-            
+                                  course_name=course.name)
 
             with open('my.ics', 'w') as my_file:
                 my_file.writelines(c.serialize_iter())
-                self.course.ics_file = c.serialize_iter()
+                course.ics_file = c.serialize_iter()
 
             current_month = (datetime.today() + timedelta(weeks=16)).strftime('%Y%m%d')
             repeat_weekly = f"RRULE:FREQ=WEEKLY;UNTIL={current_month}T000000Z\r\n"
 
             ics_with_repeat = []
-            for i, s in enumerate(self.course.ics_file):
+            for i, s in enumerate(course.ics_file):
                 ics_with_repeat.append(s)
                 if "DTSTART" in s:
                     ics_with_repeat.append(repeat_weekly)
             
             self.course.ics_file = ics_with_repeat
-
             
         else:
             self.course.ics_file = []
             return
+    
+    def postprocess(self):
+        # Error handle and validate class timings
+        # i.e. process start_time, end_time, day_of_week
+        self.course.class_times = process_class_timings(self.course.class_times)
+        print("final course object")
+        print(self.course.dict())
+
 
     def gpt_parse(self):
         self.preprocess()
-        self.gpt_parse_class_timings()
-        self.gpt_parse_office_hours()
+        self.gpt_parse_course()
+        # self.gpt_parse_office_hours()
+        self.postprocess()

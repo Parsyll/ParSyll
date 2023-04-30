@@ -1,4 +1,4 @@
-import TimePicker from "./TimePicker";
+import TimePickerWrapper from "./TimePickerWrapper";
 import DaysOfWeekField from "./DaysOfWeekField";
 import ClassAttributeField from "./ClassAttributeField";
 import FieldInput from "./FieldInput";
@@ -6,43 +6,32 @@ import AddButton from "./AddButton";
 import MinusButton from "./MinusButton";
 import { useEffect, useState } from "react";
 
-const ClassTimeField = ({ classTimes, setClassTimes }) => {
-    const [locations, setLocations] = useState(
-        classTimes.map((classTime) => classTime.location)
-    );
-    const [startTimes, setStartTimes] = useState(
-        classTimes.map((classTime) => classTime.start)
-    );
-    const [endTimes, setEndTimes] = useState(
-        classTimes.map((classTime) => classTime.end)
-    );
-    const [daysOfWeek, setDaysOfWeek] = useState(
-        classTimes.map((classTime) => classTime.day_of_week)
-    );
-    const [attributes, setAttributes] = useState(
-        classTimes.map((classTime) => classTime.attribute)
-    );
+const attribute_list = ["LEC", "REC", "LAB", "OH"]
 
+const ClassTimeField = ({ classTimes, setClassTimes }) => {
     const classTimeObj = {
         location: "",
-        start: "",
-        end: "",
-        day_of_week: "",
-        attribute: "lec",
+        start: "12:00 AM",
+        end: "12:00 AM",
+        day_of_week: "Monday",
+        attribute: "LEC",
     };
 
-    useEffect(() => {
-        classTimes.forEach((classTime, index) => {
-            classTime.location = locations[index];
-            classTime.start = startTimes[index];
-            classTime.end = endTimes[index];
-            classTime.day_of_week = daysOfWeek[index];
-            classTime.attribute = attributes[index];
-        });
-
-        setClassTimes(classTimes);
-    }, [locations, startTimes, endTimes, daysOfWeek, attributes]);
-
+    const handleFieldChanges = (field, value, index) => {
+        let newTimeCopy = classTimes.map((k, v) => (JSON.parse(JSON.stringify(k))))
+        if (field === "location") {
+            newTimeCopy[index].location = value
+        } else if (field === "start") {
+            newTimeCopy[index].start = value
+        } else if (field === "end") {
+            newTimeCopy[index].end = value
+        } else if (field === "day_of_week") {
+            newTimeCopy[index].day_of_week = value
+        } else if (field === "attribute") {
+            newTimeCopy[index].attribute = value
+        }
+        setClassTimes(newTimeCopy)
+    }
     return (
         <>
             <h1 className="text-2xl font-semibold mt-10 mb-3">
@@ -56,7 +45,7 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                 </span>
             </h1>
 
-            {classTimes
+            {(classTimes && classTimes.length > 0)
                 ? classTimes.map((classTime, index) => (
                       <div
                           className=" flex flex-row align-middle justify-between"
@@ -68,54 +57,49 @@ const ClassTimeField = ({ classTimes, setClassTimes }) => {
                               </h1>
 
                               <div className="mb-2">
-                                  <TimePicker
+                                  <TimePickerWrapper
                                       label={"Start-Time"}
                                       index={index}
-                                      time={startTimes[index]}
-                                      times={startTimes}
-                                      setTimes={setStartTimes}
+                                      time={classTime.start}
+                                      setTimes={handleFieldChanges}
+                                      field = {"start"}
                                   />
-                                  <TimePicker
+                                  <TimePickerWrapper
                                       label={"End-Time"}
                                       index={index}
-                                      time={endTimes[index]}
-                                      times={endTimes}
-                                      setTimes={setEndTimes}
+                                      time={classTime.end}
+                                      setTimes={handleFieldChanges}
+                                      field={"end"}
                                   />
                               </div>
 
                               <div className="mb-2">
                                   <DaysOfWeekField
-                                      dayOfWeek={daysOfWeek[index] ? daysOfWeek[index] : ""}
+                                      dayOfWeek={classTime.day_of_week}
                                       index={index}
-                                      daysOfWeek={daysOfWeek}
-                                      setDaysOfWeek={setDaysOfWeek}
+                                      setDaysOfWeek={handleFieldChanges}
                                   />
                               </div>
 
                               <div className="mb-2">
-                                <ClassAttributeField
-                                    attribute={attributes[index] ? attributes[index] : ""}
-                                    index={index}
-                                    attributes={attributes}
-                                    setAttributes={setAttributes}
-                                />
+                                  <ClassAttributeField
+                                      field={"attribute"}
+                                      index={index}
+                                      attribute={classTime.attribute}
+                                      setAttributes={handleFieldChanges}
+                                      attribute_list={attribute_list}
+                                  />
                               </div>
 
                               <div className="mb-2">
                                   <FieldInput
                                       title="Location"
-                                      item={
-                                          locations[index]
-                                              ? locations[index]
-                                              : ""
-                                      }
+                                      field="location"
+                                      item={classTime.location}
                                       index={index}
-                                      setItems={setLocations}
-                                      items={locations}
+                                      setItems={handleFieldChanges}
                                   />
                               </div>
-
                           </div>
                           <MinusButton
                               index={index}

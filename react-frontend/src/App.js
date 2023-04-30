@@ -21,8 +21,9 @@ export const App = () => {
   const [userName, setUserName] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const {persistUser} = useContext(UserContext)
+  const {persistUser, authed } = useContext(UserContext)
   persistUser();
+
 
   return (
     <div className="w-full">
@@ -31,21 +32,22 @@ export const App = () => {
             <DashboardAppBar profilePic={profilePic}/>
             <Routes>
               <Route path='/' element={ 
-                <HomePage />
+                authed ? <Navigate to="/dashboard/courses/0" /> : <HomePage /> 
               } />
               <Route path='/login' element={ 
-                <LoginPage handleSetLogin={setLoggedIn} 
+                <LoginPage setLoggedIn={setLoggedIn} 
                 setProfilePic={setProfilePic} setUserName={setUserName}/>
               } />
               <Route path='/signup' element={ 
-                <SignUpPage handleSetLogin={setLoggedIn} 
+                <SignUpPage setLoggedIn={setLoggedIn} 
                 setProfilePic={setProfilePic} setUserName={setUserName}/>
               } />
               <Route path="/dashboard" element={<ProtectedLayout />}>
-                <Route path='courses' element={ <CoursePage /> } />
                 <Route path='profile' element={ <UserPage />} />
                 <Route path='upload_pdf' element={ <PdfUploader/> } />
+                <Route path='courses/:course_id' element={ <CoursePage /> } />
               </Route>
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </AuthProvider>
         </BrowserRouter>

@@ -6,21 +6,38 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import ClassTimeField from "../pdfEdit/ClassTimeField";
 import CategoryField from "../pdfEdit/CategoryField";
-// import MinusButton from "../pdfEdit/MinusButton";
+import { Button } from "@mui/material";
+import MiscellaneousField from "../pdfEdit/MiscellaneousField";
+import SingleFieldInput from "../pdfEdit/SingleFieldInput";
+import GradingSchemeField from "../pdfEdit/GradingSchemeField";
 
 export const PdfEdit = ({ course, handleClose }) => {
     //i'm so sorry, it was the only way
     const [name, setName] = useState(course.name ? course.name : "");
-    const [instructors, setInstructors] = useState(course.instructors ? course.instructors : []);
-    const [syllabus, setSyllabus] = useState(course.syllabus ? course.syllabus : "");
-    const [officeHours, setOfficeHours] = useState(course.office_hrs ? course.office_hrs : []);
-    const [icsFile, setIcsFile] = useState(course.ics_file ? course.ics_file : []);
-    const [textbook, setTextBook] = useState(course.textbook ? course.textbook : "");
-    const [classTimes, setClassTimes] = useState(course.class_times ? course.class_times : []);
+    const [instructors, setInstructors] = useState(
+        course.instructors ? course.instructors : []
+    );
+    const [syllabus, setSyllabus] = useState(
+        course.syllabus ? course.syllabus : ""
+    );
+    const [icsFile, setIcsFile] = useState(
+        course.ics_file ? course.ics_file : []
+    );
+    const [classTimes, setClassTimes] = useState(
+        course.class_times ? course.class_times : []
+    );
     const [school, setSchool] = useState(course.school ? course.school : "");
-    const [creditHrs, setCreditHrs] = useState(course.credit_hrs ? course.credit_hrs : 3);
-    const [gradingScheme, setGradingScheme] = useState(course.grading_scheme ? course.grading_scheme : null);
+    const [creditHrs, setCreditHrs] = useState(
+        course.credit_hrs ? course.credit_hrs : 3
+    );
+    const [gradingScheme, setGradingScheme] = useState(
+        course.grading_scheme ? course.grading_scheme : []
+    );
     const [id, setId] = useState(course.id ? course.id : "");
+
+    const [miscs, setMiscs] = useState(course.miscs ? course.miscs : []) // hardcoded for now
+
+    const [creditHours, setCreditHours] = useState(course.CreditHours ? course.CreditHours : 0)
 
     const navigate = useNavigate();
 
@@ -28,19 +45,19 @@ export const PdfEdit = ({ course, handleClose }) => {
         setName(course.name);
         setInstructors(course.instructors);
         setSyllabus(course.syllabus);
-        setOfficeHours(course.office_hrs);
         setIcsFile(course.ics_file);
-        setTextBook(course.textbook);
         setClassTimes(course.class_times);
         setSchool(course.school);
         setCreditHrs(course.credit_hrs);
         setGradingScheme(course.grading_scheme);
+        setMiscs(course.miscs);
+        setCreditHours(course.credit_hrs)
+
         setId(course.id);
-    }
+    };
 
     useEffect(() => {
         setFields();
-
     }, [course]);
 
     let { user } = useUser();
@@ -53,23 +70,20 @@ export const PdfEdit = ({ course, handleClose }) => {
             name: name,
             instructors: instructors,
             syllabus: syllabus,
-            office_hrs: officeHours,
             ics_file: icsFile,
-            textbook: textbook,
             class_times: classTimes,
             school: school,
-            credit_hrs: creditHrs,
+            credit_hrs: creditHours,
             grading_scheme: gradingScheme,
             id: id,
+            miscs: miscs,
         };
 
-        console.log(userBody);
-
         parseApp.put(`/courses/${uid}/${course.id}`, userBody).then((res) => {
-            console.log("Updated course with: ")
+            console.log("Updated course with: ");
             console.log(res);
             handleClose(e);
-            navigate("/dashboard/courses");
+            navigate(`/dashboard/courses/${course.id}`);
         });
     };
 
@@ -81,32 +95,45 @@ export const PdfEdit = ({ course, handleClose }) => {
             <div className="flex justify-between container mx-auto">
                 <div className="w-full">
                     <div className="mt-4 px-4">
+                        <div className="fixed right-96 shadow-md bg-gray-300 bg-opacity-50 rounded-xl p-1">
+                            <Button
+                                onClick={handleClose}
+                                variant="text"
+                                disableRipple
+                            >
+                                Close
+                            </Button>
+                        </div>
+
                         <h1 className="font-thinner flex text-4xl pt-10 px-5">
                             Just a few more steps...
                         </h1>
+
                         <form className="mx-5 my-5">
-                            <h1 className="text-2xl font-semibold mt-10 mb-3">
-                                Class Information :
-                            </h1>
-                            <label
-                                className="relative block p-3 border-2 border-black rounded mb-4 w-11/12"
-                                htmlFor="name"
-                            >
-                                <span
-                                    className="text-md font-semibold text-zinc-900"
-                                    htmlFor="name"
-                                >
-                                    Name of Class
-                                </span>
-                                <input
-                                    className="w-full bg-transparent p-0 text-sm  text-gray-500 focus:outline-none"
-                                    id="name"
-                                    type="text"
-                                    placeholder="Class Name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </label>
+                            <SingleFieldInput 
+                                header={"Class Information"}
+                                label={"Course name"}
+                                value={name} 
+                                setValue={setName}
+                                placeholder={"Input name of class"}
+                            />
+
+                            <SingleFieldInput 
+                                // header={"Credit Hours"}
+                                label={"Credit hours"}
+                                value={creditHours} 
+                                setValue={setCreditHours}
+                                placeholder={"Input credit hours"}
+                            />
+
+                            <SingleFieldInput 
+                                // header={"Credit Hours"}
+                                label={"School"}
+                                value={school} 
+                                setValue={setSchool}
+                                placeholder={"Input school name"}
+                            />
+
                             <InstructorField
                                 setInstructors={setInstructors}
                                 instructors={instructors}
@@ -117,6 +144,15 @@ export const PdfEdit = ({ course, handleClose }) => {
                                 classTimes={classTimes}
                             />
 
+                            <MiscellaneousField
+                                setMiscs={setMiscs}
+                                miscs={miscs}
+                            />
+
+                            {/* <GradingSchemeField 
+                                gradingScheme={gradingScheme}
+                                setGradingScheme={setGradingScheme}
+                            /> */}
                             {/* <h1 className="text-2xl font-semibold mt-3">
                                 Office Hours:
                                 <span>
@@ -132,7 +168,7 @@ export const PdfEdit = ({ course, handleClose }) => {
                                       />
                                   ))
                                 : ""} */}
-{/* 
+                            {/* 
                             <h1 className="text-2xl font-semibold mt-10">
                                 Miscellaneous:
                                 <span>

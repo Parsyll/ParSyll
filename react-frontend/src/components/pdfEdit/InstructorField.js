@@ -1,14 +1,11 @@
 import FieldInput from "./FieldInput";
 import AddButton from "./AddButton";
 import MinusButton from "./MinusButton";
+import { FormControlLabel } from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
 import { useEffect, useState } from "react";
 
 export const InstructorField = ({ setInstructors, instructors }) => {
-
-    const [names, setNames] = useState(instructors.map(instructor => instructor.name));
-    const [emails, setEmails] = useState(instructors.map(instructor => instructor.email));
-    const [isProfs, setIsProfs] = useState(instructors.map(instructor => instructor.isProf));
-
     const instructorBody = {
         name: "",
         email: "",
@@ -16,16 +13,26 @@ export const InstructorField = ({ setInstructors, instructors }) => {
     };
 
     useEffect(() => {
-        instructors.forEach((instructor, index) => {
-            instructor.name = names[index];
-            instructor.email = emails[index];
-            instructor.isProf = isProfs[index];
-        })
-
+        sortInstructors(instructors);        
         setInstructors(instructors);
+    }, []);
 
-    }, [names, emails, isProfs])
+    const sortInstructors = (instructors) => {
+        instructors.sort((a, b) => (b.isProf - a.isProf))
+    }
 
+    const handleFieldChanges = (field, value, index) => {
+        let instructorCopy = instructors.map((k, v) => (JSON.parse(JSON.stringify(k))))
+        if (field === "name") {
+            instructorCopy[index].name = value
+        } else if (field === "email") {
+            instructorCopy[index].email = value
+        } else if (field === "isProf") {
+            instructorCopy[index].isProf = value
+        }
+        sortInstructors(instructorCopy)
+        setInstructors(instructorCopy)
+    }
 
     return (
         <>
@@ -52,20 +59,33 @@ export const InstructorField = ({ setInstructors, instructors }) => {
 
                               <FieldInput
                                   title="Name"
-                                  item={names[index] ? names[index]: ""}
+                                  field="name"
+                                  item={instructor.name}
                                   index={index}
-                                  setItems={setNames}
-                                  items={names}
+                                  setItems={handleFieldChanges}
                               />
 
                               <FieldInput
                                   title="Email"
-                                  item={emails[index] ? emails[index] : ""}
+                                  field="email"
+                                  item={instructor.email}
                                   index={index}
-                                  setItems={setEmails}
-                                  items={emails}
+                                  setItems={handleFieldChanges}
                               />
 
+                              <FormControlLabel
+                                  control={
+                                      <Checkbox
+                                          checked={instructor.isProf}
+                                          onChange={(e) => {
+                                            handleFieldChanges("isProf", e.target.checked, index)
+                                          }}
+                                      />
+                                  }
+                                  label="Professor"
+                                  labelPlacement="start"
+                                  sx={{ padding: 0, margin: 0 }} //I can't remove the left space for some reason
+                              />
                           </div>
 
                           <MinusButton
