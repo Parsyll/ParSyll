@@ -74,11 +74,17 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
 
     const handleGetSyllabus = (e) => {
         e.preventDefault();
-        parseApp.get(`/pdfs/${uid}/${course.syllabus}`).then((res) => {
-            console.log(res.data);
-            setViewPdf(true);
-            setPdfFile(res.data);
-        });
+        parseApp
+            .get(`/pdfs/${uid}/${course.syllabus}`, {
+                headers: { "Content-Type": "application/pdf" },
+                responseType: "blob",
+            })
+            .then((res) => {
+                const blob = new Blob([res.data], {type: res.headers['content-type']});
+                blob.name = res.headers['content-disposition'];
+                const url = URL.createObjectURL(blob);
+                window.open(url);
+            });
     };
 
     const handleCloseModal = (e) => {
@@ -196,13 +202,8 @@ const CourseDisplay = ({ course, hasBeenEdited, setHasBeenEdited }) => {
                         >
                             Download ICS
                         </Button>
-                        <Button variant="outlined">
-                            <a
-                                href={`http://localhost:8000/pdfs/${uid}/${course.syllabus}`}
-                                download="myFile"
-                            >
-                                Download File
-                            </a>
+                        <Button variant="outlined" onClick={handleGetSyllabus}>
+                            View Syllabus
                         </Button>
                         <Button variant="outlined" onClick={handleEditCourse}>
                             Edit Course

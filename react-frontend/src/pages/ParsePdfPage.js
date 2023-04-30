@@ -33,7 +33,8 @@ export const ParsePdfPage = () => {
   };
 
   return (
-    <div className='flex items-center justify-center flex-col'>
+    <div className="flex items-center 
+    justify-center flex-col">
         <h1 className=" text-7xl m-8 font-extrabold tracking-wide bg-gradient-to-r bg-clip-text  text-transparent 
             from-indigo-500 via-green-500 to-indigo-500
             animate-text"> 
