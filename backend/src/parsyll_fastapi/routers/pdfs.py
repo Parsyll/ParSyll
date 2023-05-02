@@ -135,15 +135,9 @@ async def user_parse_file( course_id: str, syllabus_id: str, file: UploadFile, u
     if not user_doc.exists:
         raise HTTPException(404, detail=f"User {uid} does not exist")
 
-    course = Course(name=parser.course.name, 
-                    instructors=parser.course.instructors,
-                    syllabus=syllabus_id,
-                    # office_hrs=parser.course.office_hrs,
-                    ics_file = parser.course.ics_file,
-                    class_times = parser.course.class_times,
-                    id=course_id,
-                    miscs = parser.course.miscs,
-                    )
+
+    course = Course(id=course_id, **parser.course.dict())
+    course.syllabus = syllabus_id
 
     # user_doc_ref.collection(u'courses').add(course.__dict__)
     course = course_dao.update(uid=uid, course_id=course_id, course=course)
