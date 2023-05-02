@@ -23,7 +23,7 @@ const CoursePage = () => {
 
     const getUserInformation = async () => {
         let res = await parseApp
-        .get("http://localhost:8000/users/get_current_user")
+        .get("/users/get_current_user")
         .then(res => {
             let userData = res.data
             setCourses(userData.courses)
