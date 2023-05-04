@@ -13,6 +13,15 @@ Our main functionalities:
 
 ## Run Locally
 **NOTICE: YOU MUST HAVE YOUR OWN ENV FILE TO RUN THE PROJECT**
+* Env in /react-frontend should include:
+  * REACT_APP_PARSEAPP_URL (URL of backend)
+* Env in /backend/src/parsyll_fastapi should include:
+  * JWT_SECRET (Secret to sign JWT Tokens)
+  * JWT_ALGORITHM (JWT signing algorithm)
+  * FIREBASE_SERVICE_ACCOUNT (Firebase account to use firebase SDK)
+  * FIREBASE_CONFIG (For Firebase SDK)
+  * OPENAI_API_KEY (OpenAI key to use OpenAIs developer API)
+ 
 ### Two ways of running parsyll locally:
 * (**Docker**) Run `docker-compose up && docker-compose rm -fsv` where the docker-compose file is located in the main directory.
 * (**Locally**) 
